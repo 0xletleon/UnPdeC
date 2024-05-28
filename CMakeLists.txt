@@ -12,7 +12,7 @@ endif()
 project ("UnPdeC")
 
 # 将源代码添加到此项目的可执行文件。
-add_executable (UnPdeC "UnPdeC.cpp" "UnPdeC.h")
+add_executable (UnPdeC "UnPdeC.cpp" "UnPdeC.h" "FindPde.cpp" "FindPde.h" "PdeKey.h" "PdeKey.cpp")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET UnPdeC PROPERTY CXX_STANDARD 20)
