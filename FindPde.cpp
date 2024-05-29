@@ -1,26 +1,26 @@
 #include "FindPde.h"
-namespace UnpdeC {
-	using std::vector;
-	using std::string;
-	using std::cout;
-	using std::endl;
-	using std::cin;
 
-	/// <summary>
-	/// 查找当前目录下所有的.pde文件
-	/// </summary>
-	/// <returns> .pde文件名列表 </returns>
-	vector<PdeNames> FindPde::Get() {
-		// Pde数组
-		vector<PdeNames> PdeArr;
+namespace UnPdeC {
+
+	vector<TNowPde> FindPde::Get() {
+		// Pde文件名数组
+		vector<TNowPde> PdeArr;
 		string currentDirectory = std::filesystem::current_path().string();
 		for (const auto& entry : std::filesystem::directory_iterator(currentDirectory)) {
 			if (entry.is_regular_file() && entry.path().extension() == ".pde") {
-				PdeNames NowPde;
-				NowPde.FullName = entry.path().filename().string();
-				NowPde.Name = NowPde.FullName.substr(0, NowPde.FullName.find_last_of("."));
-				cout << " ！找到.pde文件：" << NowPde.FullName << endl;
-				PdeArr.push_back(NowPde);
+				TNowPde nowPde;
+				// 从path对象获取文件名，并去除后缀名
+				string fileName = entry.path().filename().string();
+				fileName = fileName.substr(0, fileName.find_last_of('.'));
+				nowPde.Name = fileName.substr(0, fileName.find_last_of('.'));
+
+				// 获取当前文件的大小
+				nowPde.Size = std::filesystem::file_size(entry.path());
+
+				cout << " ！找到.pde文件：" << nowPde.Name << endl;
+				cout << " ！文件大小：" << nowPde.Size << "字节" << endl;
+
+				PdeArr.push_back(nowPde);
 			}
 		}
 

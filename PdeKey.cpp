@@ -1,12 +1,8 @@
 // PdeKey.cpp
 #include "PdeKey.h"
 
-namespace UnpdeC {
-	using std::vector;
-	using std::cout;
-	using std::endl;
-
-	vector<unsigned char> PdeKey::PDEKEY() {
+namespace UnPdeC {
+	void PdeKey::Get() {
 		// 初始化为0
 		vector<unsigned char> KeyByte(0x1000, 0);
 
@@ -23,7 +19,7 @@ namespace UnpdeC {
 		}
 
 		cout << " √PDEKEY计算完成" << endl;
-		return KeyByte;
+		// 给全局变量
+		GV::PdeKey = KeyByte;
 	}
-
-} // namespace UnpdeC
+}

@@ -1,8 +1,12 @@
-﻿// UnPdeC.h: 标准系统包含文件的包含文件
-// 或项目特定的包含文件。
+﻿#ifndef UNPDEC_H
+#define UNPDEC_H
 
-#pragma once
+#include "Common.h"
+#include "FindPde.h"
+#include "PdeKey.h"
+#include "GV.h"
+#include "PdeTool.h"
 
-#include <iostream>
+using namespace UnPdeC;
 
-// TODO: 在此处引用程序需要的其他标头。
+#endif // !UNPDEC_H

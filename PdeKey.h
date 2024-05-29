@@ -2,17 +2,23 @@
 #ifndef PDEKEY_H
 #define PDEKEY_H
 
-#include <iostream>
-#include <vector>
+#include "Common.h"
+#include "GV.h"
 
-namespace UnpdeC {
-	using std::vector;
+namespace UnPdeC {
 
+	/// <summary>
+	/// PdeKey¿‡
+	/// </summary>
 	class PdeKey {
 	public:
-		static vector<unsigned char> PDEKEY();
+		/// <summary>
+		/// ªÒ»°PdeKey
+		/// </summary>
+		/// <returns></returns>
+		static void Get();
 	};
 
-} // namespace UnpdeC
+} // namespace UnPdeC
 
 #endif // PDEKEY_H
