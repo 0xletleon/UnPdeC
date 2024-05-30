@@ -17,8 +17,12 @@ namespace UnPdeC {
 				// 获取当前文件的大小
 				nowPde.Size = std::filesystem::file_size(entry.path());
 
+				// 获取当前pde文件的路径
+				nowPde.Path = entry.path().string();
+
 				cout << " ！找到.pde文件：" << nowPde.Name << endl;
 				cout << " ！文件大小：" << nowPde.Size << "字节" << endl;
+				cout << " ！文件路径：" << nowPde.Path << endl;
 
 				PdeArr.push_back(nowPde);
 			}

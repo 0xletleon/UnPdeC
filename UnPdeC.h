@@ -6,6 +6,7 @@
 #include "PdeKey.h"
 #include "GV.h"
 #include "PdeTool.h"
+#include "Unpack.h"
 
 using namespace UnPdeC;
 

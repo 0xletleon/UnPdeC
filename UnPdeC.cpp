@@ -10,8 +10,14 @@ int main() {
 		cout << " ！正在解码：" << pde.Name << endl;
 		// 设置当前解密的文件名
 		GV::NowPde = pde;
+
 		// 初始化PDETool
 		PdeTool::Init();
+
+		// 开始解密目录
+		// 创建目录结构
+		DirStr TryDir = { pde.Name + "/", pde.Name + "/" };
+		Unpack::Try(0x1000, 0x1000, TryDir, false);
 	}
 
 	//auto keyByte = PdeKey::Get();
