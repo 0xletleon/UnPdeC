@@ -10,6 +10,10 @@
 #include <cstdint>
 #include <fstream>
 #include <regex>
+#include <stdexcept>
+#include <iomanip>
+#include <cstring>
+#include <algorithm>
 
 using std::string;
 using std::vector;

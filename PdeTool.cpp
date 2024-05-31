@@ -36,6 +36,7 @@ namespace UnPdeC {
 			std::copy(data.begin() + start, data.begin() + start + length, BlockArr[i].begin());
 		}
 
+		// 返回的偏移信息数组
 		std::vector<HexOffsetInfo> OffsetInfoArr;
 
 		// 循环获取偏移,大小,类型,文件名
@@ -120,8 +121,9 @@ namespace UnPdeC {
 				continue;
 			}
 
+			// todo: 读取标识
 			//// 读取标识
-			std::vector<uint8_t> TagBytes(Block.end() - 0x10, Block.end() - 0xc);
+			//std::vector<uint8_t> TagBytes(Block.end() - 0x10, Block.end() - 0xc);
 
 
 			//uint32_t TagOffSet = BlockOffset + ((bi + 1) * 0x80) - 0xC;
@@ -129,7 +131,7 @@ namespace UnPdeC {
 			//// 打印 ThisTag.Byte
 
 			//// 添加到OffsetInfoArr
-			//OffsetInfoArr.push_back(ThisInfo);
+			OffsetInfoArr.push_back(ThisInfo);
 		}
 
 		return OffsetInfoArr;

@@ -57,6 +57,44 @@ namespace UnPdeC {
 	/// <param name="Dir">目录</param>
 	/// <param name="BlockOffset">数据块在PDE文件中的偏移值</param>
 	void Unpack::Save(const vector<HexOffsetInfo>& DirOrFileArr, const DirStr& Dir, uint32_t BlockOffset) {
+
+		for (const HexOffsetInfo DirOrFile : DirOrFileArr) {
+			if (DirOrFile.Type == 1) { // 文件
+				// 记录文件偏移信息
+				//RecOffsetLog(blockOffset, DirOrFile.Offset, 0, DirOrFile.Size, DirOrFile.Name, DirOrFile.Type, dir.NowDir);
+
+				// 获取指定偏移的字节数据
+				GetOffsetStr TempFileByte = PdeTool::GetByteOfPde(DirOrFile.Offset, DirOrFile.Size);
+				// 校验数据
+				if (TempFileByte.Size != DirOrFile.Size) break;
+
+				// 解密数据
+				std::vector<unsigned char> DeTempFileByte = PdeTool::DeFileOrBlock(TempFileByte.Byte);
+
+				// 判断是否是空文件
+				if (DeTempFileByte.empty() || DirOrFile.Name.empty()) break;
+
+				// 保存文件
+				std::string savePath = Dir.NowDir + DirOrFile.Name;
+				if (!std::filesystem::exists(savePath)) {
+					// 保存文件
+					std::ofstream outFile(savePath, std::ios::binary);
+					outFile.write(reinterpret_cast<const char*>(DeTempFileByte.data()), DeTempFileByte.size());
+					outFile.close();
+				}
+			} else if (DirOrFile.Type == 2) { // 目录
+				// 记录目录偏移信息
+				//RecOffsetLog(blockOffset, DirOrFile.Offset, 0, DirOrFile.Size, DirOrFile.Name, DirOrFile.Type, dir.NowDir);
+
+				// 创建目录
+				std::filesystem::create_directory(dir.NowDir + DirOrFile.Name + "/");
+				// 递归解密
+				// Try(DirOrFile.Offset, DirOrFile.Size, new DirStr(...));
+			} else {
+				std::cout << "其他类型: " << DirOrFile.Name << std::endl;
+			}
+		}
+
 	}
 
 }
