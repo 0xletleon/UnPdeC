@@ -1,5 +1,5 @@
-﻿#ifndef UNPDEC_H
-#define UNPDEC_H
+#ifndef MAIN_H
+#define MAIN_H
 
 #include "Common.h"
 #include "FindPde.h"
@@ -7,7 +7,8 @@
 #include "GV.h"
 #include "PdeTool.h"
 #include "Unpack.h"
+#include "FinalUnpack.h"
 
 using namespace UnPdeC;
 
-#endif // !UNPDEC_H
+#endif // !MAIN_H

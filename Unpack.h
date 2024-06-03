@@ -4,18 +4,21 @@
 
 #include "Common.h"
 #include "PdeTool.h"
-
-//#include <vector>
-//#include <string>
-//#include <iostream>
-//#include <filesystem>
-//#include <optional>
+#include "FinalUnpack.h"
 
 namespace UnPdeC {
 	class Unpack {
 	private:
-		// 暂时不参与二次解密的文件
+		/// <summary>
+		/// 暂时不参与二次解密的文件
+		/// </summary>
 		static const vector<string> PassArr;
+		/// <summary>
+		/// 查找后缀
+		/// </summary>
+		/// <param name="target"> 文件名 </param>
+		/// <returns> 是否存在后缀 </returns>
+		static bool FindSuffix(const std::string& target);
 
 	public:
 		/// <summary>
@@ -36,6 +39,6 @@ namespace UnPdeC {
 		static void Save(const vector<HexOffsetInfo>& DirOrFileArr, const DirStr& Dir, uint32_t BlockOffset);
 	};
 
-} // namespace Unpde
+} // namespace UnPdeC
 
 #endif // UNPACK_H

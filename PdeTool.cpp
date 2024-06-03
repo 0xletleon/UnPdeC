@@ -26,22 +26,30 @@ namespace UnPdeC {
 	std::vector<HexOffsetInfo> PdeTool::GetOffsetInfo(const std::vector<unsigned char>& data, uint32_t BlockOffset) {
 		const int BlockSize = 128;
 		size_t BlockCount = data.size() / BlockSize;
-		std::vector<std::vector<uint8_t>> BlockArr(BlockCount);
+		std::vector<std::vector<char>> BlockArr(BlockCount);
 
 		// 循环分块
 		for (int i = 0; i < BlockCount; ++i) {
 			int start = i * BlockSize;
-			int length = std::min(BlockSize, static_cast<int>(data.size()) - start);
+			int length = min(BlockSize, static_cast<int>(data.size()) - start);
 			BlockArr[i].resize(length);
 			std::copy(data.begin() + start, data.begin() + start + length, BlockArr[i].begin());
 		}
+
+		/*for (int i = 0; i < BlockCount; ++i) {
+			int start = i * BlockSize;
+			int length = std::min(BlockSize, static_cast<int>(data.size()) - start);
+			BlockArr[i].resize(length);
+			std::copy(data.begin() + start, data.begin() + start + length, BlockArr[i].begin());
+		}*/
+
 
 		// 返回的偏移信息数组
 		std::vector<HexOffsetInfo> OffsetInfoArr;
 
 		// 循环获取偏移,大小,类型,文件名
 		for (int bi = 0; bi < BlockCount; ++bi) {
-			const std::vector<uint8_t>& Block = BlockArr[bi];
+			const std::vector<char>& Block = BlockArr[bi];
 			HexOffsetInfo ThisInfo{ 0, "", 0, 0, 0 };
 
 			// 读取类型 1==文件，2==目录

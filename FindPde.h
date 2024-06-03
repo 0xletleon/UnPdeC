@@ -3,6 +3,7 @@
 #define FINDPDE_H
 
 #include "Common.h"
+#include <windows.h>
 
 namespace UnPdeC {
 
