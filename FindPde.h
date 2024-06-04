@@ -7,14 +7,6 @@
 
 namespace UnPdeC {
 
-	///// <summary>
-	///// 当前Pde文件信息
-	///// </summary>
-	//struct TNowPde {
-	//	string Name;
-	//	long Size;
-	//};
-
 	/// <summary>
 	/// 查找PDE文件
 	/// </summary>

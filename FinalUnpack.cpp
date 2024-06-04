@@ -43,7 +43,14 @@ namespace UnPdeC {
 			}
 
 			// 执行二解
-			return FinalDecrypt2(EncryptedData, DecryptedSize);
+			std::vector<uint8_t> DecryptedData;
+			DecryptedData = FinalDecrypt2(EncryptedData, DecryptedSize);
+
+			// 删除前 8 个字节
+			DecryptedData.erase(DecryptedData.begin(), DecryptedData.begin() + std::min(static_cast<size_t>(8), DecryptedData.size()));
+			//EncryptedData.erase(DecryptedData.begin(), DecryptedData.begin() + 8);
+			return DecryptedData;
+
 		} else { // 不需要二次解密
 			if (DeTempFileByte.size() <= 0x29) {
 				throw std::runtime_error("初次解密后的字节数组长度不足，无法删除前0x29个字节");
@@ -89,7 +96,7 @@ namespace UnPdeC {
 				}
 				ECX = UFunc::Get4Byte(encryptedData, ESI);
 
-				if (((EAX & 0xFF) & (EBX & 0xFF)) == 0) break;
+				if (((EBX & 0xFF) & (EAX & 0xFF)) == 0) break;
 
 				EAX >>= 1;
 				ESP58 = EAX;
@@ -99,19 +106,20 @@ namespace UnPdeC {
 						EDX = ECX;
 						if (((EBX & 0xFF) & (ECX & 0xFF)) != 0) {
 							EDX &= 0X7F;
-							EDX = ECX;
-							if ((EDX & 0xFF) == 0x3) {
+							if ((EDX & 0xFF) == 3) {
+								EDX = ECX;// EDX & 0x7F 之后 判断，之后来到这里在将ECX赋值给EDX
 								ECX >>= 7;
 								ECX &= 0xFF;
 								EDX >>= 0xF;
 								ECX += 0x3;
 								ESI += 0x4;
-								// -> 99
+								// -> 99 ok
 							} else {
+								EDX = ECX;// ！
 								ECX >>= 2;
 								EDX >>= 7;
 								ECX &= 0x1F;
-								EDX &= 0x1FFF;
+								EDX &= 0x1FFFF;
 								ECX += 2;
 								ESI += 3;
 								// -> 99
@@ -123,7 +131,7 @@ namespace UnPdeC {
 							EDX &= 0x3FF;
 							ECX += 0x3;
 							ESI += 0x2;
-							// -> 99
+							// -> 99 ok
 						}
 					} else {
 						ECX >>= 2;
@@ -139,17 +147,25 @@ namespace UnPdeC {
 					EDX = ECX;
 					ECX = 3;
 					ESI += EBX;
-					// -> 99 
+					// -> 99 ok
 				}
 
 				// 99
+			/*	cout << "!EBP:" << EBP << endl;
+				if (EBP == 0x7a4) {
+					cout << "找到0x79f" << endl;
+				}*/
 				EDI = EBP;
 				EDI -= EDX;
 				EBX = 0;
 				EDX = EBP;
+
 				EDI -= EBP;
 				do {
-					EAX = UFunc::Get4Byte(decryptedData, static_cast<size_t>(EDI + EDX));
+					uint32_t EDIX = EDI + EDX;
+					EAX = UFunc::Get4Byte(decryptedData, EDIX);
+					//cout << "EDI:" << std::hex << EDI << " EDX:" << std::hex << EDX << std::hex << " EDIX:" << EDIX << endl;
+					//cout << "-> EAX:" << std::hex << EAX << endl;
 					// 根据 EDX 下标 将 EAX 写入 decryptedData
 					memcpy(decryptedData.data() + EDX, &EAX, sizeof(EAX));
 					EBX += 3;
@@ -172,7 +188,8 @@ namespace UnPdeC {
 			ECX = ByteLimt[ECX];
 			EBP += ECX;// 似乎是错的！
 			ESI += ECX;
-			EAX >>= (ECX & 0xFF);
+			//EAX >>= (ECX & 0xFF);
+			EAX >>= ECX;
 		}
 
 		cout << "到达0x80000000" << endl;

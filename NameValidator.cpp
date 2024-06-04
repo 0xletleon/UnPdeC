@@ -42,4 +42,4 @@ namespace UnPdeC {
 		// 检查文件名或目录名中的每个字符是否有效
 		return std::all_of(name.begin(), name.end(), IsValidChar);
 	}
-} // namespace Unpde
+} // namespace UnPdeC

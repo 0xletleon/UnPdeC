@@ -34,6 +34,6 @@ namespace UnPdeC {
 		static bool IsValidName(const std::string& name, bool isDirectory);
 	};
 
-} // namespace Unpde
+} // namespace UnPdeC
 
 #endif // NAMEVALIDATOR_H

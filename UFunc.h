@@ -16,7 +16,7 @@ namespace UnPdeC {
 		/// <param name="data"> 数据</param>
 		/// <param name="offset"> 偏移</param>
 		/// <returns> 4字节数据</returns>
-		static std::uint32_t Get4Byte(const std::vector<std::uint8_t>& data, std::size_t offset);
+		static std::uint32_t Get4Byte(const std::vector<std::uint8_t>& data, std::uint32_t offset);
 	};
 }
 #endif // UFUNC_H

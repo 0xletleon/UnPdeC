@@ -50,7 +50,6 @@ namespace UnPdeC {
 			// 读取并保存文件到硬盘
 			Save(DeTryByteArr, Dir, Offset);
 		}
-
 	}
 
 	/// <summary>
@@ -131,7 +130,5 @@ namespace UnPdeC {
 				std::cout << "其他类型: " << DirOrFile.Name << std::endl;
 			}
 		}
-
 	}
-
 }

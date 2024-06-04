@@ -7,23 +7,16 @@
 #include "PdeKey.h"
 #include "NameValidator.h"
 
-// 假设DataType和PdeNames等类型已经在适当的地方定义
 namespace UnPdeC {
 
 	/// <summary>
 	/// PDE工具类
 	/// </summary>
 	class PdeTool {
-		//private:
-			//static uint32_t PDESIZE;
-			//static std::vector<unsigned char> PDEKEY;
-			//static PdeNames THISPDENAME;
-
 	public:
-		// 提供对静态成员的访问器函数，如果需要的话
-		//static PdeNames ThisPdeName();
-
-		// 初始化PDE工具类
+		/// <summary>
+		/// 初始化PDE工具类
+		/// </summary>
 		static void Init();
 
 		/// <summary>
@@ -48,18 +41,8 @@ namespace UnPdeC {
 		/// <param name="OffsetArr">文件或数据块的偏移信息数组</param>
 		/// <returns>解密后的字节数据</returns>
 		static std::vector<unsigned char> DeFileOrBlock(const std::vector<unsigned char>& OffsetArr);
-
-		// 其他公共成员函数和变量...
-
-		// 私有构造函数，以防止实例化
-		//PdeTool() = delete;
 	};
 
-	// 在这里声明静态成员变量的定义（实现）将在.cpp文件中
-   /* extern uint32_t PdeTool::PDESIZE;
-	extern std::vector<unsigned char> PdeTool::PDEKEY;
-	extern PdeNames PdeTool::THISPDENAME;*/
-
-} // namespace Unpde
+} // namespace UnPdeC
 
 #endif // PDETOOL_H

@@ -15,7 +15,6 @@ namespace UnPdeC {
 		/// <summary>
 		/// ªÒ»°PdeKey
 		/// </summary>
-		/// <returns></returns>
 		static void Get();
 	};
 

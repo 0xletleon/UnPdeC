@@ -4,16 +4,15 @@ int main() {
 	cout << "Hello CMake." << endl;
 
 	//try {
-
-	//	 //文件名
-	//	string finaName = "7CF2000_1C590_specialcube_b_sustainflame.dds.cache";
+	//	//文件名 155
+	//	string finaName = "loadingmap_level_train.dds.cache";
 	//	// 获取程序所在目录并拼接文件名
-	//	std::filesystem::path file_path = std::filesystem::current_path() / finaName;
+	//	std::filesystem::path file_path = std::filesystem::current_path();
 
 	//	// 打开文件
-	//	std::ifstream file(file_path, std::ios::binary);
+	//	std::ifstream file(file_path / "TestFile" / finaName, std::ios::binary);
 	//	if (!file) {
-	//		std::cerr << "无法打开文件: " << file_path << std::endl;
+	//		std::cerr << "无法打开文件: " << file_path / "TestFile" / finaName << std::endl;
 	//		return 1;
 	//	}
 
@@ -26,7 +25,7 @@ int main() {
 	//	std::vector<uint8_t> xaa = FinalUnpack::PreDecrypt(encrypted_data, finaName);
 	//	cout << "xaa size: " << xaa.size() << endl;
 	//	// 将 xaa 写入程序所在目录
-	//	std::ofstream out(finaName + ".bin", std::ios::binary);
+	//	std::ofstream out("TestFile/" + finaName + ".bin", std::ios::binary);
 	//	out.write((char*)&xaa[0], xaa.size());
 	//	out.close();
 	//} catch (const std::filesystem::filesystem_error& e) {
@@ -54,6 +53,6 @@ int main() {
 		Unpack::Try(0x1000, 0x1000, TryDir, false);
 	}
 
-	cout << "解密完成！" << endl;
+	//cout << "解密完成！" << endl;
 	return 0;
 }

@@ -36,14 +36,6 @@ namespace UnPdeC {
 			std::copy(data.begin() + start, data.begin() + start + length, BlockArr[i].begin());
 		}
 
-		/*for (int i = 0; i < BlockCount; ++i) {
-			int start = i * BlockSize;
-			int length = std::min(BlockSize, static_cast<int>(data.size()) - start);
-			BlockArr[i].resize(length);
-			std::copy(data.begin() + start, data.begin() + start + length, BlockArr[i].begin());
-		}*/
-
-
 		// 返回的偏移信息数组
 		std::vector<HexOffsetInfo> OffsetInfoArr;
 
@@ -97,14 +89,7 @@ namespace UnPdeC {
 			cout << "文件名: " << ThisInfo.Name << " 大小: " << ThisInfo.Size << " 类型: " << (ThisInfo.Type == 1 ? "文件" : "目录") << endl;
 
 
-			//// 读取原始偏移值
-			//std::vector<uint8_t> ThisOffset(4);
-			//std::copy(Block.end() - 8, Block.end() - 4, ThisOffset.begin());
-			//ThisInfo.OOffset = static_cast<uint32_t>(ThisOffset[0]) |
-			//	(static_cast<uint32_t>(ThisOffset[1]) << 8) |
-			//	(static_cast<uint32_t>(ThisOffset[2]) << 16) |
-			//	(static_cast<uint32_t>(ThisOffset[3]) << 24);
-
+			// 读取原始偏移值
 			// 使用C++17的构造器直接初始化最后4个字节
 			std::vector<uint8_t> OOffsetBytes(Block.end() - 8, Block.end() - 4);
 			union {
@@ -132,8 +117,6 @@ namespace UnPdeC {
 			// todo: 读取标识
 			//// 读取标识
 			//std::vector<uint8_t> TagBytes(Block.end() - 0x10, Block.end() - 0xc);
-
-
 			//uint32_t TagOffSet = BlockOffset + ((bi + 1) * 0x80) - 0xC;
 			//GetOffsetStr ThisTag = GetByteOfPde(TagOffSet, 4);
 			//// 打印 ThisTag.Byte
@@ -204,23 +187,7 @@ namespace UnPdeC {
 			TempDEArr[i] = GV::PdeKey[KeyIndex] ^ OffsetArr[i];
 		}
 
-		// 密钥索引
-		//size_t KeyIndex = 0;
-
-		// 循环处理每个字节
-		//for (size_t i = 0; i < OffsetArr.size(); ++i) {
-		//	// 异或操作
-		//	uint8_t XorVal = GV::PdeKey[KeyIndex] ^ OffsetArr[i];
-		//	TempDEArr[i] = XorVal;
-
-		//	// 如果KeyIndex越界，则重新开始
-		//	if (++KeyIndex >= KeyLength) {
-		//		KeyIndex = 0;
-		//	}
-		//}
-
 		// 完成解密数据块
 		return TempDEArr;
 	}
-
 }
