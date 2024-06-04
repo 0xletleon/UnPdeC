@@ -1,133 +1,133 @@
-#include "Unpack.h"
+ï»¿#include "Unpack.h"
 
 namespace UnPdeC {
-	// ÔİÊ±²»²ÎÓë¶ş´Î½âÃÜµÄÎÄ¼ş
+	// æš‚æ—¶ä¸å‚ä¸äºŒæ¬¡è§£å¯†çš„æ–‡ä»¶
 	const vector<string> Unpack::PassArr = { ".fsb", ".swf", ".ttf", "version", "language" };
 
 	bool Unpack::FindSuffix(const std::string& target) {
-		// ½« DirOrFile.Name ×ª»»³ÉĞ¡Ğ´
+		// å°† DirOrFile.Name è½¬æ¢æˆå°å†™
 		string NameLower = target;
 		std::transform(NameLower.begin(), NameLower.end(), NameLower.begin(), ::tolower);
 
-		// ²éÕÒ
+		// æŸ¥æ‰¾
 		return std::any_of(PassArr.begin(), PassArr.end(), [&NameLower](const std::string& str) {
 			return NameLower.find(str) != std::string::npos;
 			});
 	}
 
 	/// <summary>
-	/// ³¢ÊÔ½âÃÜ
+	/// å°è¯•è§£å¯†
 	/// </summary>
-	/// <param name="Offset">Êı¾İ¿éÔÚPDEÎÄ¼şÖĞµÄÆ«ÒÆÖµ</param>
-	/// <param name="Size">Êı¾İ¿é´óĞ¡</param>
-	/// <param name="Dir">Ä¿Â¼</param>
-	/// <param name="Is170">ÊÇ·ñÎª170±íÊı¾İ</param>
+	/// <param name="Offset">æ•°æ®å—åœ¨PDEæ–‡ä»¶ä¸­çš„åç§»å€¼</param>
+	/// <param name="Size">æ•°æ®å—å¤§å°</param>
+	/// <param name="Dir">ç›®å½•</param>
+	/// <param name="Is170">æ˜¯å¦ä¸º170è¡¨æ•°æ®</param>
 	void Unpack::Try(uint32_t Offset, uint32_t Size, const DirStr& Dir, bool Is170) {
-		std::cout << " £¡ÕıÔÚ³¢ÊÔ½âÃÜ: " << Dir.NowDir << std::endl;
+		std::cout << " ï¼æ­£åœ¨å°è¯•è§£å¯†: " << Dir.NowDir << std::endl;
 
-		//¶¨Òå±äÁ¿
+		//å®šä¹‰å˜é‡
 		GetOffsetStr TryByte;
 		vector<uint8_t> DeTryByte;
 
 		try {
-			// ¶ÁÈ¡Êı¾İ
+			// è¯»å–æ•°æ®
 			TryByte = PdeTool::GetByteOfPde(Offset, Size);
-			// Ğ£ÑéÊı¾İ
+			// æ ¡éªŒæ•°æ®
 			//if (TryByte.Size != Size) return;
-			// ½âÃÜÊı¾İ¿é -> Í¬Ê±Éú³ÉÒ»¸ö¹©µ÷ÊÔÊ±Ê¹ÓÃµÄPDEÎÄ¼ş
+			// è§£å¯†æ•°æ®å— -> åŒæ—¶ç”Ÿæˆä¸€ä¸ªä¾›è°ƒè¯•æ—¶ä½¿ç”¨çš„PDEæ–‡ä»¶
 			DeTryByte = PdeTool::DeFileOrBlock(TryByte.Byte);
 		} catch (const std::exception& e) {
-			std::cout << " £¡¶ÁÈ¡Êı¾İÊ§°Ü: " << e.what() << std::endl;
+			std::cout << " ï¼è¯»å–æ•°æ®å¤±è´¥: " << e.what() << std::endl;
 			return;
 		}
 
-		// todo:±£´æÊı¾İµ½DebugPde£¬µ÷ÊÔÊ±Ê¹ÓÃ
+		// todo:ä¿å­˜æ•°æ®åˆ°DebugPdeï¼Œè°ƒè¯•æ—¶ä½¿ç”¨
 
-		// ·Ç170±íÊı¾İ
+		// é170è¡¨æ•°æ®
 		if (!Is170) {
-			// »ñÈ¡ÎÄ¼ş»òÎÄ¼ş¼ĞÆ«ÒÆĞÅÏ¢
+			// è·å–æ–‡ä»¶æˆ–æ–‡ä»¶å¤¹åç§»ä¿¡æ¯
 			std::vector<HexOffsetInfo> DeTryByteArr = PdeTool::GetOffsetInfo(DeTryByte, Offset);
-			// ¶ÁÈ¡²¢±£´æÎÄ¼şµ½Ó²ÅÌ
+			// è¯»å–å¹¶ä¿å­˜æ–‡ä»¶åˆ°ç¡¬ç›˜
 			Save(DeTryByteArr, Dir, Offset);
 		}
 	}
 
 	/// <summary>
-	/// ´´½¨Ä¿Â¼»òÎÄ¼ş
+	/// åˆ›å»ºç›®å½•æˆ–æ–‡ä»¶
 	/// </summary>
-	/// <param name="DirOrFileArr">ÎÄ¼ş»òÄ¿Â¼Êı×é</param>
-	/// <param name="Dir">Ä¿Â¼</param>
-	/// <param name="BlockOffset">Êı¾İ¿éÔÚPDEÎÄ¼şÖĞµÄÆ«ÒÆÖµ</param>
+	/// <param name="DirOrFileArr">æ–‡ä»¶æˆ–ç›®å½•æ•°ç»„</param>
+	/// <param name="Dir">ç›®å½•</param>
+	/// <param name="BlockOffset">æ•°æ®å—åœ¨PDEæ–‡ä»¶ä¸­çš„åç§»å€¼</param>
 	void Unpack::Save(const vector<HexOffsetInfo>& DirOrFileArr, const DirStr& Dir, uint32_t BlockOffset) {
 
 		for (const HexOffsetInfo DirOrFile : DirOrFileArr) {
-			if (DirOrFile.Type == 1) { // ÎÄ¼ş
-				// ¼ÇÂ¼ÎÄ¼şÆ«ÒÆĞÅÏ¢
+			if (DirOrFile.Type == 1) { // æ–‡ä»¶
+				// è®°å½•æ–‡ä»¶åç§»ä¿¡æ¯
 				//RecOffsetLog(blockOffset, DirOrFile.Offset, 0, DirOrFile.Size, DirOrFile.Name, DirOrFile.Type, dir.NowDir);
 
-				// »ñÈ¡Ö¸¶¨Æ«ÒÆµÄ×Ö½ÚÊı¾İ
+				// è·å–æŒ‡å®šåç§»çš„å­—èŠ‚æ•°æ®
 				GetOffsetStr TempFileByte = PdeTool::GetByteOfPde(DirOrFile.Offset, DirOrFile.Size);
-				// Ğ£ÑéÊı¾İ
+				// æ ¡éªŒæ•°æ®
 				if (TempFileByte.Size != DirOrFile.Size) break;
 
-				// ½âÃÜÊı¾İ
+				// è§£å¯†æ•°æ®
 				std::vector<unsigned char> DeTempFileByte = PdeTool::DeFileOrBlock(TempFileByte.Byte);
 
-				// ÅĞ¶ÏÊÇ·ñÊÇ¿ÕÎÄ¼ş
+				// åˆ¤æ–­æ˜¯å¦æ˜¯ç©ºæ–‡ä»¶
 				if (DeTempFileByte.empty() || DirOrFile.Name.empty()) break;
 
-				// todo: ±£´æÊı¾İµ½DebugPde£¬µ÷ÊÔÊ±Ê¹ÓÃ
+				// todo: ä¿å­˜æ•°æ®åˆ°DebugPdeï¼Œè°ƒè¯•æ—¶ä½¿ç”¨
 
-				// ¶ş´Î½âÃÜ
+				// äºŒæ¬¡è§£å¯†
 
-				// Ìø¹ı¶ş´Î½âÃÜ
+				// è·³è¿‡äºŒæ¬¡è§£å¯†
 				if (FindSuffix(DirOrFile.Name)) {
-					// ±£´æÎÄ¼ş
+					// ä¿å­˜æ–‡ä»¶
 					std::string savePath = Dir.NowDir + DirOrFile.Name;
 					if (!std::filesystem::exists(savePath)) {
-						// ±£´æÎÄ¼ş
+						// ä¿å­˜æ–‡ä»¶
 						std::ofstream outFile(savePath, std::ios::binary);
 						outFile.write(reinterpret_cast<const char*>(DeTempFileByte.data()), DeTempFileByte.size());
 						outFile.close();
 					}
 				} else {
-					// ¶ş´Î½âÃÜ
+					// äºŒæ¬¡è§£å¯†
 					std::vector<unsigned char> Decryption2;
 					string fixName = DirOrFile.Name;
 					try {
 						Decryption2 = FinalUnpack::PreDecrypt(DeTempFileByte, DirOrFile.Name);
-						// È¥³ı DirOrFile.Name ÖĞµÄ .cache
+						// å»é™¤ DirOrFile.Name ä¸­çš„ .cache
 						fixName = DirOrFile.Name.substr(0, DirOrFile.Name.find(".cache"));
 					} catch (const std::exception&) {
-						cout << " £¡¶ş´Î½âÃÜÊ§°Ü: " << DirOrFile.Name << endl;
+						cout << " ï¼äºŒæ¬¡è§£å¯†å¤±è´¥: " << DirOrFile.Name << endl;
 						Decryption2 = DeTempFileByte;
 					}
 
-					// ±£´æÎÄ¼ş
+					// ä¿å­˜æ–‡ä»¶
 					std::string savePath = Dir.NowDir + fixName;
 					if (!std::filesystem::exists(savePath)) {
-						// ±£´æÎÄ¼ş
+						// ä¿å­˜æ–‡ä»¶
 						std::ofstream outFile(savePath, std::ios::binary);
 						outFile.write(reinterpret_cast<const char*>(Decryption2.data()), Decryption2.size());
 						outFile.close();
 					}
 				}
-			} else if (DirOrFile.Type == 2) { // Ä¿Â¼
-				// todo: ¼ÇÂ¼Ä¿Â¼Æ«ÒÆĞÅÏ¢
+			} else if (DirOrFile.Type == 2) { // ç›®å½•
+				// todo: è®°å½•ç›®å½•åç§»ä¿¡æ¯
 				//RecOffsetLog(blockOffset, DirOrFile.Offset, 0, DirOrFile.Size, DirOrFile.Name, DirOrFile.Type, dir.NowDir);
 
-				// Æ´½ÓĞÂÄ¿Â¼Â·¾¶
+				// æ‹¼æ¥æ–°ç›®å½•è·¯å¾„
 				DirStr NewDir = { Dir.NowDir, Dir.NowDir + DirOrFile.Name + "/" };
 
-				// ´´½¨Ä¿Â¼
+				// åˆ›å»ºç›®å½•
 				if (!std::filesystem::exists(NewDir.NowDir)) {
 					std::filesystem::create_directory(NewDir.NowDir);
 				}
 
-				// µİ¹é½âÃÜ
+				// é€’å½’è§£å¯†
 				Unpack::Try(DirOrFile.Offset, DirOrFile.Size, NewDir, false);
 			} else {
-				std::cout << "ÆäËûÀàĞÍ: " << DirOrFile.Name << std::endl;
+				std::cout << "å…¶ä»–ç±»å‹: " << DirOrFile.Name << std::endl;
 			}
 		}
 	}

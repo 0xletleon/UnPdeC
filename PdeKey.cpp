@@ -1,25 +1,25 @@
-// PdeKey.cpp
+ï»¿// PdeKey.cpp
 #include "PdeKey.h"
 
 namespace UnPdeC {
 	void PdeKey::Get() {
-		// ³õÊ¼»¯Îª0
+		// åˆå§‹åŒ–ä¸º0
 		vector<unsigned char> KeyByte(0x1000, 0);
 
-		// Âß¼­´Ó »ã±à 0x00A608E0 ´¦»ñµÃ
+		// é€»è¾‘ä» æ±‡ç¼– 0x00A608E0 å¤„è·å¾—
 		uint32_t EAX = 0x42574954;
 		for (size_t i = 0; i < 0x1000; ++i) {
 			EAX *= 0x7FCF;
-			uint32_t ECX = EAX >> 24; // »ñÈ¡ECXµÄ¸ß8Î»
-			uint32_t EDX = (EAX >> 16) & 0xFF; // »ñÈ¡EDXµÄ´Î¸ß8Î»
+			uint32_t ECX = EAX >> 24; // è·å–ECXçš„é«˜8ä½
+			uint32_t EDX = (EAX >> 16) & 0xFF; // è·å–EDXçš„æ¬¡é«˜8ä½
 			uint32_t CL = ECX ^ EDX; // CL = ECX ^ EDX
-			CL ^= (EAX >> 8) & 0xFF; // CL = CL ^ EDXµÄ¸ß8Î»
-			CL ^= EAX & 0xFF; // CL = CL ^ EAXµÄµÍ8Î»
+			CL ^= (EAX >> 8) & 0xFF; // CL = CL ^ EDXçš„é«˜8ä½
+			CL ^= EAX & 0xFF; // CL = CL ^ EAXçš„ä½8ä½
 			KeyByte[i] = static_cast<unsigned char>(CL);
 		}
 
-		cout << " ¡ÌPDEKEY¼ÆËãÍê³É" << endl;
-		// ¸øÈ«¾Ö±äÁ¿
+		cout << " âˆšPDEKEYè®¡ç®—å®Œæˆ" << endl;
+		// ç»™å…¨å±€å˜é‡
 		GV::PdeKey = KeyByte;
 	}
 }

@@ -1,4 +1,4 @@
-// FindPde.h
+ï»¿// FindPde.h
 #ifndef FINDPDE_H
 #define FINDPDE_H
 
@@ -8,14 +8,14 @@
 namespace UnPdeC {
 
 	/// <summary>
-	/// ²éÕÒPDEÎÄ¼ş
+	/// æŸ¥æ‰¾PDEæ–‡ä»¶
 	/// </summary>
 	class FindPde {
 	public:
 		/// <summary>
-		/// ²éÕÒµ±Ç°Ä¿Â¼ÏÂËùÓĞµÄ.pdeÎÄ¼ş
+		/// æŸ¥æ‰¾å½“å‰ç›®å½•ä¸‹æ‰€æœ‰çš„.pdeæ–‡ä»¶
 		/// </summary>
-		/// <returns> .pdeÎÄ¼şÃûÁĞ±í </returns>
+		/// <returns> .pdeæ–‡ä»¶ååˆ—è¡¨ </returns>
 		static vector<TNowPde> Get();
 	};
 }

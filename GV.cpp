@@ -1,15 +1,15 @@
-// GV.cpp
+﻿// GV.cpp
 #include "GV.h"
 
 namespace UnPdeC {
-	// ȫ�ֱ����Ƿ���Ҫ����
+	// 全局变量是否需要调试
 	bool GV::NeedDebugPde = false;
-	// �Ƿ���Ҫ���ɵ�����Ϣ
+	// 是否需要生成调试信息
 	bool GV::NeedOffsetLog = false;
-	// �Ƿ���Ҫ���ɽ��ܺ��PDE����
+	// 是否需要生成解密后的PDE代码
 	bool GV::NeedFindDirs = false;
-	// ��ǰ���ڴ�����PDE
+	// 当前正在处理的PDE
 	TNowPde GV::NowPde = { "", 0L };
-	// ������Կ
+	// 解密密钥
 	vector<unsigned char> GV::PdeKey = vector<unsigned char>(1000, 0);
 }

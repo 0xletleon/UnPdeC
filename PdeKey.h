@@ -1,4 +1,4 @@
-// PdeKey.h
+Ôªø// PdeKey.h
 #ifndef PDEKEY_H
 #define PDEKEY_H
 
@@ -8,12 +8,12 @@
 namespace UnPdeC {
 
 	/// <summary>
-	/// PdeKey¿‡
+	/// PdeKeyÁ±ª
 	/// </summary>
 	class PdeKey {
 	public:
 		/// <summary>
-		/// ªÒ»°PdeKey
+		/// Ëé∑ÂèñPdeKey
 		/// </summary>
 		static void Get();
 	};

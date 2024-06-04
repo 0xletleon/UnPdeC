@@ -1,4 +1,4 @@
-// GV.h
+ï»¿// GV.h
 #ifndef GV_H
 #define GV_H
 
@@ -7,19 +7,19 @@
 
 namespace UnPdeC {
 	/// <summary>
-	/// È«¾Ö±äÁ¿Àà
+	/// å…¨å±€å˜é‡ç±»
 	/// </summary>
 	class GV {
 	public:
-		// ÊÇ·ñĞèÒªµ÷ÊÔÓÃµÄ
+		// æ˜¯å¦éœ€è¦è°ƒè¯•ç”¨çš„
 		static bool NeedDebugPde;
-		// ÊÇ·ñĞèÒª¼ÇÂ¼Æ«ÒÆÈÕÖ¾ÎÄ¼ş
+		// æ˜¯å¦éœ€è¦è®°å½•åç§»æ—¥å¿—æ–‡ä»¶
 		static bool NeedOffsetLog;
-		// ÊÇ·ñĞèÒª²éÕÒÎ´½âÂëµÄÄ¿Â¼
+		// æ˜¯å¦éœ€è¦æŸ¥æ‰¾æœªè§£ç çš„ç›®å½•
 		static bool NeedFindDirs;
-		// µ±Ç°ÕıÔÚ´¦ÀíµÄPDEÎÄ¼şÃû
+		// å½“å‰æ­£åœ¨å¤„ç†çš„PDEæ–‡ä»¶å
 		static TNowPde NowPde;
-		// ½âÃÜÃÜÔ¿
+		// è§£å¯†å¯†é’¥
 		static vector<unsigned char> PdeKey;
 	};
 }

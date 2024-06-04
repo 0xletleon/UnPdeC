@@ -1,49 +1,49 @@
-#include "FindPde.h"
+ï»¿#include "FindPde.h"
 
 namespace UnPdeC {
 
 	vector<TNowPde> FindPde::Get() {
-		// PdeÎÄ¼şÃûÊı×é
+		// Pdeæ–‡ä»¶åæ•°ç»„
 		vector<TNowPde> PdeArr;
 
-		// »ñÈ¡¿ÉÖ´ĞĞÎÄ¼şËùÔÚÄ¿Â¼
+		// è·å–å¯æ‰§è¡Œæ–‡ä»¶æ‰€åœ¨ç›®å½•
 		char buffer[MAX_PATH];
 		GetModuleFileNameA(NULL, buffer, MAX_PATH);
 		std::filesystem::path exePath = std::filesystem::path(buffer).remove_filename();
 
-		// ±éÀú¿ÉÖ´ĞĞÎÄ¼şËùÔÚÄ¿Â¼£¬²éÕÒËùÓĞ .pde ÎÄ¼ş
+		// éå†å¯æ‰§è¡Œæ–‡ä»¶æ‰€åœ¨ç›®å½•ï¼ŒæŸ¥æ‰¾æ‰€æœ‰ .pde æ–‡ä»¶
 		for (const auto& entry : std::filesystem::directory_iterator(exePath)) {
 			if (entry.path().extension() == ".pde") {
-				// µ±Ç°PdeĞÅÏ¢
+				// å½“å‰Pdeä¿¡æ¯
 				TNowPde nowPde;
 
-				// ´Ópath¶ÔÏó»ñÈ¡ÎÄ¼şÃû£¬²¢È¥³ıºó×ºÃû
+				// ä»pathå¯¹è±¡è·å–æ–‡ä»¶åï¼Œå¹¶å»é™¤åç¼€å
 				string fileName = entry.path().filename().string();
 				fileName = fileName.substr(0, fileName.find_last_of('.'));
 				nowPde.Name = fileName.substr(0, fileName.find_last_of('.'));
 
-				// »ñÈ¡µ±Ç°ÎÄ¼şµÄ´óĞ¡
+				// è·å–å½“å‰æ–‡ä»¶çš„å¤§å°
 				nowPde.Size = std::filesystem::file_size(entry.path());
 
-				// »ñÈ¡µ±Ç°pdeÎÄ¼şµÄÂ·¾¶
+				// è·å–å½“å‰pdeæ–‡ä»¶çš„è·¯å¾„
 				nowPde.Path = entry.path().string();
 
-				cout << " £¡ÕÒµ½.pdeÎÄ¼ş£º" << nowPde.Name << endl;
-				cout << " £¡ÎÄ¼ş´óĞ¡£º" << nowPde.Size << "×Ö½Ú" << endl;
-				cout << " £¡ÎÄ¼şÂ·¾¶£º" << nowPde.Path << endl;
+				cout << " ï¼æ‰¾åˆ°.pdeæ–‡ä»¶ï¼š" << nowPde.Name << endl;
+				cout << " ï¼æ–‡ä»¶å¤§å°ï¼š" << nowPde.Size << "å­—èŠ‚" << endl;
+				cout << " ï¼æ–‡ä»¶è·¯å¾„ï¼š" << nowPde.Path << endl;
 
 				PdeArr.push_back(nowPde);
 			}
 		}
 
-		// Èç¹ûÃ»ÓĞÕÒµ½.pdeÎÄ¼ş£¬ÔòÍË³ö³ÌĞò
+		// å¦‚æœæ²¡æœ‰æ‰¾åˆ°.pdeæ–‡ä»¶ï¼Œåˆ™é€€å‡ºç¨‹åº
 		if (PdeArr.empty()) {
-			cout << " £¡Ä¿Â¼ÏÂÃ»ÓĞÕÒµ½ *.pdeÎÄ¼ş£¡\n °´ÈÎÒâ¼üÍË³ö³ÌĞò";
+			cout << " ï¼ç›®å½•ä¸‹æ²¡æœ‰æ‰¾åˆ° *.pdeæ–‡ä»¶ï¼\n æŒ‰ä»»æ„é”®é€€å‡ºç¨‹åº";
 			cin.get();
 			exit(-1);
 		}
 
-		// ·µ»Ø.pdeÎÄ¼şÃûÁĞ±í
+		// è¿”å›.pdeæ–‡ä»¶ååˆ—è¡¨
 		return PdeArr;
 	}
 }

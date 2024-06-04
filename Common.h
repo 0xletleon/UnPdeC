@@ -1,19 +1,19 @@
-// Common.h
+ï»¿// Common.h
 #ifndef COMMON_H
 #define COMMON_H
 
-#include <iostream>
-#include <string>
-#include <filesystem>
-#include <cstdlib>
-#include <vector>
+#include <algorithm>
 #include <cstdint>
+#include <cstdlib>
+#include <cstring>
+#include <filesystem>
 #include <fstream>
+#include <iomanip>
+#include <iostream>
 #include <regex>
 #include <stdexcept>
-#include <iomanip>
-#include <cstring>
-#include <algorithm>
+#include <string>
+#include <vector>
 
 using std::string;
 using std::vector;
@@ -32,39 +32,39 @@ using std::isdigit;
 using std::isalpha;
 
 /// <summary>
-/// µ±Ç°PdeÎÄ¼şĞÅÏ¢
+/// å½“å‰Pdeæ–‡ä»¶ä¿¡æ¯
 /// </summary>
 struct TNowPde {
-	string Name; // PdeÃû³Æ
-	long Size; // Pde´óĞ¡
-	string Path; // PdeÂ·¾¶
+	string Name; // Pdeåç§°
+	long Size; // Pdeå¤§å°
+	string Path; // Pdeè·¯å¾„
 };
 
 /// <summary>
-/// ÎÄ¼ş¼ĞĞÅÏ¢
+/// æ–‡ä»¶å¤¹ä¿¡æ¯
 /// </summary>
 struct DirStr {
-	string UpDir; // ÉÏ¼¶Ä¿Â¼
-	string NowDir; // µ±Ç°Ä¿Â¼
+	string UpDir; // ä¸Šçº§ç›®å½•
+	string NowDir; // å½“å‰ç›®å½•
 };
 
 /// <summary>
-/// ÎÄ¼şÆ«ÒÆĞÅÏ¢
+/// æ–‡ä»¶åç§»ä¿¡æ¯
 /// </summary>
 struct HexOffsetInfo {
-	uint8_t Type; // 1 ÎÄ¼ş, 2 Ä¿Â¼
-	string Name;	// ÎÄ¼şÃû»òÄ¿Â¼Ãû
-	uint32_t Offset; // ÔÚPDEÎÄ¼şÖĞµÄÊµ¼ÊÆ«ÒÆÖµ
-	uint32_t Size; // ´óĞ¡
-	uint32_t OOffset; // Ô­Ê¼Æ«ÒÆÖµ
+	uint8_t Type; // 1 æ–‡ä»¶, 2 ç›®å½•
+	string Name;	// æ–‡ä»¶åæˆ–ç›®å½•å
+	uint32_t Offset; // åœ¨PDEæ–‡ä»¶ä¸­çš„å®é™…åç§»å€¼
+	uint32_t Size; // å¤§å°
+	uint32_t OOffset; // åŸå§‹åç§»å€¼
 };
 
 /// <summary>
-/// GetByteOfPde() ·µ»ØµÄÊı¾İ½á¹¹ 
+/// GetByteOfPde() è¿”å›çš„æ•°æ®ç»“æ„ 
 /// </summary>
 struct GetOffsetStr {
-	uint32_t Size;  // Êµ¼Ê»ñÈ¡µ½µÄ¿é´óĞ¡
-	vector<uint8_t> Byte;  // »ñÈ¡µ½µÄ×Ö½ÚÊı¾İ
+	uint32_t Size;  // å®é™…è·å–åˆ°çš„å—å¤§å°
+	vector<uint8_t> Byte;  // è·å–åˆ°çš„å­—èŠ‚æ•°æ®
 };
 
 #endif // COMMON_H

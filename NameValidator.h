@@ -1,4 +1,4 @@
-// NameValidator.h
+ï»¿// NameValidator.h
 #ifndef NAMEVALIDATOR_H
 #define NAMEVALIDATOR_H
 
@@ -11,25 +11,25 @@ namespace UnPdeC {
 	class NameValidator {
 	public:
 		/// <summary>
-		/// ¼ì²é
+		/// æ£€æŸ¥
 		/// </summary>
-		/// <param name="Type">ÀàĞÍ</param>
-		/// <param name="Name">Ãû³Æ</param>
-		/// <returns>ÊÇ·ñºÏ·¨</returns>
+		/// <param name="Type">ç±»å‹</param>
+		/// <param name="Name">åç§°</param>
+		/// <returns>æ˜¯å¦åˆæ³•</returns>
 		static bool Check(uint8_t Type, const std::string& Name);
 
 	private:
 		/// <summary>
-		///  ¼ì²é×Ö·ûÊÇ·ñºÏ·¨
+		///  æ£€æŸ¥å­—ç¬¦æ˜¯å¦åˆæ³•
 		/// </summary>
-		/// <param name="c"> ×Ö·û </param>
-		/// <returns> ÊÇ·ñºÏ·¨ </returns>
+		/// <param name="c"> å­—ç¬¦ </param>
+		/// <returns> æ˜¯å¦åˆæ³• </returns>
 		static bool IsValidChar(char c);
 		/// <summary>
-		/// ¼ì²éÎÄ¼ş/Ä¿Â¼ÃûÊÇ·ñºÏ·¨
+		/// æ£€æŸ¥æ–‡ä»¶/ç›®å½•åæ˜¯å¦åˆæ³•
 		/// </summary>
-		/// <param name="name"> ÎÄ¼şÃû»òÄ¿Â¼Ãû </param>
-		/// <param name="isDirectory"> ÊÇ·ñÎªÄ¿Â¼ </param>
+		/// <param name="name"> æ–‡ä»¶åæˆ–ç›®å½•å </param>
+		/// <param name="isDirectory"> æ˜¯å¦ä¸ºç›®å½• </param>
 		/// <returns></returns>
 		static bool IsValidName(const std::string& name, bool isDirectory);
 	};

@@ -1,4 +1,4 @@
-// UFunc.h
+ï»¿// UFunc.h
 #ifndef UFUNC_H
 #define UFUNC_H
 
@@ -6,16 +6,16 @@
 
 namespace UnPdeC {
 	/// <summary>
-	/// ÊµÓÃ·½·¨Àà
+	/// å®ç”¨æ–¹æ³•ç±»
 	/// </summary>
 	class UFunc {
 	public:
 		/// <summary>
-		///  »ñÈ¡4×Ö½ÚÊı¾İ
+		///  è·å–4å­—èŠ‚æ•°æ®
 		/// </summary>
-		/// <param name="data"> Êı¾İ</param>
-		/// <param name="offset"> Æ«ÒÆ</param>
-		/// <returns> 4×Ö½ÚÊı¾İ</returns>
+		/// <param name="data"> æ•°æ®</param>
+		/// <param name="offset"> åç§»</param>
+		/// <returns> 4å­—èŠ‚æ•°æ®</returns>
 		static std::uint32_t Get4Byte(const std::vector<std::uint8_t>& data, std::uint32_t offset);
 	};
 }

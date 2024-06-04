@@ -1,91 +1,89 @@
-#include "FinalUnpack.h"
+ï»¿#include "FinalUnpack.h"
 
 namespace UnPdeC {
 	std::vector<uint8_t> FinalUnpack::PreDecrypt(const std::vector<uint8_t>& DeTempFileByte, const std::string& FileName) {
-		std::cout << "ÕıÔÚ¶ş´Î½âÃÜµÄÎÄ¼şÃû: " << FileName << std::endl;
+		std::cout << "æ­£åœ¨äºŒæ¬¡è§£å¯†çš„æ–‡ä»¶å: " << FileName << std::endl;
 
-		// ÅĞ¶ÏÄÄĞ©ÎÄ¼ş²»ĞèÒª¶ş´Î½âÃÜ
-		// ½âÂëºó´óĞ¡±êÊ¶
+		// åˆ¤æ–­å“ªäº›æ–‡ä»¶ä¸éœ€è¦äºŒæ¬¡è§£å¯†
+		// è§£ç åå¤§å°æ ‡è¯†
 		uint8_t SizeFlag = DeTempFileByte[0x18];
-		// std::cout << " £¡SizeFlag:"<< std::hex<< static_cast<int>(SizeFlag)<< std::endl;
+		// std::cout << " ï¼SizeFlag:"<< std::hex<< static_cast<int>(SizeFlag)<< std::endl;
 
-		// Èç¹û²»µÈÓÚ 0 ÔòĞèÒª¶ş´Î½âÃÜ
+		// å¦‚æœä¸ç­‰äº 0 åˆ™éœ€è¦äºŒæ¬¡è§£å¯†
 		if ((SizeFlag & 1) != 0) {
-
-			// ´ı½âÃÜµÄÊı¾İ
+			// å¾…è§£å¯†çš„æ•°æ®
 			std::vector<uint8_t> EncryptedData;
-			// ½âÃÜºóµÄÊı¾İ´óĞ¡
+			// è§£å¯†åçš„æ•°æ®å¤§å°
 			uint32_t DecryptedSize;
 
-			// ¸ù¾İ±êÊ¶ÉèÖÃÆ«ÒÆÖµ
+			// æ ¹æ®æ ‡è¯†è®¾ç½®åç§»å€¼
 			switch (SizeFlag) {
-			case 0x6F: // ³£¹æÎÄ¼ş? 6F ±êÊ¶
-				// »ñÈ¡½âÃÜºóÊı¾İ³¤¶È
+			case 0x6F: // å¸¸è§„æ–‡ä»¶? 6F æ ‡è¯†
+				// è·å–è§£å¯†åæ•°æ®é•¿åº¦
 				DecryptedSize = UFunc::Get4Byte(DeTempFileByte, 0x1D);
 
-				// ³õÊ¼»¯ ´ı½âÃÜµÄÊı¾İ ´óĞ¡
+				// åˆå§‹åŒ– å¾…è§£å¯†çš„æ•°æ® å¤§å°
 				EncryptedData.resize(DeTempFileByte.size() - 0x21);
-				// ´Ó 0x21 ¿ªÊ¼µ½ ½áÊø ¸´ÖÆµ½ ´ı½âÃÜµÄÊı¾İ
+				// ä» 0x21 å¼€å§‹åˆ° ç»“æŸ å¤åˆ¶åˆ° å¾…è§£å¯†çš„æ•°æ®
 				std::copy(DeTempFileByte.begin() + 0x21, DeTempFileByte.end(), EncryptedData.begin());
 				break;
-			case 0x6D: // ·Ç³£¹æÎÄ¼ş? 6D ±êÊ¶
-				// »ñÈ¡½âÃÜºóÊı¾İ³¤¶È
-				 //todo: ÀàĞÍ
+			case 0x6D: // éå¸¸è§„æ–‡ä»¶? 6D æ ‡è¯†
+				// è·å–è§£å¯†åæ•°æ®é•¿åº¦
+				 //todo: ç±»å‹
 				DecryptedSize = DeTempFileByte[0x1A];
-				// ³õÊ¼»¯EncryptedData´óĞ¡
+				// åˆå§‹åŒ–EncryptedDataå¤§å°
 				EncryptedData.resize(DeTempFileByte.size() - 0x1B);
-				// ´Ó 0x1A ¿ªÊ¼µ½ ½áÊø ¸´ÖÆµ½ EncryptedData
+				// ä» 0x1A å¼€å§‹åˆ° ç»“æŸ å¤åˆ¶åˆ° EncryptedData
 				std::copy(DeTempFileByte.begin() + 0x1B, DeTempFileByte.end(), EncryptedData.begin());
 				break;
 			default:
-				// Î´ÖªÎÄ¼şÀàĞÍ
-				throw std::runtime_error(" £¡½âÂëºó´óĞ¡±êÊ¶");
+				// æœªçŸ¥æ–‡ä»¶ç±»å‹
+				throw std::runtime_error(" ï¼è§£ç åå¤§å°æ ‡è¯†");
 			}
 
-			// Ö´ĞĞ¶ş½â
+			// æ‰§è¡ŒäºŒè§£
 			std::vector<uint8_t> DecryptedData;
 			DecryptedData = FinalDecrypt2(EncryptedData, DecryptedSize);
 
-			// É¾³ıÇ° 8 ¸ö×Ö½Ú
+			// åˆ é™¤å‰ 8 ä¸ªå­—èŠ‚
 			DecryptedData.erase(DecryptedData.begin(), DecryptedData.begin() + std::min(static_cast<size_t>(8), DecryptedData.size()));
 			//EncryptedData.erase(DecryptedData.begin(), DecryptedData.begin() + 8);
 			return DecryptedData;
-
-		} else { // ²»ĞèÒª¶ş´Î½âÃÜ
+		} else { // ä¸éœ€è¦äºŒæ¬¡è§£å¯†
 			if (DeTempFileByte.size() <= 0x29) {
-				throw std::runtime_error("³õ´Î½âÃÜºóµÄ×Ö½ÚÊı×é³¤¶È²»×ã£¬ÎŞ·¨É¾³ıÇ°0x29¸ö×Ö½Ú");
+				throw std::runtime_error("åˆæ¬¡è§£å¯†åçš„å­—èŠ‚æ•°ç»„é•¿åº¦ä¸è¶³ï¼Œæ— æ³•åˆ é™¤å‰0x29ä¸ªå­—èŠ‚");
 			}
-			// É¾³ıÇ°0x29¸ö×Ö½Ú
+			// åˆ é™¤å‰0x29ä¸ªå­—èŠ‚
 			std::vector<uint8_t> result(DeTempFileByte.begin() + 0x29, DeTempFileByte.end());
-			std::cout << FileName << " ÎŞĞè¶ş´Î½âÃÜ" << std::endl;
+			std::cout << FileName << " æ— éœ€äºŒæ¬¡è§£å¯†" << std::endl;
 
-			// ·µ»Ø´¦ÀíºóµÄ×Ö½ÚÊı×é
+			// è¿”å›å¤„ç†åçš„å­—èŠ‚æ•°ç»„
 			return result;
 		}
 	}
 
 	std::vector<uint8_t> FinalUnpack::FinalDecrypt2(const std::vector<uint8_t>& encryptedData, uint32_t decryptedSize) {
-		// Î»ÒÆ±í
+		// ä½ç§»è¡¨
 		const unsigned char ByteLimt[16] = { 4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0 };
-		// ½âÂëºóÊı¾İ
+		// è§£ç åæ•°æ®
 		std::vector<uint8_t> decryptedData(decryptedSize);
 
-		// ¼Ä´æÆ÷
-		// ´ı½â¿ªÊ¼µØÖ·
+		// å¯„å­˜å™¨
+		// å¾…è§£å¼€å§‹åœ°å€
 		uint32_t EAX = 1;
 		uint32_t EBX = 1;
 		uint32_t ECX = 0;
-		// ÍË³öÌõ¼ş
+		// é€€å‡ºæ¡ä»¶
 		uint32_t EDX;
-		// ÏÂÒ»¸öÊı¾İĞ´ÈëµÄµØÖ·
+		// ä¸‹ä¸€ä¸ªæ•°æ®å†™å…¥çš„åœ°å€
 		uint32_t EBP = 0;
-		// µ±Ç°´ı½âµØÖ·
+		// å½“å‰å¾…è§£åœ°å€
 		uint32_t ESI = 0;
-		// ½âÃÜºóÊı¾İ½áÊøµØÖ·
+		// è§£å¯†åæ•°æ®ç»“æŸåœ°å€
 		uint32_t EDI = decryptedSize - 1;
-		// Ğ´ÈëµØÖ·
+		// å†™å…¥åœ°å€
 		uint32_t ESP10 = EDI;
-		// ½âÂëºóÊı¾İ´óĞ¡
+		// è§£ç åæ•°æ®å¤§å°
 		uint32_t ESP58 = decryptedSize;
 
 		while (true) {
@@ -107,7 +105,7 @@ namespace UnPdeC {
 						if (((EBX & 0xFF) & (ECX & 0xFF)) != 0) {
 							EDX &= 0X7F;
 							if ((EDX & 0xFF) == 3) {
-								EDX = ECX;// EDX & 0x7F Ö®ºó ÅĞ¶Ï£¬Ö®ºóÀ´µ½ÕâÀïÔÚ½«ECX¸³Öµ¸øEDX
+								EDX = ECX;// EDX & 0x7F ä¹‹å åˆ¤æ–­ï¼Œä¹‹åæ¥åˆ°è¿™é‡Œåœ¨å°†ECXèµ‹å€¼ç»™EDX
 								ECX >>= 7;
 								ECX &= 0xFF;
 								EDX >>= 0xF;
@@ -115,7 +113,7 @@ namespace UnPdeC {
 								ESI += 0x4;
 								// -> 99 ok
 							} else {
-								EDX = ECX;// £¡
+								EDX = ECX;// ï¼
 								ECX >>= 2;
 								EDX >>= 7;
 								ECX &= 0x1F;
@@ -153,7 +151,7 @@ namespace UnPdeC {
 				// 99
 			/*	cout << "!EBP:" << EBP << endl;
 				if (EBP == 0x7a4) {
-					cout << "ÕÒµ½0x79f" << endl;
+					cout << "æ‰¾åˆ°0x79f" << endl;
 				}*/
 				EDI = EBP;
 				EDI -= EDX;
@@ -166,7 +164,7 @@ namespace UnPdeC {
 					EAX = UFunc::Get4Byte(decryptedData, EDIX);
 					//cout << "EDI:" << std::hex << EDI << " EDX:" << std::hex << EDX << std::hex << " EDIX:" << EDIX << endl;
 					//cout << "-> EAX:" << std::hex << EAX << endl;
-					// ¸ù¾İ EDX ÏÂ±ê ½« EAX Ğ´Èë decryptedData
+					// æ ¹æ® EDX ä¸‹æ ‡ å°† EAX å†™å…¥ decryptedData
 					memcpy(decryptedData.data() + EDX, &EAX, sizeof(EAX));
 					EBX += 3;
 					EDX += 3;
@@ -177,22 +175,22 @@ namespace UnPdeC {
 				EBX = 1;
 			}
 
-			// ÍË³öÌõ¼ş
+			// é€€å‡ºæ¡ä»¶
 			EDX = EDI - 0xA;
 			if (EBP >= EDX)break;
 
-			// ¸ù¾İ EBP ÏÂ±ê ½« ECX Ğ´Èë decryptedData
+			// æ ¹æ® EBP ä¸‹æ ‡ å°† ECX å†™å…¥ decryptedData
 			memcpy(decryptedData.data() + EBP, &ECX, sizeof(ECX));
 			ECX = EAX;
 			ECX &= 0xF;
 			ECX = ByteLimt[ECX];
-			EBP += ECX;// ËÆºõÊÇ´íµÄ£¡
+			EBP += ECX;// ä¼¼ä¹æ˜¯é”™çš„ï¼
 			ESI += ECX;
 			//EAX >>= (ECX & 0xFF);
 			EAX >>= ECX;
 		}
 
-		cout << "µ½´ï0x80000000" << endl;
+		cout << "åˆ°è¾¾0x80000000" << endl;
 		if (EBP <= EDI) {
 			do {
 				if (EAX == EBX) {
@@ -200,7 +198,7 @@ namespace UnPdeC {
 					EAX = 0x80000000;
 				}
 				uint8_t DL = encryptedData[ESI];
-				// ¸ù¾İ EBPÏÂ±ê ½« DL Ğ´Èë decryptedData
+				// æ ¹æ® EBPä¸‹æ ‡ å°† DL å†™å…¥ decryptedData
 				memcpy(decryptedData.data() + EBP, &DL, sizeof(DL));
 				EBP += EBX;
 				ESI += EBX;
@@ -208,7 +206,7 @@ namespace UnPdeC {
 			} while (EBP <= EDI);
 		}
 
-		cout << "Íê³É¶ş½â" << endl;
+		cout << "å®ŒæˆäºŒè§£" << endl;
 
 		return decryptedData;
 	}

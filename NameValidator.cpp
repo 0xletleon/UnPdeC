@@ -1,33 +1,33 @@
-// NameValidator.cpp
+ï»¿// NameValidator.cpp
 #include "NameValidator.h"
 
 namespace UnPdeC {
 	bool NameValidator::Check(uint8_t Type, const string& Name) {
 		if (Type == 1) {
-			// ÅĞ¶ÏÎÄ¼şÃûÊÇ·ñºÏ·¨
+			// åˆ¤æ–­æ–‡ä»¶åæ˜¯å¦åˆæ³•
 			return IsValidName(Name, false);
 		} else if (Type == 2) {
-			// ÅĞ¶ÏÄ¿Â¼ÃûÊÇ·ñºÏ·¨
+			// åˆ¤æ–­ç›®å½•åæ˜¯å¦åˆæ³•
 			return IsValidName(Name, true);
 		}
 		return false;
 	}
 
 	/// <summary>
-	///  ¼ì²é×Ö·ûÊÇ·ñºÏ·¨
+	///  æ£€æŸ¥å­—ç¬¦æ˜¯å¦åˆæ³•
 	/// </summary>
-	/// <param name="c"> ×Ö·û </param>
-	/// <returns> ÊÇ·ñºÏ·¨ </returns>
+	/// <param name="c"> å­—ç¬¦ </param>
+	/// <returns> æ˜¯å¦åˆæ³• </returns>
 	bool NameValidator::IsValidChar(char c) {
 		return c == '_' || c == '-' || c == '\\' || c == '"' || c == '.' ||
 			std::isdigit(c) || std::isalpha(c);
 	}
 
 	/// <summary>
-	/// ¼ì²éÎÄ¼ş/Ä¿Â¼ÃûÊÇ·ñºÏ·¨
+	/// æ£€æŸ¥æ–‡ä»¶/ç›®å½•åæ˜¯å¦åˆæ³•
 	/// </summary>
-	/// <param name="name"> ÎÄ¼şÃû»òÄ¿Â¼Ãû </param>
-	/// <param name="isDirectory"> ÊÇ·ñÎªÄ¿Â¼ </param>
+	/// <param name="name"> æ–‡ä»¶åæˆ–ç›®å½•å </param>
+	/// <param name="isDirectory"> æ˜¯å¦ä¸ºç›®å½• </param>
 	/// <returns></returns>
 	bool NameValidator::IsValidName(const std::string& name, bool isDirectory) {
 		if (name.empty() || name.length() > 0x6F) {
@@ -39,7 +39,7 @@ namespace UnPdeC {
 		if (isDirectory && (name.find('\\') != std::string::npos || name.find('/') != std::string::npos)) {
 			return false;
 		}
-		// ¼ì²éÎÄ¼şÃû»òÄ¿Â¼ÃûÖĞµÄÃ¿¸ö×Ö·ûÊÇ·ñÓĞĞ§
+		// æ£€æŸ¥æ–‡ä»¶åæˆ–ç›®å½•åä¸­çš„æ¯ä¸ªå­—ç¬¦æ˜¯å¦æœ‰æ•ˆ
 		return std::all_of(name.begin(), name.end(), IsValidChar);
 	}
 } // namespace UnPdeC

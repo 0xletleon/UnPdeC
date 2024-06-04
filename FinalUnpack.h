@@ -1,4 +1,4 @@
-#ifndef FINAL_UNPACK_H
+ï»¿#ifndef FINAL_UNPACK_H
 #define FINAL_UNPACK_H
 
 #include "Common.h"
@@ -8,15 +8,15 @@ namespace UnPdeC {
 
 	class FinalUnpack {
 	private:
-		// ¶ş´Î½âÃÜ·½·¨
+		// äºŒæ¬¡è§£å¯†æ–¹æ³•
 		static std::vector<uint8_t> FinalDecrypt2(const std::vector<uint8_t>& DeTempFileByte, uint32_t);
 	public:
 		/// <summary>
-		/// ¶ş´Î½âÃÜÔ¤´¦Àí
+		/// äºŒæ¬¡è§£å¯†é¢„å¤„ç†
 		/// </summary>
-		/// <param name="DeTempFileByte">´ı½âÃÜµÄÔ­Ê¼Êı¾İ</param>
-		/// <param name="FileName">ÎÄ¼şÃû</param>
-		/// <returns>½âÃÜºóµÄÊı¾İ</returns>
+		/// <param name="DeTempFileByte">å¾…è§£å¯†çš„åŸå§‹æ•°æ®</param>
+		/// <param name="FileName">æ–‡ä»¶å</param>
+		/// <returns>è§£å¯†åçš„æ•°æ®</returns>
 		static std::vector<uint8_t> PreDecrypt(const std::vector<uint8_t>& DeTempFileByte, const std::string& FileName);
 	};
 

@@ -1,4 +1,4 @@
-// PdeTool.h
+ï»¿// PdeTool.h
 #ifndef PDETOOL_H
 #define PDETOOL_H
 
@@ -10,36 +10,36 @@
 namespace UnPdeC {
 
 	/// <summary>
-	/// PDE¹¤¾ßÀà
+	/// PDEå·¥å…·ç±»
 	/// </summary>
 	class PdeTool {
 	public:
 		/// <summary>
-		/// ³õÊ¼»¯PDE¹¤¾ßÀà
+		/// åˆå§‹åŒ–PDEå·¥å…·ç±»
 		/// </summary>
 		static void Init();
 
 		/// <summary>
-		/// »ñÈ¡ÎÄ¼ş»òÎÄ¼ş¼ĞÆ«ÒÆĞÅÏ¢
+		/// è·å–æ–‡ä»¶æˆ–æ–‡ä»¶å¤¹åç§»ä¿¡æ¯
 		/// </summary>
-		/// <param name="data">³õ´Î½âÃÜºóµÄÊı¾İ</param>
-		/// <param name="BlockOffset">Êı¾İ¿éÔÚPDEÎÄ¼şÖĞµÄÆ«ÒÆÖµ</param>
-		/// <returns>ÎÄ¼ş»òÎÄ¼ş¼ĞµÄÆ«ÒÆĞÅÏ¢Êı×é </returns>
+		/// <param name="data">åˆæ¬¡è§£å¯†åçš„æ•°æ®</param>
+		/// <param name="BlockOffset">æ•°æ®å—åœ¨PDEæ–‡ä»¶ä¸­çš„åç§»å€¼</param>
+		/// <returns>æ–‡ä»¶æˆ–æ–‡ä»¶å¤¹çš„åç§»ä¿¡æ¯æ•°ç»„ </returns>
 		static std::vector<HexOffsetInfo> GetOffsetInfo(const std::vector<unsigned char>& data, uint32_t BlockOffset);
 
 		/// <summary>
-		/// ´ÓPDEÎÄ¼şÖĞ»ñÈ¡Ö¸¶¨¿éÊı¾İ
+		/// ä»PDEæ–‡ä»¶ä¸­è·å–æŒ‡å®šå—æ•°æ®
 		/// </summary>
-		/// <param name="Start">¿éÔÚPDEÎÄ¼şÖĞµÄÆğÊ¼Æ«ÒÆ</param>
-		/// <param name="Size">¿é´óĞ¡</param>
-		/// <returns>¿éÊı¾İ</returns>
+		/// <param name="Start">å—åœ¨PDEæ–‡ä»¶ä¸­çš„èµ·å§‹åç§»</param>
+		/// <param name="Size">å—å¤§å°</param>
+		/// <returns>å—æ•°æ®</returns>
 		static GetOffsetStr GetByteOfPde(uint32_t Start, uint32_t Size);
 
 		/// <summary>
-		/// ½âÃÜÎÄ¼ş »ò! Êı¾İ¿é
+		/// è§£å¯†æ–‡ä»¶ æˆ–! æ•°æ®å—
 		/// </summary>
-		/// <param name="OffsetArr">ÎÄ¼ş»òÊı¾İ¿éµÄÆ«ÒÆĞÅÏ¢Êı×é</param>
-		/// <returns>½âÃÜºóµÄ×Ö½ÚÊı¾İ</returns>
+		/// <param name="OffsetArr">æ–‡ä»¶æˆ–æ•°æ®å—çš„åç§»ä¿¡æ¯æ•°ç»„</param>
+		/// <returns>è§£å¯†åçš„å­—èŠ‚æ•°æ®</returns>
 		static std::vector<unsigned char> DeFileOrBlock(const std::vector<unsigned char>& OffsetArr);
 	};
 

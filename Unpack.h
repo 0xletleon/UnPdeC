@@ -1,4 +1,4 @@
-// Unpack.h
+ï»¿// Unpack.h
 #ifndef UNPACK_H
 #define UNPACK_H
 
@@ -10,32 +10,32 @@ namespace UnPdeC {
 	class Unpack {
 	private:
 		/// <summary>
-		/// ÔİÊ±²»²ÎÓë¶ş´Î½âÃÜµÄÎÄ¼ş
+		/// æš‚æ—¶ä¸å‚ä¸äºŒæ¬¡è§£å¯†çš„æ–‡ä»¶
 		/// </summary>
 		static const vector<string> PassArr;
 		/// <summary>
-		/// ²éÕÒºó×º
+		/// æŸ¥æ‰¾åç¼€
 		/// </summary>
-		/// <param name="target"> ÎÄ¼şÃû </param>
-		/// <returns> ÊÇ·ñ´æÔÚºó×º </returns>
+		/// <param name="target"> æ–‡ä»¶å </param>
+		/// <returns> æ˜¯å¦å­˜åœ¨åç¼€ </returns>
 		static bool FindSuffix(const std::string& target);
 
 	public:
 		/// <summary>
-		/// ³¢ÊÔ½âÃÜ
+		/// å°è¯•è§£å¯†
 		/// </summary>
-		/// <param name="Offset">Êı¾İ¿éÔÚPDEÎÄ¼şÖĞµÄÆ«ÒÆÖµ</param>
-		/// <param name="Size">Êı¾İ¿é´óĞ¡</param>
-		/// <param name="Dir">Ä¿Â¼</param>
-		/// <param name="Is170">ÊÇ·ñÎª170±íÊı¾İ</param>
+		/// <param name="Offset">æ•°æ®å—åœ¨PDEæ–‡ä»¶ä¸­çš„åç§»å€¼</param>
+		/// <param name="Size">æ•°æ®å—å¤§å°</param>
+		/// <param name="Dir">ç›®å½•</param>
+		/// <param name="Is170">æ˜¯å¦ä¸º170è¡¨æ•°æ®</param>
 		static void Try(uint32_t Offset, uint32_t Size, const DirStr& Dir, bool Is170);
 
 		/// <summary>
-		/// ´´½¨Ä¿Â¼»òÎÄ¼ş
+		/// åˆ›å»ºç›®å½•æˆ–æ–‡ä»¶
 		/// </summary>
-		/// <param name="DirOrFileArr">ÎÄ¼ş»òÄ¿Â¼Êı×é</param>
-		/// <param name="Dir">Ä¿Â¼</param>
-		/// <param name="BlockOffset">Êı¾İ¿éÔÚPDEÎÄ¼şÖĞµÄÆ«ÒÆÖµ</param>
+		/// <param name="DirOrFileArr">æ–‡ä»¶æˆ–ç›®å½•æ•°ç»„</param>
+		/// <param name="Dir">ç›®å½•</param>
+		/// <param name="BlockOffset">æ•°æ®å—åœ¨PDEæ–‡ä»¶ä¸­çš„åç§»å€¼</param>
 		static void Save(const vector<HexOffsetInfo>& DirOrFileArr, const DirStr& Dir, uint32_t BlockOffset);
 	};
 

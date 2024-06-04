@@ -1,34 +1,34 @@
-#include "PdeTool.h"
+ï»¿#include "PdeTool.h"
 
 namespace UnPdeC {
 	void PdeTool::Init() {
-		cout << "ÕıÔÚ³õÊ¼»¯ PdeTool" << endl;
+		cout << "æ­£åœ¨åˆå§‹åŒ– PdeTool" << endl;
 
-		// ¼ì²éÄ¿Â¼ÊÇ·ñ´æÔÚ
+		// æ£€æŸ¥ç›®å½•æ˜¯å¦å­˜åœ¨
 		if (!std::filesystem::exists(GV::NowPde.Name)) {
-			// Ä¿Â¼²»´æÔÚ£¬´´½¨Ëü
+			// ç›®å½•ä¸å­˜åœ¨ï¼Œåˆ›å»ºå®ƒ
 			std::filesystem::create_directory(GV::NowPde.Name);
-			std::cout << "ÒÑ´´½¨Ä¿Â¼: " << GV::NowPde.Name << std::endl;
+			std::cout << "å·²åˆ›å»ºç›®å½•: " << GV::NowPde.Name << std::endl;
 		}
 
-		// »ñÈ¡PdeKey
+		// è·å–PdeKey
 		PdeKey::Get();
 
-		cout << " ¡Ì ³É¹¦³õÊ¼»¯PDE¹¤¾ßÀà" << endl;
+		cout << " âˆš æˆåŠŸåˆå§‹åŒ–PDEå·¥å…·ç±»" << endl;
 	}
 
 	/// <summary>
-	/// »ñÈ¡ÎÄ¼ş»òÎÄ¼ş¼ĞÆ«ÒÆĞÅÏ¢
+	/// è·å–æ–‡ä»¶æˆ–æ–‡ä»¶å¤¹åç§»ä¿¡æ¯
 	/// </summary>
-	/// <param name="data">³õ´Î½âÃÜºóµÄÊı¾İ</param>
-	/// <param name="BlockOffset">Êı¾İ¿éÔÚPDEÎÄ¼şÖĞµÄÆ«ÒÆÖµ</param>
-	/// <returns>ÎÄ¼ş»òÎÄ¼ş¼ĞµÄÆ«ÒÆĞÅÏ¢Êı×é </returns>
+	/// <param name="data">åˆæ¬¡è§£å¯†åçš„æ•°æ®</param>
+	/// <param name="BlockOffset">æ•°æ®å—åœ¨PDEæ–‡ä»¶ä¸­çš„åç§»å€¼</param>
+	/// <returns>æ–‡ä»¶æˆ–æ–‡ä»¶å¤¹çš„åç§»ä¿¡æ¯æ•°ç»„ </returns>
 	std::vector<HexOffsetInfo> PdeTool::GetOffsetInfo(const std::vector<unsigned char>& data, uint32_t BlockOffset) {
 		const int BlockSize = 128;
 		size_t BlockCount = data.size() / BlockSize;
 		std::vector<std::vector<char>> BlockArr(BlockCount);
 
-		// Ñ­»··Ö¿é
+		// å¾ªç¯åˆ†å—
 		for (int i = 0; i < BlockCount; ++i) {
 			int start = i * BlockSize;
 			int length = min(BlockSize, static_cast<int>(data.size()) - start);
@@ -36,23 +36,23 @@ namespace UnPdeC {
 			std::copy(data.begin() + start, data.begin() + start + length, BlockArr[i].begin());
 		}
 
-		// ·µ»ØµÄÆ«ÒÆĞÅÏ¢Êı×é
+		// è¿”å›çš„åç§»ä¿¡æ¯æ•°ç»„
 		std::vector<HexOffsetInfo> OffsetInfoArr;
 
-		// Ñ­»·»ñÈ¡Æ«ÒÆ,´óĞ¡,ÀàĞÍ,ÎÄ¼şÃû
+		// å¾ªç¯è·å–åç§»,å¤§å°,ç±»å‹,æ–‡ä»¶å
 		for (int bi = 0; bi < BlockCount; ++bi) {
 			const std::vector<char>& Block = BlockArr[bi];
 			HexOffsetInfo ThisInfo{ 0, "", 0, 0, 0 };
 
-			// ¶ÁÈ¡ÀàĞÍ 1==ÎÄ¼ş£¬2==Ä¿Â¼
+			// è¯»å–ç±»å‹ 1==æ–‡ä»¶ï¼Œ2==ç›®å½•
 			int NonZeroIndex = 0;
 			for (int i = 0; i < Block.size(); ++i) {
 				if (i == 0) {
 					ThisInfo.Type = Block[i];
-					// ÑéÖ¤ÀàĞÍ
+					// éªŒè¯ç±»å‹
 					if (ThisInfo.Type != 1 && ThisInfo.Type != 2) break;
 				} else {
-					// »ñÈ¡Ãû³Æ
+					// è·å–åç§°
 					int sub = Block[i] - 0x41;
 					if (sub <= 25) sub += 32;
 					if (sub <= 0) {
@@ -63,65 +63,65 @@ namespace UnPdeC {
 			}
 
 			if (NonZeroIndex > 0) {
-				// ¸´ÖÆÃû³Æ
+				// å¤åˆ¶åç§°
 				ThisInfo.Name = std::string(Block.begin() + 1, Block.begin() + NonZeroIndex + 1);
 				if (!NameValidator::Check(ThisInfo.Type, ThisInfo.Name)) {
 					break;
 				}
 			} else {
-				// »ñÈ¡ÎÄ¼şÃû³ö´í
+				// è·å–æ–‡ä»¶åå‡ºé”™
 				break;
 			}
 
-			// ¶ÁÈ¡´óĞ¡
-			// Ê¹ÓÃC++17µÄ¹¹ÔìÆ÷Ö±½Ó³õÊ¼»¯×îºó4¸ö×Ö½Ú
+			// è¯»å–å¤§å°
+			// ä½¿ç”¨C++17çš„æ„é€ å™¨ç›´æ¥åˆå§‹åŒ–æœ€å4ä¸ªå­—èŠ‚
 			std::vector<uint8_t> SizeBytes(Block.end() - 4, Block.end());
 			union {
 				uint32_t value;
 				uint8_t bytes[4];
 			} ThisSize{};
-			// Ö±½Ó½«×Ö½Ú¸³Öµ¸ødataµÄbytesÊı×é£¬Õâ»áÀûÓÃ´ó¶Ë×Ö½ÚĞò
+			// ç›´æ¥å°†å­—èŠ‚èµ‹å€¼ç»™dataçš„bytesæ•°ç»„ï¼Œè¿™ä¼šåˆ©ç”¨å¤§ç«¯å­—èŠ‚åº
 			std::copy(SizeBytes.begin(), SizeBytes.end(), ThisSize.bytes);
 
-			// ÏÖÔÚdata.value°üº¬ÁËºÏ²¢ºóµÄ32Î»ÊıÖµ
+			// ç°åœ¨data.valueåŒ…å«äº†åˆå¹¶åçš„32ä½æ•°å€¼
 			std::cout << "0x" << std::hex << ThisSize.value << std::endl;
 			ThisInfo.Size = ThisSize.value;
-			cout << "ÎÄ¼şÃû: " << ThisInfo.Name << " ´óĞ¡: " << ThisInfo.Size << " ÀàĞÍ: " << (ThisInfo.Type == 1 ? "ÎÄ¼ş" : "Ä¿Â¼") << endl;
+			cout << "æ–‡ä»¶å: " << ThisInfo.Name << " å¤§å°: " << ThisInfo.Size << " ç±»å‹: " << (ThisInfo.Type == 1 ? "æ–‡ä»¶" : "ç›®å½•") << endl;
 
 
-			// ¶ÁÈ¡Ô­Ê¼Æ«ÒÆÖµ
-			// Ê¹ÓÃC++17µÄ¹¹ÔìÆ÷Ö±½Ó³õÊ¼»¯×îºó4¸ö×Ö½Ú
+			// è¯»å–åŸå§‹åç§»å€¼
+			// ä½¿ç”¨C++17çš„æ„é€ å™¨ç›´æ¥åˆå§‹åŒ–æœ€å4ä¸ªå­—èŠ‚
 			std::vector<uint8_t> OOffsetBytes(Block.end() - 8, Block.end() - 4);
 			union {
 				uint32_t value;
 				uint8_t bytes[4];
 			} OOffset{};
-			// Ö±½Ó½«×Ö½Ú¸³Öµ¸ødataµÄbytesÊı×é£¬Õâ»áÀûÓÃ´ó¶Ë×Ö½ÚĞò
+			// ç›´æ¥å°†å­—èŠ‚èµ‹å€¼ç»™dataçš„bytesæ•°ç»„ï¼Œè¿™ä¼šåˆ©ç”¨å¤§ç«¯å­—èŠ‚åº
 			std::copy(OOffsetBytes.begin(), OOffsetBytes.end(), OOffset.bytes);
 
-			// ÏÖÔÚdata.value°üº¬ÁËºÏ²¢ºóµÄ32Î»ÊıÖµ
+			// ç°åœ¨data.valueåŒ…å«äº†åˆå¹¶åçš„32ä½æ•°å€¼
 			std::cout << "0x" << std::hex << OOffset.value << std::endl;
 			ThisInfo.OOffset = OOffset.value;
 
 
-			// ¼ÆËãÊµ¼ÊÆ«ÒÆÖµ
+			// è®¡ç®—å®é™…åç§»å€¼
 			ThisInfo.Offset = ((ThisInfo.OOffset >> 10) + ThisInfo.OOffset + 1) << 12;
 			cout << "Offset: " << ThisInfo.Offset << endl;
 
-			// Èç¹û ThisInfo.Offset Ô½½ç£¬ÔòÍË³öÑ­»·
+			// å¦‚æœ ThisInfo.Offset è¶Šç•Œï¼Œåˆ™é€€å‡ºå¾ªç¯
 			if (ThisInfo.Offset >= GV::NowPde.Size) {
-				std::cerr << "ThisInfo.Offset Ô½½çÍË³öÑ­»·" << std::endl;
+				std::cerr << "ThisInfo.Offset è¶Šç•Œé€€å‡ºå¾ªç¯" << std::endl;
 				continue;
 			}
 
-			// todo: ¶ÁÈ¡±êÊ¶
-			//// ¶ÁÈ¡±êÊ¶
+			// todo: è¯»å–æ ‡è¯†
+			//// è¯»å–æ ‡è¯†
 			//std::vector<uint8_t> TagBytes(Block.end() - 0x10, Block.end() - 0xc);
 			//uint32_t TagOffSet = BlockOffset + ((bi + 1) * 0x80) - 0xC;
 			//GetOffsetStr ThisTag = GetByteOfPde(TagOffSet, 4);
-			//// ´òÓ¡ ThisTag.Byte
+			//// æ‰“å° ThisTag.Byte
 
-			//// Ìí¼Óµ½OffsetInfoArr
+			//// æ·»åŠ åˆ°OffsetInfoArr
 			OffsetInfoArr.push_back(ThisInfo);
 		}
 
@@ -129,28 +129,28 @@ namespace UnPdeC {
 	}
 
 	/// <summary>
-	/// ´ÓPDEÎÄ¼şÖĞ»ñÈ¡Ö¸¶¨¿éÊı¾İ
+	/// ä»PDEæ–‡ä»¶ä¸­è·å–æŒ‡å®šå—æ•°æ®
 	/// </summary>
-	/// <param name="Start">¿éÔÚPDEÎÄ¼şÖĞµÄÆğÊ¼Æ«ÒÆ</param>
-	/// <param name="Size">¿é´óĞ¡</param>
-	/// <returns>¿éÊı¾İ</returns>
+	/// <param name="Start">å—åœ¨PDEæ–‡ä»¶ä¸­çš„èµ·å§‹åç§»</param>
+	/// <param name="Size">å—å¤§å°</param>
+	/// <returns>å—æ•°æ®</returns>
 	GetOffsetStr PdeTool::GetByteOfPde(uint32_t Start, uint32_t Size) {
-		// ´ò¿ªÎÄ¼şÓÃÓÚ¶ÁÈ¡¶ş½øÖÆÊı¾İ
+		// æ‰“å¼€æ–‡ä»¶ç”¨äºè¯»å–äºŒè¿›åˆ¶æ•°æ®
 		ifstream PDEFILE_FS(GV::NowPde.Path, ios::binary);
 
-		// ¼ì²éÎÄ¼şÊÇ·ñ´ò¿ª³É¹¦
+		// æ£€æŸ¥æ–‡ä»¶æ˜¯å¦æ‰“å¼€æˆåŠŸ
 		if (!PDEFILE_FS) {
-			cerr << "ÎŞ·¨´ò¿ªPDEÎÄ¼ş: " << GV::NowPde.Name << endl;
-			// ÍË³ö³ÌĞò
+			cerr << "æ— æ³•æ‰“å¼€PDEæ–‡ä»¶: " << GV::NowPde.Name << endl;
+			// é€€å‡ºç¨‹åº
 			exit(1);
 		}
 
-		// ÉèÖÃ¶ÁÈ¡Æğµã
+		// è®¾ç½®è¯»å–èµ·ç‚¹
 		PDEFILE_FS.seekg(Start, ios::beg);
 
-		// ¼ì²éÎÄ¼şÎ»ÖÃÊÇ·ñÕıÈ·
+		// æ£€æŸ¥æ–‡ä»¶ä½ç½®æ˜¯å¦æ­£ç¡®
 		if (PDEFILE_FS.tellg() != Start) {
-			cerr << "ÎÄ¼ş¶¨Î»Ê§°Ü" << endl;
+			cerr << "æ–‡ä»¶å®šä½å¤±è´¥" << endl;
 			return { 0, vector<uint8_t>() };
 		}
 
@@ -158,8 +158,8 @@ namespace UnPdeC {
 		PDEFILE_FS.read(reinterpret_cast<char*>(buffer.data()), Size);
 
 		if (!PDEFILE_FS) {
-			cerr << "¶ÁÈ¡PDEÎÄ¼şÊ§°Ü" << endl;
-			// Èç¹û¶ÁÈ¡Ê§°Ü£¬·µ»Ø¿ÕµÄGetOffsetStr
+			cerr << "è¯»å–PDEæ–‡ä»¶å¤±è´¥" << endl;
+			// å¦‚æœè¯»å–å¤±è´¥ï¼Œè¿”å›ç©ºçš„GetOffsetStr
 			return { 0, vector<uint8_t>() };
 		}
 
@@ -167,27 +167,27 @@ namespace UnPdeC {
 	}
 
 	/// <summary>
-	/// ½âÃÜÎÄ¼ş »ò! Êı¾İ¿é
+	/// è§£å¯†æ–‡ä»¶ æˆ–! æ•°æ®å—
 	/// </summary>
-	/// <param name="OffsetArr">ÎÄ¼ş»òÊı¾İ¿éµÄÆ«ÒÆĞÅÏ¢Êı×é</param>
-	/// <returns>½âÃÜºóµÄÊı¾İ</returns>
+	/// <param name="OffsetArr">æ–‡ä»¶æˆ–æ•°æ®å—çš„åç§»ä¿¡æ¯æ•°ç»„</param>
+	/// <returns>è§£å¯†åçš„æ•°æ®</returns>
 	std::vector<unsigned char> PdeTool::DeFileOrBlock(const std::vector<unsigned char>& OffsetArr) {
-		// µ±Ç°ÁÙÊ±½âÃÜ×Ö½ÚÊı×é
+		// å½“å‰ä¸´æ—¶è§£å¯†å­—èŠ‚æ•°ç»„
 		std::vector<uint8_t> TempDEArr(OffsetArr.size(), 0);
 
-		// Key³¤¶È
+		// Keyé•¿åº¦
 		//size_t KeyLength = GV::PdeKey.size() - 1;
-		// GV::PdeKey µÄ¹Ì¶¨³¤¶È
+		// GV::PdeKey çš„å›ºå®šé•¿åº¦
 		constexpr size_t KeyLength = 0x1000;
 
-		// ±éÀú OffsetArr ²¢Ê¹ÓÃ GV::PdeKey ½øĞĞ½âÃÜ
+		// éå† OffsetArr å¹¶ä½¿ç”¨ GV::PdeKey è¿›è¡Œè§£å¯†
 		for (size_t i = 0; i < OffsetArr.size(); ++i) {
-			// Ê¹ÓÃÄ£ÔËËãÈ·±£ KeyIndex Ñ­»·ÔÚ 0 µ½ KeyLength Ö®¼ä
+			// ä½¿ç”¨æ¨¡è¿ç®—ç¡®ä¿ KeyIndex å¾ªç¯åœ¨ 0 åˆ° KeyLength ä¹‹é—´
 			size_t KeyIndex = i % KeyLength;
 			TempDEArr[i] = GV::PdeKey[KeyIndex] ^ OffsetArr[i];
 		}
 
-		// Íê³É½âÃÜÊı¾İ¿é
+		// å®Œæˆè§£å¯†æ•°æ®å—
 		return TempDEArr;
 	}
 }
