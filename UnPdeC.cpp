@@ -48,7 +48,7 @@ int main() {
 		PdeTool::Init();
 
 		// 创建目录结构
-		DirStr TryDir = { pde.Name + "/", pde.Name + "/" };
+		DirStr TryDir = { pde.Name , pde.Name };
 		// 开始解密目录
 		Unpack::Try(0x1000, 0x1000, TryDir, false);
 	}

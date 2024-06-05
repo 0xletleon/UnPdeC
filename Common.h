@@ -44,8 +44,8 @@ struct TNowPde {
 /// 文件夹信息
 /// </summary>
 struct DirStr {
-	string UpDir; // 上级目录
-	string NowDir; // 当前目录
+	std::filesystem::path UpDir; // 上级目录
+	std::filesystem::path NowDir; // 当前目录
 };
 
 /// <summary>

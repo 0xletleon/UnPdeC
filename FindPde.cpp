@@ -11,6 +11,10 @@ namespace UnPdeC {
 		GetModuleFileNameA(NULL, buffer, MAX_PATH);
 		std::filesystem::path exePath = std::filesystem::path(buffer).remove_filename();
 
+		cout << " ！可执行文件所在目录：" << exePath.string() << endl;
+		// 将程序目录写入全局变量
+		GV::ExeDir = exePath;
+
 		// 遍历可执行文件所在目录，查找所有 .pde 文件
 		for (const auto& entry : std::filesystem::directory_iterator(exePath)) {
 			if (entry.path().extension() == ".pde") {

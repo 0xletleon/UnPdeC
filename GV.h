@@ -21,6 +21,8 @@ namespace UnPdeC {
 		static TNowPde NowPde;
 		// 解密密钥
 		static vector<unsigned char> PdeKey;
+		// 当前程序所在目录
+		static std::filesystem::path ExeDir;
 	};
 }
 #endif // GV_H

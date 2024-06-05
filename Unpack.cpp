@@ -83,17 +83,21 @@ namespace UnPdeC {
 				// 跳过二次解密
 				if (FindSuffix(DirOrFile.Name)) {
 					// 保存文件
-					std::string savePath = Dir.NowDir + DirOrFile.Name;
-					if (!std::filesystem::exists(savePath)) {
+					std::filesystem::path FilePath = GV::ExeDir / Dir.NowDir / DirOrFile.Name;
+					if (!std::filesystem::exists(FilePath)) {
 						// 保存文件
-						std::ofstream outFile(savePath, std::ios::binary);
-						outFile.write(reinterpret_cast<const char*>(DeTempFileByte.data()), DeTempFileByte.size());
-						outFile.close();
+						try {
+							std::ofstream outFile(FilePath, std::ios::binary);
+							outFile.write(reinterpret_cast<const char*>(DeTempFileByte.data()), DeTempFileByte.size());
+							outFile.close();
+						} catch (const std::exception&) {
+							cout << " ！保存文件失败: " << DirOrFile.Name << endl;
+						}
 					}
 				} else {
 					// 二次解密
 					std::vector<unsigned char> Decryption2;
-					string fixName = DirOrFile.Name;
+					std::string fixName = DirOrFile.Name;
 					try {
 						Decryption2 = FinalUnpack::PreDecrypt(DeTempFileByte, DirOrFile.Name);
 						// 去除 DirOrFile.Name 中的 .cache
@@ -104,12 +108,16 @@ namespace UnPdeC {
 					}
 
 					// 保存文件
-					std::string savePath = Dir.NowDir + fixName;
-					if (!std::filesystem::exists(savePath)) {
+					std::filesystem::path FilePath2 = GV::ExeDir / Dir.NowDir / fixName;
+					if (!std::filesystem::exists(FilePath2)) {
 						// 保存文件
-						std::ofstream outFile(savePath, std::ios::binary);
-						outFile.write(reinterpret_cast<const char*>(Decryption2.data()), Decryption2.size());
-						outFile.close();
+						try {
+							std::ofstream outFile(FilePath2, std::ios::binary);
+							outFile.write(reinterpret_cast<const char*>(Decryption2.data()), Decryption2.size());
+							outFile.close();
+						} catch (const std::exception&) {
+							cout << " ！保存文件失败: " << DirOrFile.Name << endl;
+						}
 					}
 				}
 			} else if (DirOrFile.Type == 2) { // 目录
@@ -117,11 +125,18 @@ namespace UnPdeC {
 				//RecOffsetLog(blockOffset, DirOrFile.Offset, 0, DirOrFile.Size, DirOrFile.Name, DirOrFile.Type, dir.NowDir);
 
 				// 拼接新目录路径
-				DirStr NewDir = { Dir.NowDir, Dir.NowDir + DirOrFile.Name + "/" };
+				DirStr NewDir = { Dir.NowDir, Dir.NowDir / DirOrFile.Name };
 
 				// 创建目录
-				if (!std::filesystem::exists(NewDir.NowDir)) {
-					std::filesystem::create_directory(NewDir.NowDir);
+				try {
+					std::filesystem::path DirPath = GV::ExeDir / NewDir.NowDir;
+					if (!std::filesystem::exists(DirPath)) {
+						std::filesystem::create_directory(DirPath);
+						cout << " ！创建目录成功!!!!: " << DirPath << endl;
+					}
+
+				} catch (const std::filesystem::filesystem_error& e) {
+					cerr << "创建目录时发生错误: " << e.what() << endl;
 				}
 
 				// 递归解密

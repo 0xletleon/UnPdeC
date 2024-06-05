@@ -12,4 +12,6 @@ namespace UnPdeC {
 	TNowPde GV::NowPde = { "", 0L };
 	// 解密密钥
 	vector<unsigned char> GV::PdeKey = vector<unsigned char>(1000, 0);
+	// 当前程序所在目录
+	std::filesystem::path GV::ExeDir = "";
 }

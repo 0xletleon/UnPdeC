@@ -4,6 +4,7 @@
 
 #include "Common.h"
 #include <windows.h>
+#include "GV.h"
 
 namespace UnPdeC {
 

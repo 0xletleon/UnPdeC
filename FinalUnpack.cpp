@@ -47,7 +47,8 @@ namespace UnPdeC {
 
 			// 删除前 8 个字节
 			DecryptedData.erase(DecryptedData.begin(), DecryptedData.begin() + std::min(static_cast<size_t>(8), DecryptedData.size()));
-			//EncryptedData.erase(DecryptedData.begin(), DecryptedData.begin() + 8);
+
+			// 返回处理后的字节数组
 			return DecryptedData;
 		} else { // 不需要二次解密
 			if (DeTempFileByte.size() <= 0x29) {

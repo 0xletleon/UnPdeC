@@ -5,10 +5,16 @@ namespace UnPdeC {
 		cout << "正在初始化 PdeTool" << endl;
 
 		// 检查目录是否存在
-		if (!std::filesystem::exists(GV::NowPde.Name)) {
+		std::filesystem::path PdeDir = GV::ExeDir / GV::NowPde.Name;
+		if (!std::filesystem::exists(PdeDir)) {
 			// 目录不存在，创建它
-			std::filesystem::create_directory(GV::NowPde.Name);
-			std::cout << "已创建目录: " << GV::NowPde.Name << std::endl;
+			try {
+				std::filesystem::create_directory(PdeDir);
+				std::cout << "已创建目录: " << PdeDir << std::endl;
+			} catch (const std::exception& e) {
+				std::cerr << "创建目录失败: " << e.what() << std::endl;
+				return;
+			}
 		}
 
 		// 获取PdeKey
