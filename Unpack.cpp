@@ -132,7 +132,7 @@ namespace UnPdeC {
 					std::filesystem::path DirPath = GV::ExeDir / NewDir.NowDir;
 					if (!std::filesystem::exists(DirPath)) {
 						std::filesystem::create_directory(DirPath);
-						cout << " ！创建目录成功!!!!: " << DirPath << endl;
+						//cout << " ！创建目录成功!!!!: " << DirPath << endl;
 					}
 
 				} catch (const std::filesystem::filesystem_error& e) {
