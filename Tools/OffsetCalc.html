@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDE偏移值计算器</title>
     <meta name="author" content="letleon">
+    <meta name="author" content="claude-3-5-sonnet-20240620">
     <style>
         body {
             max-width: 700px;
@@ -16,6 +17,11 @@
 
         .ovalbox {
             text-align: center;
+        }
+
+        .title {
+            font-size: 60px;
+            font-weight: bold;
         }
 
         .ovalinputs {
@@ -73,12 +79,24 @@
         #originalOffsetValue::placeholder {
             font-size: 40px;
         }
+
+        footer {
+            padding: 20px;
+            color: var(--label-color);
+            font-size: 18px;
+            display: flex;
+            justify-content: center;
+        }
+
+        footer p {
+            margin: 0 10px;
+        }
     </style>
 </head>
 
 <body>
     <div class="ovalbox">
-        <h1>PDE偏移值计算器</h1>
+        <h1 class="title">PDE偏移值计算器</h1>
         <div class="ovalinputs">
             <div class="valinputleft">
                 <p>PDE偏移</p>
@@ -94,8 +112,12 @@
         </div>
     </div>
 
-    <h2>结果:</h2>
     <div id="results"></div>
+
+    <footer style="text-align: center; padding: 20px; color: var(--label-color); font-size: 14px;">
+        <p>Powered by: letleon</p>
+        <p>Ai assistant powered by: claude-3-5-sonnet-20240620</p>
+    </footer>
 
     <script>
         // 当前点击按钮

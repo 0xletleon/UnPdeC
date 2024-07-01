@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XOR快速验证</title>
+    <meta name="author" content="letleon">
+    <meta name="author" content="claude-3-5-sonnet-20240620">
+    <style>
+        :root {
+            --system-blue: #007AFF;
+            --system-gray: #8E8E93;
+            --system-background: #F2F2F7;
+            --label-color: #3C3C43;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Icons', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+            background-color: var(--system-background);
+            color: #000;
+            line-height: 1.5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: var(--system-background);
+            padding: 16px 20px;
+            font-size: 60px;
+            font-weight: 100;
+            text-align: center;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 90px;
+            font-weight: 100;
+            line-height: 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--label-color);
+            font-size: 15px;
+            opacity: 0.6;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 97%;
+            padding: 12px;
+            margin-bottom: 16px;
+            border: 1px solid var(--system-gray);
+            border-radius: 10px;
+            font-size: 17px;
+            background-color: #fff;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--system-blue);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+
+        h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-top: 24px;
+            margin-bottom: 8px;
+        }
+
+        #hexView,
+        #encryptedHexView {
+            font-family: 'Courier New', monospace;
+            white-space: pre;
+            overflow-x: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 14px;
+            line-height: 1.2;
+            letter-spacing: 0.5px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        footer {
+            padding: 20px;
+            color: var(--label-color);
+            font-size: 18px;
+            display: flex;
+            justify-content: center;
+        }
+
+        footer p {
+            margin: 0 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>XOR快速验证</header>
+
+    <div class="container">
+        <div class="content">
+            <h1>解密</h1>
+            <h3>待解密数据 (HEX)</h3>
+            <input type="text" id="data" value="2F AE 02 F2 90 DE C0 2D EE ED 81 AC 55 7B 74 18"
+                placeholder="请输入16进制待解密数据" oninput="generateKeyAndDecrypt()">
+            <h3>解密后数据 (HEX)</h3>
+            <input type="text" id="decryptedHex" value="" placeholder="解码后16进制">
+            <div id="hexView"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="content">
+            <h1>加密</h1>
+            <h3>待加密数据 (HEX)</h3>
+            <!-- <textarea id="plaintextHex" placeholder="请输入待加密的16进制数据" oninput="encryptData()"></textarea> -->
+            <input type="text" id="plaintextHex" value="" placeholder="请输入待加密的16进制数据" oninput="encryptData()">
+            <h3>加密后数据 (HEX)</h3>
+            <input type="text" id="encryptedHex" value="" placeholder="加密后16进制">
+            <div id="encryptedHexView"></div>
+        </div>
+    </div>
+
+    <footer style="text-align: center; padding: 20px; color: var(--label-color); font-size: 14px;">
+        <p>Powered by: letleon</p>
+        <p>Ai assistant powered by: claude-3-5-sonnet-20240620</p>
+    </footer>
+
+    <script>
+        let PdeKey = new Uint8Array(0x1000);
+
+        window.onload = function () {
+            generateKey();
+            generateKeyAndDecrypt();
+            encryptData();
+        }
+
+        function generateKey() {
+            let EAX = 0x42574954;
+            for (let i = 0; i < 0x1000; ++i) {
+                EAX = Math.imul(EAX, 0x7FCF) >>> 0;
+                const ECX = (EAX >>> 24) & 0xFF;
+                const EDX = (EAX >>> 16) & 0xFF;
+                let CL = ECX ^ EDX;
+                CL ^= (EAX >>> 8) & 0xFF;
+                CL ^= EAX & 0xFF;
+                PdeKey[i] = CL & 0xFF;
+            }
+        }
+
+        function generateKeyAndDecrypt() {
+            let inputData = document.getElementById('data').value.replace(/\s/g, '');
+            let data = [];
+
+            if (!/^[0-9A-Fa-f]*$/.test(inputData)) {
+                document.getElementById('hexView').textContent = "请输入有效的十六进制数据";
+                document.getElementById('decryptedHex').value = "";
+                return;
+            }
+
+            for (let i = 0; i < inputData.length; i += 2) {
+                data.push(parseInt(inputData.substr(i, 2), 16));
+            }
+
+            let decryptedData = new Uint8Array(data.length);
+            for (let i = 0; i < data.length; i++) {
+                decryptedData[i] = data[i] ^ PdeKey[i % 0x1000];
+            }
+
+            displayHexView(decryptedData, 'hexView');
+            document.getElementById('decryptedHex').value = Array.from(decryptedData, byte => byte.toString(16).padStart(2, '0')).join(' ').toUpperCase();
+        }
+
+        function encryptData() {
+            let inputHex = document.getElementById('plaintextHex').value.replace(/\s/g, '');
+
+            if (!/^[0-9A-Fa-f]*$/.test(inputHex)) {
+                document.getElementById('encryptedHexView').textContent = "请输入有效的十六进制数据";
+                return;
+            }
+
+            let data = new Uint8Array(inputHex.length / 2);
+            for (let i = 0; i < data.length; i++) {
+                data[i] = parseInt(inputHex.substr(i * 2, 2), 16);
+            }
+
+            let encryptedData = new Uint8Array(data.length);
+            for (let i = 0; i < data.length; i++) {
+                encryptedData[i] = data[i] ^ PdeKey[i % 0x1000];
+            }
+
+            displayHexView(encryptedData, 'encryptedHexView');
+            document.getElementById('encryptedHex').value = Array.from(encryptedData, byte => byte.toString(16).padStart(2, '0')).join(' ').toUpperCase();
+        }
+
+        function displayHexView(data, elementId) {
+            const hexView = document.getElementById(elementId);
+            let output = '';
+            const bytesPerLine = 16;
+
+            output += 'OFFSET     00 01 02 03 04 05 06 07   08 09 0A 0B 0C 0D 0E 0F    ASCII\n';
+            output += '         ┌─────────────────────────┬─────────────────────────┐\n';
+
+            for (let i = 0; i < data.length; i += bytesPerLine) {
+                // 地址
+                output += i.toString(16).padStart(8, '0') + ' │';
+
+                // 十六进制值
+                let asciiPart = '';
+                for (let j = 0; j < bytesPerLine; j++) {
+                    if (i + j < data.length) {
+                        output += ' ' + data[i + j].toString(16).padStart(2, '0').toUpperCase();
+                        asciiPart += (data[i + j] >= 32 && data[i + j] <= 126) ? String.fromCharCode(data[i + j]) : '.';
+                    } else {
+                        output += '   ';
+                        asciiPart += ' ';
+                    }
+                    if (j === 7) output += '  ';
+                }
+
+                // ASCII 表示
+                output += ' │ ' + asciiPart + ' │\n';
+            }
+
+            output += '         └─────────────────────────┴─────────────────────────┘\n';
+
+            hexView.textContent = output;
+        }
+    </script>
+
+</body>
+
+</html>
