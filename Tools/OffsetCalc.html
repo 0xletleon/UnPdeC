@@ -18,25 +18,60 @@
             text-align: center;
         }
 
-        #offsetValue {
-            font-size: 30px;
-            border: 0;
-            margin: 10px;
-            padding: 10px;
-            text-align: center;
-        }
-
-        .valbuttons {
+        .ovalinputs {
             display: flex;
-            justify-content: space-evenly;
+            align-items: center;
+            justify-content: center;
         }
 
-        .valbt {
-            padding: 10px 20px;
+        .valinputleft,
+        .valinputright {
+            background-color: #f1f1f1;
+            border-radius: 10px;
+            padding: 10px 0;
+            margin: 10px;
         }
 
-        #results {
-            padding: 0 10px;
+        .valinputleft p {
+            text-align: right;
+            font-size: 18px;
+            font-weight: lighter;
+            padding: 0 20px 10px 0;
+            line-height: 0;
+        }
+
+        .valinputleft input {
+            text-align: right;
+        }
+
+        .valinputfh {
+            font-size: 60px;
+        }
+
+        .valinputright p {
+            text-align: left;
+            font-size: 18px;
+            font-weight: lighter;
+            padding: 0 0 10px 20px;
+            line-height: 0;
+        }
+
+        .valinputright input {
+            text-align: left;
+        }
+
+        #pdeOffsetValue,
+        #originalOffsetValue {
+            font-size: 40px;
+            border: 0;
+            padding: 0 20px;
+            background-color: #f1f1f1;
+            outline: none;
+        }
+
+        #pdeOffsetValue::placeholder,
+        #originalOffsetValue::placeholder {
+            font-size: 40px;
         }
     </style>
 </head>
@@ -44,10 +79,18 @@
 <body>
     <div class="ovalbox">
         <h1>PDE偏移值计算器</h1>
-        <input id="offsetValue" size="10" placeholder="以十六进制格式输入原始偏移量（例如C90DA）" value="966B000">
-        <div class="valbuttons">
-            <button class="valbt" onclick="OTP()">原始 -> PDE</button>
-            <button class="valbt" onclick="PTO()">PDE -> 原始</button>
+        <div class="ovalinputs">
+            <div class="valinputleft">
+                <p>PDE偏移</p>
+                <input id="pdeOffsetValue" size="10" placeholder="0x963B000" value="" oninput="PTO()">
+            </div>
+
+            <p class="valinputfh" onclick="CleanCache()">↔️</p>
+
+            <div class="valinputright">
+                <p>原始偏移</p>
+                <input id="originalOffsetValue" size="10" placeholder="0x9615" value="" oninput="OTP()">
+            </div>
         </div>
     </div>
 
@@ -62,18 +105,25 @@
         // 结果计数
         let resultCount = 0;
 
+        // 清空缓存
+        function CleanCache() {
+            document.getElementById("pdeOffsetValue").value = "";
+            document.getElementById("originalOffsetValue").value = "";
+        }
+
         // 原始偏移值转PDE实际偏移值
         function OTP(pdeOffset) {
             // 如果当前点击按钮为空 则 等于自己
             if (nowAct == "") nowAct = "OTP"
             // 获取偏移值 并 转换成 16进制
-            pdeOffset = pdeOffset || parseInt(document.getElementById("offsetValue").value, 16);
+            pdeOffset = pdeOffset || parseInt(document.getElementById("originalOffsetValue").value, 16);
             // 将原始偏移 转换到 PDE实际偏移值
             let offsetPde = ((pdeOffset >> 10) + pdeOffset + 1) << 12;
             // 赋值输出结果到 resultText
             resultText += `[原始: ${pdeOffset.toString(16)} → PDE: ${offsetPde.toString(16)} ] `;
             // 判断是否需要反向转换 否则 输出 resultText
             if (nowAct == "OTP") {
+                document.getElementById("pdeOffsetValue").value = offsetPde.toString(16);
                 PTO(offsetPde);
             } else {
                 displayResult(resultText);
@@ -85,7 +135,7 @@
             // 如果当前点击按钮为空 则 等于自己
             if (nowAct == "") nowAct = "PTO"
             // 获取偏移值 并 转换成 16进制
-            pdeOffset = pdeOffset || parseInt(document.getElementById("offsetValue").value, 16);
+            pdeOffset = pdeOffset || parseInt(document.getElementById("pdeOffsetValue").value, 16);
             // PDE实际偏移值 转换到 将原始偏移
             let offsetOriginal = (pdeOffset >> 12) - (pdeOffset >> 22);
             // 判断是否 小于等于 0xC93FF000
@@ -97,6 +147,7 @@
             resultText += `[PDE: ${pdeOffset.toString(16)} → 原始: ${offsetOriginal.toString(16)} → 小端: ${littleEndianoffsetOriginal.toString(16)} ] `
             // 判断是否需要反向转换 否则 输出 resultText
             if (nowAct == "PTO") {
+                document.getElementById("originalOffsetValue").value = offsetOriginal.toString(16);
                 OTP(offsetOriginal);
             } else {
                 displayResult(resultText);
