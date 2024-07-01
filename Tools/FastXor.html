@@ -51,11 +51,13 @@
         }
 
         label {
-            display: block;
-            margin-bottom: 8px;
             color: var(--label-color);
             font-size: 15px;
-            opacity: 0.6;
+        }
+
+        .encodingBox {
+            text-align: right;
+            padding-bottom: 10px;
         }
 
         input[type="text"],
@@ -123,10 +125,20 @@
         <div class="content">
             <h1>解密</h1>
             <h3>待解密数据 (HEX)</h3>
-            <input type="text" id="data" value="2F AE 02 F2 90 DE C0 2D EE ED 81 AC 55 7B 74 18"
-                placeholder="请输入16进制待解密数据" oninput="generateKeyAndDecrypt()">
+            <input type="text" id="data"
+                value="04 9D 96 1A 3B D9 E3 CB F9 10 CB 67 A3 C2 43 F4 0A 08 C0 67 B5 AA 99 2A 70 95 AD 11 61 67 5B DA 1C 6B 74 89 B1 FE F6 12 C8 ED B4 2D FE 8E A6 4A 5C 17 5A F1 0A 5B A3 6A 9E D2 00 B5 D3 52 86 41 7C A0 BA 39 71 04 BE 0C DF 12 8A 42 85 F7 50 89 85 05 AC F6 11 A4 28 73 FF 10 D6 CB ED A4 EF A5 2E A9 42 F2 90 C0 C0 AD EE E8 81 AC 55 7F 7E 18 59 DF EC 6E B5 3A AC 2E A7 F0 A1 FA BB 62 DE 3D 62 95 71 F2 2E 7E 0E EE FE 1C 89 2B 8D A8 E7 A8 6F D6 59 1E 5B 13 39 9B CD 26 3F D5 33 68 EB B6 11 35 CF 84 78 66 C4 25 61 CF 14 28 F3 DB F3 5A A3 56 E7 35 D9 B3 81 58 7B E0 C2 93 17 32 CC 25 32 6C 10 65 7E 92 6B 76 F2 AF 19 E0 E2 1B EE 50 D9 FE 95 78 0D 68 8A B9 F3 C3 8F AD A7 F0 74 72 54 49 57 A7 F5 29 DB 80 AC F0 50 97 23 76 1E 81 5D F6 6A 13 69 03 9F C8 E9 4C 4C 05 F8 D0 32 C0 B3 77"
+                placeholder="16进制待解密数据" oninput="generateKeyAndDecrypt()">
             <h3>解密后数据 (HEX)</h3>
             <input type="text" id="decryptedHex" value="" placeholder="解码后16进制">
+            <div class="encodingBox">
+                <label for="encoding">编码方式：</label>
+                <select id="encoding" onchange="updateHexView()">
+                    <option value="ASCII">ASCII</option>
+                    <option value="UTF-8">UTF-8</option>
+                    <option value="GB18030">GB18030</option>
+                    <option value="ANSI">ANSI (Windows-1252)</option>
+                </select>
+            </div>
             <div id="hexView"></div>
         </div>
     </div>
@@ -135,8 +147,7 @@
         <div class="content">
             <h1>加密</h1>
             <h3>待加密数据 (HEX)</h3>
-            <!-- <textarea id="plaintextHex" placeholder="请输入待加密的16进制数据" oninput="encryptData()"></textarea> -->
-            <input type="text" id="plaintextHex" value="" placeholder="请输入待加密的16进制数据" oninput="encryptData()">
+            <input type="text" id="plaintextHex" value="" placeholder="待加密的16进制数据" oninput="encryptData()">
             <h3>加密后数据 (HEX)</h3>
             <input type="text" id="encryptedHex" value="" placeholder="加密后16进制">
             <div id="encryptedHexView"></div>
@@ -217,10 +228,11 @@
 
         function displayHexView(data, elementId) {
             const hexView = document.getElementById(elementId);
+            const encoding = document.getElementById('encoding').value;
             let output = '';
             const bytesPerLine = 16;
 
-            output += 'OFFSET     00 01 02 03 04 05 06 07   08 09 0A 0B 0C 0D 0E 0F    ASCII\n';
+            output += 'OFFSET     00 01 02 03 04 05 06 07   08 09 0A 0B 0C 0D 0E 0F    ' + encoding + '\n';
             output += '         ┌─────────────────────────┬─────────────────────────┐\n';
 
             for (let i = 0; i < data.length; i += bytesPerLine) {
@@ -228,25 +240,91 @@
                 output += i.toString(16).padStart(8, '0') + ' │';
 
                 // 十六进制值
-                let asciiPart = '';
+                let encodedPart = new Uint8Array(bytesPerLine);
+                let hexPart = '';
                 for (let j = 0; j < bytesPerLine; j++) {
                     if (i + j < data.length) {
-                        output += ' ' + data[i + j].toString(16).padStart(2, '0').toUpperCase();
-                        asciiPart += (data[i + j] >= 32 && data[i + j] <= 126) ? String.fromCharCode(data[i + j]) : '.';
+                        const byte = data[i + j];
+                        hexPart += ' ' + byte.toString(16).padStart(2, '0').toUpperCase();
+                        encodedPart[j] = byte;
                     } else {
-                        output += '   ';
-                        asciiPart += ' ';
+                        hexPart += '   ';
+                        encodedPart[j] = 0;
                     }
-                    if (j === 7) output += '  ';
+                    if (j === 7) hexPart += '  ';
                 }
+                output += hexPart;
 
-                // ASCII 表示
-                output += ' │ ' + asciiPart + ' │\n';
+                // 编码表示
+                let decodedText = decodeText(encodedPart.slice(0, Math.min(bytesPerLine, data.length - i)), encoding);
+                output += ' │ ' + formatDecodedText(decodedText, bytesPerLine) + ' \n';
             }
 
             output += '         └─────────────────────────┴─────────────────────────┘\n';
 
             hexView.textContent = output;
+        }
+
+        function decodeText(data, encoding) {
+            let decoder;
+            switch (encoding) {
+                case 'UTF-8':
+                    decoder = createDecoder('utf-8');
+                    break;
+                case 'GB18030':
+                    decoder = createDecoder('gb18030');
+                    break;
+                case 'ANSI':
+                    decoder = createDecoder('windows-1252');
+                    break;
+                case 'ASCII':
+                default:
+                    return Array.from(data).map(byte =>
+                        (byte >= 32 && byte <= 126) ? String.fromCharCode(byte) : '.'
+                    ).join('');
+            }
+            try {
+                return decoder.decode(data).replace(/[\x00-\x1F\x7F-\xFF]/g, '.');
+            } catch (e) {
+                console.error('Decoding error:', e);
+                return '.'.repeat(data.length);
+            }
+        }
+
+        function createDecoder(encoding) {
+            try {
+                return new TextDecoder(encoding);
+            } catch (e) {
+                console.warn(`TextDecoder does not support ${encoding}, falling back to ASCII`);
+                return {
+                    decode: (data) => Array.from(data).map(byte =>
+                        (byte >= 32 && byte <= 126) ? String.fromCharCode(byte) : '.'
+                    ).join('')
+                };
+            }
+        }
+
+        function formatDecodedText(text, bytesPerLine) {
+            let formatted = '';
+            let currentLength = 0;
+            for (let char of text) {
+                if (currentLength >= bytesPerLine) break;
+                if (char.charCodeAt(0) > 255) {
+                    // 中文字符占用两个字节的空间
+                    if (currentLength + 2 > bytesPerLine) break;
+                    formatted += char;
+                    currentLength += 2;
+                } else {
+                    formatted += char;
+                    currentLength += 1;
+                }
+            }
+            return formatted.padEnd(bytesPerLine, ' ');
+        }
+
+        function updateHexView() {
+            generateKeyAndDecrypt();
+            encryptData();
         }
     </script>
 
