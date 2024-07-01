@@ -12,3 +12,9 @@ C++17 标准
 ## 测试程序
 
 [UnPdeC.exe](TestRelease/UnPdeC.exe)
+
+## 辅助工具
+
+[PDE偏移值计算器](Tools/OffsetCalc.html)
+
+[XOR快速验证](Tools/FastXor.html)
