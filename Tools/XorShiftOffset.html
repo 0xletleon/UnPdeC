@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件偏移值模糊计算器</title>
+    <meta name="author" content="letleon">
+    <meta name="author" content="claude-3-5-sonnet-20240620">
+    <style>
+        body {
+            max-width: 800px;
+            margin: 0 auto;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            padding: 20px;
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-weight: 100;
+            font-size: 60px;
+            padding-bottom: 40px;
+            margin: 0;
+            text-align: center;
+        }
+
+        h3 {
+            line-height: 0;
+            font-size: 25px;
+            font-weight: 300;
+        }
+
+        input,
+        select,
+        button {
+            font-size: 35px;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #d2d2d7;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #0071e3;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0077ed;
+        }
+
+        #output {
+            white-space: pre-wrap;
+            font-family: monospace;
+            border: 1px solid #d2d2d7;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 20px;
+            background-color: #f5f5f7;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 25px;
+        }
+
+        footer {
+            padding: 20px;
+            color: var(--label-color);
+            font-size: 18px;
+            display: flex;
+            justify-content: center;
+        }
+
+        footer p {
+            margin: 0 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>文件偏移值模糊计算器</h1>
+    <div class="container">
+        <h3>偏移值</h3>
+        <input type="text" id="input" placeholder="A0 7A 00 00 或 A07A00000">
+        <h3>块大小</h3>
+        <select id="blockSize">
+            <option value="4096">0x1000 (4096 bytes)</option>
+            <option value="8192">0x2000 (8192 bytes)</option>
+            <option value="16384">0x4000 (16384 bytes)</option>
+            <option value="32768">0x8000 (32768 bytes)</option>
+            <option value="65536">0x10000 (65536 bytes)</option>
+        </select>
+        <button onclick="processInput()">计算</button>
+        <div id="output"></div>
+    </div>
+
+    <footer style="text-align: center; padding: 20px; color: var(--label-color); font-size: 14px;">
+        <p>Powered by: letleon</p>
+        <p>Ai assistant powered by: claude-3-5-sonnet-20240620</p>
+    </footer>
+
+    <script>
+        const PdeKey = new Uint8Array(0x10000);
+
+        function generateKey() {
+            let EAX = 0x42574954;
+            for (let i = 0; i < 0x10000; ++i) {
+                EAX = Math.imul(EAX, 0x7FCF) >>> 0;
+                const ECX = (EAX >>> 24) & 0xFF;
+                const EDX = (EAX >>> 16) & 0xFF;
+                let CL = ECX ^ EDX;
+                CL ^= (EAX >>> 8) & 0xFF;
+                CL ^= EAX & 0xFF;
+                PdeKey[i] = CL & 0xFF;
+            }
+        }
+
+        function hexToBytes(hex) {
+            // 移除所有空格
+            hex = hex.replace(/\s/g, '');
+            // 如果字符串长度为奇数，在前面添加一个'0'
+            if (hex.length % 2 !== 0) {
+                hex = '0' + hex;
+            }
+            // 每两个字符转换为一个字节
+            const bytes = [];
+            for (let i = 0; i < hex.length; i += 2) {
+                bytes.push(parseInt(hex.substr(i, 2), 16));
+            }
+            return bytes;
+        }
+
+        function bytesToHex(bytes) {
+            return bytes.map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+        }
+
+        function processInput() {
+            generateKey();
+            const input = document.getElementById('input').value;
+            const inputBytes = hexToBytes(input);
+            const blockSize = parseInt(document.getElementById('blockSize').value);
+            let output = '';
+
+            const fileCount = blockSize / 0x80;
+
+            for (let i = 0; i < fileCount; i++) {
+                const offset = i * 0x80 + 0x78;
+                const encryptedBytes = inputBytes.map((b, j) => b ^ PdeKey[offset + j]);
+                output += `文件块 ${i + 1} 偏移值 (0x${offset.toString(16).padStart(4, '0')}): ${bytesToHex(encryptedBytes)}\n`;
+            }
+
+            document.getElementById('output').textContent = output;
+        }
+    </script>
+</body>
+
+</html>
