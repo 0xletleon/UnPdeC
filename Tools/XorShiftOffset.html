@@ -92,6 +92,11 @@
 <body>
     <h1>文件偏移值模糊计算器</h1>
     <div class="container">
+        <h3>类型</h3>
+        <select id="inputType">
+            <option value="identifier">数据标识 (0x74-0x77)</option>
+            <option value="dataOffset">数据偏移 (0x78-0x7B)</option>
+        </select>
         <h3>偏移值</h3>
         <input type="text" id="input" placeholder="A0 7A 00 00 或 A07A00000">
         <h3>块大小</h3>
@@ -128,13 +133,10 @@
         }
 
         function hexToBytes(hex) {
-            // 移除所有空格
             hex = hex.replace(/\s/g, '');
-            // 如果字符串长度为奇数，在前面添加一个'0'
             if (hex.length % 2 !== 0) {
                 hex = '0' + hex;
             }
-            // 每两个字符转换为一个字节
             const bytes = [];
             for (let i = 0; i < hex.length; i += 2) {
                 bytes.push(parseInt(hex.substr(i, 2), 16));
@@ -149,16 +151,24 @@
         function processInput() {
             generateKey();
             const input = document.getElementById('input').value;
+            if (!input)
+                return;
             const inputBytes = hexToBytes(input);
             const blockSize = parseInt(document.getElementById('blockSize').value);
+            const inputType = document.getElementById('inputType').value;
             let output = '';
 
             const fileCount = blockSize / 0x80;
 
             for (let i = 0; i < fileCount; i++) {
-                const offset = i * 0x80 + 0x78;
+                let offset;
+                if (inputType === 'dataOffset') {
+                    offset = i * 0x80 + 0x78;
+                } else { // identifier
+                    offset = i * 0x80 + 0x74;
+                }
                 const encryptedBytes = inputBytes.map((b, j) => b ^ PdeKey[offset + j]);
-                output += `文件块 ${i + 1} 偏移值 (0x${offset.toString(16).padStart(4, '0')}): ${bytesToHex(encryptedBytes)}\n`;
+                output += `${i + 1}: ${bytesToHex(encryptedBytes)}\n`;
             }
 
             document.getElementById('output').textContent = output;

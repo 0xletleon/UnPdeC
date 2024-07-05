@@ -232,8 +232,8 @@
             let output = '';
             const bytesPerLine = 16;
 
-            output += 'OFFSET     00 01 02 03 04 05 06 07   08 09 0A 0B 0C 0D 0E 0F    ' + encoding + '\n';
-            output += '         ┌─────────────────────────┬─────────────────────────┐\n';
+            output += 'OFFSET     00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F   ' + encoding + '\n';
+            output += '\n';
 
             for (let i = 0; i < data.length; i += bytesPerLine) {
                 // 地址
@@ -251,7 +251,7 @@
                         hexPart += '   ';
                         encodedPart[j] = 0;
                     }
-                    if (j === 7) hexPart += '  ';
+                    if (j === 7) hexPart += ' ';
                 }
                 output += hexPart;
 
@@ -259,8 +259,6 @@
                 let decodedText = decodeText(encodedPart.slice(0, Math.min(bytesPerLine, data.length - i)), encoding);
                 output += ' │ ' + formatDecodedText(decodedText, bytesPerLine) + ' \n';
             }
-
-            output += '         └─────────────────────────┴─────────────────────────┘\n';
 
             hexView.textContent = output;
         }
