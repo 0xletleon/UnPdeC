@@ -93,13 +93,13 @@
     <h1>文件偏移值模糊计算器</h1>
     <div class="container">
         <h3>类型</h3>
-        <select id="inputType">
+        <select id="inputType" onchange="selectfnc(event)">
             <option value="nameBlank">名称空白 (0x60-0x6F)</option>
             <option value="identifier">数据标识 (0x74-0x77)</option>
             <option value="dataOffset">数据偏移 (0x78-0x7B)</option>
         </select>
         <h3>偏移值</h3>
-        <input type="text" id="input" placeholder="A0 7A 00 00 或 A07A00000">
+        <input type="text" id="input" placeholder="A0 7A 00 00 或 A07A00000" value="00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00">
         <h3>块大小</h3>
         <select id="blockSize">
             <option value="4096">0x1000 (4096 bytes)</option>
@@ -130,6 +130,24 @@
                 CL ^= (EAX >>> 8) & 0xFF;
                 CL ^= EAX & 0xFF;
                 PdeKey[i] = CL & 0xFF;
+            }
+        }
+
+        function selectfnc(e) {
+            const { value } = e.target
+            console.log(value);
+            switch (value) {
+                case 'nameBlank':
+                    document.getElementById('input').value = '00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00';
+                    break;
+                case 'identifier':
+                    document.getElementById('input').value = 'C7 D5 CC 01';
+                    break;
+                case 'dataOffset':
+                    document.getElementById('input').value = '5F 6A 02 00';
+                    break;
+                default:
+                    break;
             }
         }
 
