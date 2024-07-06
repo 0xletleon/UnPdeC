@@ -94,6 +94,7 @@
     <div class="container">
         <h3>类型</h3>
         <select id="inputType">
+            <option value="nameBlank">名称空白 (0x60-0x6F)</option>
             <option value="identifier">数据标识 (0x74-0x77)</option>
             <option value="dataOffset">数据偏移 (0x78-0x7B)</option>
         </select>
@@ -117,7 +118,7 @@
     </footer>
 
     <script>
-        const PdeKey = new Uint8Array(0x10000);
+        let PdeKey = new Uint8Array(0x10000);
 
         function generateKey() {
             let EAX = 0x42574954;
@@ -149,7 +150,6 @@
         }
 
         function processInput() {
-            generateKey();
             const input = document.getElementById('input').value;
             if (!input)
                 return;
@@ -164,14 +164,19 @@
                 let offset;
                 if (inputType === 'dataOffset') {
                     offset = i * 0x80 + 0x78;
-                } else { // identifier
+                } else if (inputType === 'identifier') {
                     offset = i * 0x80 + 0x74;
+                } else if (inputType === 'nameBlank') {
+                    offset = i * 0x80 + 0x60;
                 }
                 const encryptedBytes = inputBytes.map((b, j) => b ^ PdeKey[offset + j]);
                 output += `${i + 1}: ${bytesToHex(encryptedBytes)}\n`;
             }
 
             document.getElementById('output').textContent = output;
+        }
+        window.onload = function () {
+            generateKey();
         }
     </script>
 </body>
