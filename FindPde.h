@@ -3,8 +3,8 @@
 #define FINDPDE_H
 
 #include "Common.h"
-#include <windows.h>
 #include "GV.h"
+#include <windows.h>
 
 namespace UnPdeC {
 

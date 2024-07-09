@@ -1,4 +1,5 @@
-﻿#include "Unpack.h"
+﻿// Unpack.cpp
+#include "Unpack.h"
 
 namespace UnPdeC {
 	// 暂时不参与二次解密的文件
@@ -18,11 +19,11 @@ namespace UnPdeC {
 	/// <summary>
 	/// 尝试解密
 	/// </summary>
-	/// <param name="Offset">数据块在PDE文件中的偏移值</param>
+	/// <param name="PdeOffset">数据块在PDE文件中的偏移值</param>
 	/// <param name="Size">数据块大小</param>
 	/// <param name="Dir">目录</param>
 	/// <param name="Is170">是否为170表数据</param>
-	void Unpack::Try(uint32_t Offset, uint32_t Size, const DirStr& Dir, bool Is170) {
+	void Unpack::Try(uint32_t PdeOffset, uint32_t Size, const DirStr& Dir, bool Is170) {
 		std::cout << " ！正在尝试解密: " << Dir.NowDir << std::endl;
 
 		//定义变量
@@ -31,7 +32,7 @@ namespace UnPdeC {
 
 		try {
 			// 读取数据
-			TryByte = PdeTool::GetByteOfPde(Offset, Size);
+			TryByte = PdeTool::GetByteOfPde(PdeOffset, Size);
 			// 校验数据
 			//if (TryByte.Size != Size) return;
 			// 解密数据块 -> 同时生成一个供调试时使用的PDE文件
@@ -46,9 +47,9 @@ namespace UnPdeC {
 		// 非170表数据
 		if (!Is170) {
 			// 获取文件或文件夹偏移信息
-			std::vector<HexOffsetInfo> DeTryByteArr = PdeTool::GetOffsetInfo(DeTryByte, Offset);
+			std::vector<HexOffsetInfo> DeTryByteArr = PdeTool::GetOffsetInfo(DeTryByte, PdeOffset);
 			// 读取并保存文件到硬盘
-			Save(DeTryByteArr, Dir, Offset);
+			Save(DeTryByteArr, Dir, PdeOffset);
 		}
 	}
 
@@ -63,10 +64,13 @@ namespace UnPdeC {
 		for (const HexOffsetInfo DirOrFile : DirOrFileArr) {
 			if (DirOrFile.Type == 1) { // 文件
 				// 记录文件偏移信息
-				//RecOffsetLog(blockOffset, DirOrFile.Offset, 0, DirOrFile.Size, DirOrFile.Name, DirOrFile.Type, dir.NowDir);
-
+				//RecOffsetLog(BlockOffset, DirOrFile.PdeOffset, 0, DirOrFile.Size, DirOrFile.Name, DirOrFile.Type, Dir.NowDir);
+				//GV::offsetLog.addEntry(6000, 7000, 0xD66, "idle.anim.cache", 1, "Root/animation/character/firstperson/boss/pose");
+				OffsetLog::AddEntry(BlockOffset, DirOrFile.OriginalOffset, DirOrFile.PdeOffset, DirOrFile.Size, DirOrFile.Name, DirOrFile.Type, Dir.NowDir.string());
+				//GV::NowPde.Name
+				
 				// 获取指定偏移的字节数据
-				GetOffsetStr TempFileByte = PdeTool::GetByteOfPde(DirOrFile.Offset, DirOrFile.Size);
+				GetOffsetStr TempFileByte = PdeTool::GetByteOfPde(DirOrFile.PdeOffset, DirOrFile.Size);
 				// 校验数据
 				if (TempFileByte.Size != DirOrFile.Size) break;
 
@@ -84,6 +88,7 @@ namespace UnPdeC {
 				if (FindSuffix(DirOrFile.Name)) {
 					// 保存文件
 					std::filesystem::path FilePath = GV::ExeDir / Dir.NowDir / DirOrFile.Name;
+					// 判断文件是否存在
 					if (!std::filesystem::exists(FilePath)) {
 						// 保存文件
 						try {
@@ -109,6 +114,7 @@ namespace UnPdeC {
 
 					// 保存文件
 					std::filesystem::path FilePath2 = GV::ExeDir / Dir.NowDir / fixName;
+					// 判断文件是否存在
 					if (!std::filesystem::exists(FilePath2)) {
 						// 保存文件
 						try {
@@ -122,7 +128,8 @@ namespace UnPdeC {
 				}
 			} else if (DirOrFile.Type == 2) { // 目录
 				// todo: 记录目录偏移信息
-				//RecOffsetLog(blockOffset, DirOrFile.Offset, 0, DirOrFile.Size, DirOrFile.Name, DirOrFile.Type, dir.NowDir);
+				//RecOffsetLog(blockOffset, DirOrFile.PdeOffset, 0, DirOrFile.Size, DirOrFile.Name, DirOrFile.Type, dir.NowDir);
+				OffsetLog::AddEntry(BlockOffset, DirOrFile.OriginalOffset, DirOrFile.PdeOffset, DirOrFile.Size, DirOrFile.Name, DirOrFile.Type, Dir.NowDir.string());
 
 				// 拼接新目录路径
 				DirStr NewDir = { Dir.NowDir, Dir.NowDir / DirOrFile.Name };
@@ -140,7 +147,7 @@ namespace UnPdeC {
 				}
 
 				// 递归解密
-				Unpack::Try(DirOrFile.Offset, DirOrFile.Size, NewDir, false);
+				Unpack::Try(DirOrFile.PdeOffset, DirOrFile.Size, NewDir, false);
 			} else {
 				std::cout << "其他类型: " << DirOrFile.Name << std::endl;
 			}

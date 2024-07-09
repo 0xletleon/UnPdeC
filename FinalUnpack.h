@@ -1,4 +1,5 @@
-﻿#ifndef FINAL_UNPACK_H
+﻿// FinalUnpack.h
+#ifndef FINAL_UNPACK_H
 #define FINAL_UNPACK_H
 
 #include "Common.h"

@@ -1,4 +1,5 @@
-﻿#include "FinalUnpack.h"
+﻿// FinalUnpack.cpp
+#include "FinalUnpack.h"
 
 namespace UnPdeC {
 	std::vector<uint8_t> FinalUnpack::PreDecrypt(const std::vector<uint8_t>& DeTempFileByte, const std::string& FileName) {

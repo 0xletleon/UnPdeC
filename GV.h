@@ -3,7 +3,6 @@
 #define GV_H
 
 #include "Common.h"
-#include "FindPde.h"
 
 namespace UnPdeC {
 	/// <summary>
@@ -23,6 +22,8 @@ namespace UnPdeC {
 		static vector<unsigned char> PdeKey;
 		// 当前程序所在目录
 		static std::filesystem::path ExeDir;
+		// 偏移日志结果
+		static nlohmann::json OffsetLogResult;
 	};
 }
 #endif // GV_H

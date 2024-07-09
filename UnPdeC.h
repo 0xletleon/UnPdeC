@@ -1,4 +1,5 @@
-﻿#ifndef MAIN_H
+﻿// UnPdeC.h
+#ifndef MAIN_H
 #define MAIN_H
 
 #include "Common.h"
@@ -8,6 +9,7 @@
 #include "PdeTool.h"
 #include "Unpack.h"
 #include "FinalUnpack.h"
+#include "OffsetLog.h"
 
 using namespace UnPdeC;
 

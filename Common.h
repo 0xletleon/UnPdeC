@@ -7,12 +7,17 @@
 #include <cstdlib>
 #include <cstring>
 #include <filesystem>
+#include <format>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <map>
+#include <nlohmann/json.hpp>
+#include <ranges>
 #include <regex>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <vector>
 
 using std::string;
@@ -30,6 +35,8 @@ using std::regex;
 using std::all_of;
 using std::isdigit;
 using std::isalpha;
+
+/* 数据类型 */
 
 /// <summary>
 /// 当前Pde文件信息
@@ -54,9 +61,9 @@ struct DirStr {
 struct HexOffsetInfo {
 	uint8_t Type; // 1 文件, 2 目录
 	string Name;	// 文件名或目录名
-	uint32_t Offset; // 在PDE文件中的实际偏移值
+	uint32_t PdeOffset; // 在PDE文件中的实际偏移值
 	uint32_t Size; // 大小
-	uint32_t OOffset; // 原始偏移值
+	uint32_t OriginalOffset; // 原始偏移值
 };
 
 /// <summary>
@@ -66,5 +73,4 @@ struct GetOffsetStr {
 	uint32_t Size;  // 实际获取到的块大小
 	vector<uint8_t> Byte;  // 获取到的字节数据
 };
-
 #endif // COMMON_H

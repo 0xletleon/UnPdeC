@@ -5,6 +5,7 @@
 #include "Common.h"
 #include "PdeTool.h"
 #include "FinalUnpack.h"
+#include "OffsetLog.h"
 
 namespace UnPdeC {
 	class Unpack {
@@ -24,11 +25,11 @@ namespace UnPdeC {
 		/// <summary>
 		/// 尝试解密
 		/// </summary>
-		/// <param name="Offset">数据块在PDE文件中的偏移值</param>
+		/// <param name="PdeOffset">数据块在PDE文件中的偏移值</param>
 		/// <param name="Size">数据块大小</param>
 		/// <param name="Dir">目录</param>
 		/// <param name="Is170">是否为170表数据</param>
-		static void Try(uint32_t Offset, uint32_t Size, const DirStr& Dir, bool Is170);
+		static void Try(uint32_t PdeOffset, uint32_t Size, const DirStr& Dir, bool Is170);
 
 		/// <summary>
 		/// 创建目录或文件

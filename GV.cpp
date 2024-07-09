@@ -14,4 +14,6 @@ namespace UnPdeC {
 	vector<unsigned char> GV::PdeKey = vector<unsigned char>(1000, 0);
 	// 当前程序所在目录
 	std::filesystem::path GV::ExeDir = "";
+	// 偏移日志结果
+	nlohmann::json GV::OffsetLogResult;
 }

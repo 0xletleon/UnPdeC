@@ -1,4 +1,5 @@
-﻿#include "PdeTool.h"
+﻿// PdeTool.cpp
+#include "PdeTool.h"
 
 namespace UnPdeC {
 	void PdeTool::Init() {
@@ -37,7 +38,7 @@ namespace UnPdeC {
 		// 循环分块
 		for (int i = 0; i < BlockCount; ++i) {
 			int start = i * BlockSize;
-			int length = min(BlockSize, static_cast<int>(data.size()) - start);
+			int length = std::min(BlockSize, static_cast<int>(data.size()) - start);
 			BlockArr[i].resize(length);
 			std::copy(data.begin() + start, data.begin() + start + length, BlockArr[i].begin());
 		}
@@ -97,26 +98,26 @@ namespace UnPdeC {
 
 			// 读取原始偏移值
 			// 使用C++17的构造器直接初始化最后4个字节
-			std::vector<uint8_t> OOffsetBytes(Block.end() - 8, Block.end() - 4);
+			std::vector<uint8_t> OriginalOffsetBytes(Block.end() - 8, Block.end() - 4);
 			union {
 				uint32_t value;
 				uint8_t bytes[4];
-			} OOffset{};
+			} OriginalOffset{};
 			// 直接将字节赋值给data的bytes数组，这会利用大端字节序
-			std::copy(OOffsetBytes.begin(), OOffsetBytes.end(), OOffset.bytes);
+			std::copy(OriginalOffsetBytes.begin(), OriginalOffsetBytes.end(), OriginalOffset.bytes);
 
 			// 现在data.value包含了合并后的32位数值
-			std::cout << "0x" << std::hex << OOffset.value << std::endl;
-			ThisInfo.OOffset = OOffset.value;
+			std::cout << "0x" << std::hex << OriginalOffset.value << std::endl;
+			ThisInfo.OriginalOffset = OriginalOffset.value;
 
 
 			// 计算实际偏移值
-			ThisInfo.Offset = ((ThisInfo.OOffset >> 10) + ThisInfo.OOffset + 1) << 12;
-			cout << "Offset: " << ThisInfo.Offset << endl;
+			ThisInfo.PdeOffset = ((ThisInfo.OriginalOffset >> 10) + ThisInfo.OriginalOffset + 1) << 12;
+			cout << "PdeOffset: " << ThisInfo.PdeOffset << endl;
 
-			// 如果 ThisInfo.Offset 越界，则退出循环
-			if (ThisInfo.Offset >= GV::NowPde.Size) {
-				std::cerr << "ThisInfo.Offset 越界退出循环" << std::endl;
+			// 如果 ThisInfo.PdeOffset 越界，则退出循环
+			if (ThisInfo.PdeOffset >= GV::NowPde.Size) {
+				std::cerr << "ThisInfo.PdeOffset 越界退出循环" << std::endl;
 				continue;
 			}
 

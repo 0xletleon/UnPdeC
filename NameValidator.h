@@ -3,8 +3,6 @@
 #define NAMEVALIDATOR_H
 
 #include "Common.h"
-#include <string>
-#include <regex>
 
 namespace UnPdeC {
 
