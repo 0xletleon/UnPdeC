@@ -10,17 +10,6 @@
 namespace UnPdeC {
 	class Unpack {
 	private:
-		/// <summary>
-		/// 暂时不参与二次解密的文件
-		/// </summary>
-		static const vector<string> PassArr;
-		/// <summary>
-		/// 查找后缀
-		/// </summary>
-		/// <param name="target"> 文件名 </param>
-		/// <returns> 是否存在后缀 </returns>
-		static bool FindSuffix(const std::string& target);
-
 	public:
 		/// <summary>
 		/// 尝试解密

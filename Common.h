@@ -35,6 +35,7 @@ using std::regex;
 using std::all_of;
 using std::isdigit;
 using std::isalpha;
+using std::min;
 
 /* 数据类型 */
 
@@ -51,8 +52,14 @@ struct TNowPde {
 /// 文件夹信息
 /// </summary>
 struct DirStr {
-	std::filesystem::path UpDir; // 上级目录
-	std::filesystem::path NowDir; // 当前目录
+	/// <summary>
+	/// 上级目录
+	/// </summary>
+	std::filesystem::path UpDir;
+	/// <summary>
+	/// 当前目录
+	/// </summary>
+	std::filesystem::path NowDir;
 };
 
 /// <summary>
@@ -64,6 +71,7 @@ struct HexOffsetInfo {
 	uint32_t PdeOffset; // 在PDE文件中的实际偏移值
 	uint32_t Size; // 大小
 	uint32_t OriginalOffset; // 原始偏移值
+	size_t PatternIndex;     // 用于存储模式索引
 };
 
 /// <summary>

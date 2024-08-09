@@ -2,9 +2,10 @@
 #include "FinalUnpack.h"
 
 namespace UnPdeC {
-	std::vector<uint8_t> FinalUnpack::PreDecrypt(const std::vector<uint8_t>& DeTempFileByte, const std::string& FileName) {
-		std::cout << "正在二次解密的文件名: " << FileName << std::endl;
+	// 位移表
+	unsigned int FinalUnpack::ByteLimit[16] = { 4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0 };
 
+	std::vector<uint8_t> FinalUnpack::PreDecrypt(const std::vector<uint8_t>& DeTempFileByte, const std::string& FileName) {
 		// 判断哪些文件不需要二次解密
 		// 解码后大小标识
 		uint8_t SizeFlag = DeTempFileByte[0x18];
@@ -16,12 +17,17 @@ namespace UnPdeC {
 			std::vector<uint8_t> EncryptedData;
 			// 解密后的数据大小
 			uint32_t DecryptedSize;
+			std::cout << FileName << std::endl;
+
+			//if (FileName == "skin_choujiang_bg01.tga.cache") {
+			//	std::cout << "skin_jiesuan_bg18.tga.cache" << std::endl;
+			//}
 
 			// 根据标识设置偏移值
 			switch (SizeFlag) {
 			case 0x6F: // 常规文件? 6F 标识
 				// 获取解密后数据长度
-				DecryptedSize = UFunc::Get4Byte(DeTempFileByte, 0x1D);
+				DecryptedSize = UnPdeC::UFunc::Get4Byte(DeTempFileByte, 0x1D);
 
 				// 初始化 待解密的数据 大小
 				EncryptedData.resize(DeTempFileByte.size() - 0x21);
@@ -42,11 +48,11 @@ namespace UnPdeC {
 				throw std::runtime_error(" ！解码后大小标识");
 			}
 
-			// 执行二解
+			// 解码后数据
 			std::vector<uint8_t> DecryptedData;
+			// 执行解密
 			DecryptedData = FinalDecrypt2(EncryptedData, DecryptedSize);
-
-			// 删除前 8 个字节
+			// 删除前 8 个字节,因为8个字节之后才是原始数据
 			DecryptedData.erase(DecryptedData.begin(), DecryptedData.begin() + std::min(static_cast<size_t>(8), DecryptedData.size()));
 
 			// 返回处理后的字节数组
@@ -64,25 +70,26 @@ namespace UnPdeC {
 		}
 	}
 
-	std::vector<uint8_t> FinalUnpack::FinalDecrypt2(const std::vector<uint8_t>& encryptedData, uint32_t decryptedSize) {
-		// 位移表
-		const unsigned char ByteLimt[16] = { 4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0 };
+	std::vector<uint8_t> FinalUnpack::FinalDecrypt2(const std::vector<uint8_t>& encryptedData, uint32_t& decryptedSize) {
 		// 解码后数据
 		std::vector<uint8_t> decryptedData(decryptedSize);
+		//std::cout << "decryptedSize:" << std::hex << decryptedSize << std::endl;
 
 		// 寄存器
 		// 待解开始地址
-		uint32_t EAX = 1;
-		uint32_t EBX = 1;
-		uint32_t ECX = 0;
+		uint32_t EAX = 0x1;
+		uint32_t EBX = 0x1;
+		// ByteLimit Value
+		uint32_t ECX = 0x0;
 		// 退出条件
 		uint32_t EDX;
 		// 下一个数据写入的地址
-		uint32_t EBP = 0;
+		uint32_t EBP = 0x0;
 		// 当前待解地址
-		uint32_t ESI = 0;
+		uint32_t ESI = 0x0;
 		// 解密后数据结束地址
-		uint32_t EDI = decryptedSize - 1;
+		//uint32_t EDI = decryptedSize - 0x1;
+		uint32_t EDI = decryptedSize;
 		// 写入地址
 		uint32_t ESP10 = EDI;
 		// 解码后数据大小
@@ -92,21 +99,23 @@ namespace UnPdeC {
 			while (true) {
 				if (EAX == EBX) {
 					EAX = UFunc::Get4Byte(encryptedData, ESI);
-					ESI += 4;
+					ESI += 0x4;
 				}
 				ECX = UFunc::Get4Byte(encryptedData, ESI);
 
-				if (((EBX & 0xFF) & (EAX & 0xFF)) == 0) break;
+				if (((EBX & 0xFF) & (EAX & 0xFF)) == 0) break; // @L00000009 
+				//if ((EBX & EAX) == 0) break; // @L00000009 
 
-				EAX >>= 1;
+				EAX >>= 0x1;
 				ESP58 = EAX;
 
-				if (((ECX & 0xFF) & 3) != 0) {
-					if (((ECX & 0xFF) & 2) != 0) {
+				if (((ECX & 0xFF) & 0x3) != 0) {
+					if (((ECX & 0xFF) & 0x2) != 0) {
 						EDX = ECX;
 						if (((EBX & 0xFF) & (ECX & 0xFF)) != 0) {
+
 							EDX &= 0X7F;
-							if ((EDX & 0xFF) == 3) {
+							if ((EDX & 0xFF) == 0x3) {
 								EDX = ECX;// EDX & 0x7F 之后 判断，之后来到这里在将ECX赋值给EDX
 								ECX >>= 7;
 								ECX &= 0xFF;
@@ -116,17 +125,17 @@ namespace UnPdeC {
 								// -> 99 ok
 							} else {
 								EDX = ECX;// ！
-								ECX >>= 2;
-								EDX >>= 7;
+								ECX >>= 0x2;
+								EDX >>= 0x7;
 								ECX &= 0x1F;
 								EDX &= 0x1FFFF;
-								ECX += 2;
-								ESI += 3;
-								// -> 99
+								ECX += 0x2;
+								ESI += 0x3;
+								// -> 99 ok
 							}
 						} else {
-							ECX >>= 2;
-							EDX >>= 6;
+							ECX >>= 0x2;
+							EDX >>= 0x6;
 							ECX &= 0xF;
 							EDX &= 0x3FF;
 							ECX += 0x3;
@@ -134,66 +143,61 @@ namespace UnPdeC {
 							// -> 99 ok
 						}
 					} else {
-						ECX >>= 2;
+						ECX >>= 0x2;
 						ECX &= 0x3FFF;
 						EDX = ECX;
-						ECX = 3;
-						ESI += 2;
+						ECX = 0x3;
+						ESI += 0x2;
 						// -> 99
 					}
 				} else {
-					ECX >>= 2;
+					ECX >>= 0x2;
 					ECX &= 0x3F;
 					EDX = ECX;
-					ECX = 3;
+					ECX = 0x3;
 					ESI += EBX;
 					// -> 99 ok
 				}
 
 				// 99
-			/*	cout << "!EBP:" << EBP << endl;
-				if (EBP == 0x7a4) {
-					cout << "找到0x79f" << endl;
-				}*/
 				EDI = EBP;
 				EDI -= EDX;
-				EBX = 0;
+				EBX = 0x0;
 				EDX = EBP;
-
 				EDI -= EBP;
+
 				do {
-					uint32_t EDIX = EDI + EDX;
-					EAX = UFunc::Get4Byte(decryptedData, EDIX);
-					//cout << "EDI:" << std::hex << EDI << " EDX:" << std::hex << EDX << std::hex << " EDIX:" << EDIX << endl;
-					//cout << "-> EAX:" << std::hex << EAX << endl;
+					EAX = UFunc::Get4Byte(decryptedData, EDI + EDX);
 					// 根据 EDX 下标 将 EAX 写入 decryptedData
 					memcpy(decryptedData.data() + EDX, &EAX, sizeof(EAX));
-					EBX += 3;
-					EDX += 3;
+					EBX += 0x3;
+					EDX += 0x3;
 				} while (EBX < ECX);
+
 				EAX = ESP58;
 				EDI = ESP10;
 				EBP += ECX;
-				EBX = 1;
+				EBX = 0x1;
 			}
 
 			// 退出条件
 			EDX = EDI - 0xA;
-			if (EBP >= EDX)break;
+			// 增加EDX大于等于 decryptedSize的判断
+			if (EBP >= EDX || EDX >= decryptedSize)break;
 
 			// 根据 EBP 下标 将 ECX 写入 decryptedData
 			memcpy(decryptedData.data() + EBP, &ECX, sizeof(ECX));
 			ECX = EAX;
 			ECX &= 0xF;
-			ECX = ByteLimt[ECX];
+			ECX = ByteLimit[ECX];
 			EBP += ECX;// 似乎是错的！
 			ESI += ECX;
 			//EAX >>= (ECX & 0xFF);
 			EAX >>= ECX;
 		}
 
-		cout << "到达0x80000000" << endl;
-		if (EBP <= EDI) {
+		//std::cout << "到达0x80000000" << std::endl;
+		if (EBP < EDI) {
 			do {
 				if (EAX == EBX) {
 					ESI += 4;
@@ -201,14 +205,14 @@ namespace UnPdeC {
 				}
 				uint8_t DL = encryptedData[ESI];
 				// 根据 EBP下标 将 DL 写入 decryptedData
-				memcpy(decryptedData.data() + EBP, &DL, sizeof(DL));
+				memcpy(decryptedData.data() + EBP, &DL, 1);
 				EBP += EBX;
 				ESI += EBX;
 				EAX >>= 1;
-			} while (EBP <= EDI);
+			} while (EBP < EDI);
 		}
 
-		cout << "完成二解" << endl;
+		//std::cout << "完成二解" << std::endl;
 
 		return decryptedData;
 	}

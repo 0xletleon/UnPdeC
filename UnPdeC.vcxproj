@@ -151,6 +151,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ExtraSearch.cpp" />
     <ClCompile Include="FinalUnpack.cpp" />
     <ClCompile Include="FindPde.cpp" />
     <ClCompile Include="GV.cpp" />
@@ -164,6 +165,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h" />
+    <ClInclude Include="ExtraSearch.h" />
     <ClInclude Include="FinalUnpack.h" />
     <ClInclude Include="FindPde.h" />
     <ClInclude Include="GV.h" />

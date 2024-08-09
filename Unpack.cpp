@@ -2,20 +2,6 @@
 #include "Unpack.h"
 
 namespace UnPdeC {
-	// 暂时不参与二次解密的文件
-	const vector<string> Unpack::PassArr = { ".fsb", ".swf", ".ttf", "version", "language" };
-
-	bool Unpack::FindSuffix(const std::string& target) {
-		// 将 DirOrFile.Name 转换成小写
-		string NameLower = target;
-		std::transform(NameLower.begin(), NameLower.end(), NameLower.begin(), ::tolower);
-
-		// 查找
-		return std::any_of(PassArr.begin(), PassArr.end(), [&NameLower](const std::string& str) {
-			return NameLower.find(str) != std::string::npos;
-			});
-	}
-
 	/// <summary>
 	/// 尝试解密
 	/// </summary>
@@ -64,11 +50,8 @@ namespace UnPdeC {
 		for (const HexOffsetInfo DirOrFile : DirOrFileArr) {
 			if (DirOrFile.Type == 1) { // 文件
 				// 记录文件偏移信息
-				//RecOffsetLog(BlockOffset, DirOrFile.PdeOffset, 0, DirOrFile.Size, DirOrFile.Name, DirOrFile.Type, Dir.NowDir);
-				//GV::offsetLog.addEntry(6000, 7000, 0xD66, "idle.anim.cache", 1, "Root/animation/character/firstperson/boss/pose");
 				OffsetLog::AddEntry(BlockOffset, DirOrFile.OriginalOffset, DirOrFile.PdeOffset, DirOrFile.Size, DirOrFile.Name, DirOrFile.Type, Dir.NowDir.string());
-				//GV::NowPde.Name
-				
+
 				// 获取指定偏移的字节数据
 				GetOffsetStr TempFileByte = PdeTool::GetByteOfPde(DirOrFile.PdeOffset, DirOrFile.Size);
 				// 校验数据
@@ -83,9 +66,17 @@ namespace UnPdeC {
 				// todo: 保存数据到DebugPde，调试时使用
 
 				// 二次解密
+				// 确保目录存在
+				std::filesystem::path DirPath = GV::ExeDir / Dir.NowDir;
+				if (!std::filesystem::exists(DirPath)) {
+					std::filesystem::create_directories(DirPath);
+				}
+
+				// 检查文件名是否包含.cache来确定是否需要二次解密
+				bool HasCache = DirOrFile.Name.find(".cache");
 
 				// 跳过二次解密
-				if (FindSuffix(DirOrFile.Name)) {
+				if (!HasCache) {
 					// 保存文件
 					std::filesystem::path FilePath = GV::ExeDir / Dir.NowDir / DirOrFile.Name;
 					// 判断文件是否存在
@@ -127,8 +118,6 @@ namespace UnPdeC {
 					}
 				}
 			} else if (DirOrFile.Type == 2) { // 目录
-				// todo: 记录目录偏移信息
-				//RecOffsetLog(blockOffset, DirOrFile.PdeOffset, 0, DirOrFile.Size, DirOrFile.Name, DirOrFile.Type, dir.NowDir);
 				OffsetLog::AddEntry(BlockOffset, DirOrFile.OriginalOffset, DirOrFile.PdeOffset, DirOrFile.Size, DirOrFile.Name, DirOrFile.Type, Dir.NowDir.string());
 
 				// 拼接新目录路径
@@ -141,7 +130,6 @@ namespace UnPdeC {
 						std::filesystem::create_directory(DirPath);
 						//cout << " ！创建目录成功!!!!: " << DirPath << endl;
 					}
-
 				} catch (const std::filesystem::filesystem_error& e) {
 					cerr << "创建目录时发生错误: " << e.what() << endl;
 				}

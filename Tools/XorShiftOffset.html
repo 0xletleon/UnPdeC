@@ -38,7 +38,7 @@
             font-weight: 300;
         }
 
-        input,
+        input[type="text"],
         select,
         button {
             font-size: 35px;
@@ -94,12 +94,21 @@
     <div class="container">
         <h3>类型</h3>
         <select id="inputType" onchange="selectfnc(event)">
+            <option value="nameHex">名字名称 (0x01-0x10)</option>
             <option value="nameBlank">名称空白 (0x60-0x6F)</option>
             <option value="identifier">数据标识 (0x74-0x77)</option>
             <option value="dataOffset">数据偏移 (0x78-0x7B)</option>
         </select>
-        <h3>偏移值</h3>
-        <input type="text" id="input" placeholder="A0 7A 00 00 或 A07A00000" value="00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00">
+        <h3>偏移值/16进制</h3>
+        <input type="text" id="input" placeholder="A0 7A 00 00 或 A07A00000" value="animation">
+        <div id="nameHexType" style="display: block;">
+            <h3>文件或文件夹</h3>
+            <input type="radio" id="file" name="fileOrFolder" value="01">
+            <label for="file">文件</label>
+            <input type="radio" id="folder" name="fileOrFolder" value="02" checked>
+            <label for="folder">文件夹</label>
+        </div>
+
         <h3>块大小</h3>
         <select id="blockSize">
             <option value="4096">0x1000 (4096 bytes)</option>
@@ -136,7 +145,12 @@
         function selectfnc(e) {
             const { value } = e.target
             console.log(value);
+            document.getElementById('nameHexType').style.display = 'none';
             switch (value) {
+                case 'nameHex':
+                    document.getElementById('input').value = 'animation';
+                    document.getElementById('nameHexType').style.display = 'block';
+                    break;
                 case 'nameBlank':
                     document.getElementById('input').value = '00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00';
                     break;
@@ -168,19 +182,32 @@
         }
 
         function processInput() {
-            const input = document.getElementById('input').value;
-            if (!input)
-                return;
-            const inputBytes = hexToBytes(input);
+            let input = document.getElementById('input').value;
             const blockSize = parseInt(document.getElementById('blockSize').value);
             const inputType = document.getElementById('inputType').value;
+            if (!input)
+                return;
+
+            if (inputType == 'nameHex') {
+                const encoder = new TextEncoder();
+                const bytes = encoder.encode(input);
+                const inputNewvalue = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+
+                // 获取name为"fileOrFolder"的选中单选按钮的值
+                var selectedValue = document.querySelector('input[name="fileOrFolder"]:checked').value;
+                // 将 selectedValue 插入 input 开头
+                input = selectedValue + inputNewvalue;
+            }
+            const inputBytes = hexToBytes(input);
             let output = '';
 
             const fileCount = blockSize / 0x80;
 
             for (let i = 0; i < fileCount; i++) {
                 let offset;
-                if (inputType === 'dataOffset') {
+                if (inputType == 'nameHex') {
+                    offset = i * 0x80;
+                } else if (inputType === 'dataOffset') {
                     offset = i * 0x80 + 0x78;
                 } else if (inputType === 'identifier') {
                     offset = i * 0x80 + 0x74;
@@ -188,7 +215,7 @@
                     offset = i * 0x80 + 0x60;
                 }
                 const encryptedBytes = inputBytes.map((b, j) => b ^ PdeKey[offset + j]);
-                output += `${i + 1}: ${bytesToHex(encryptedBytes)}\n`;
+                output += `${i + 1} 0x${(i * 0x80).toString(16)} : ${bytesToHex(encryptedBytes)}\n`;
             }
 
             document.getElementById('output').textContent = output;

@@ -7,18 +7,18 @@
 
 ## Build
 
-    C++17 标准
+    C++标准
 
     项目属性 -> 配置属性 -> 常规 -> C++ 语言标准
 
-    改成 ISO C++17 标准 (/std:c++17)
+    改成 ISO C++20 标准 (/std:c++20)
 
 ## 测试程序
 
 #### [UnPdeC.exe](TestRelease/UnPdeC.exe)
 
 
-## 辅助工具
+## DEBUG辅助工具
 
 #### [PDE偏移值计算器](Tools/OffsetCalc.html)
 
@@ -128,3 +128,17 @@
 
     .ttf
     1FD0E37B6ACBE3CFFD10C347FE910AB3
+
+## 资源预览工具
+
+### DDS/TGA预览工具
+
+[TacentView]([Tools/DDSView.html](https://github.com/bluescan/tacentview))
+
+### FSB音频提取工具
+
+[FSB Extractor](http://aezay.dk/aezay/fsbextractor/)
+
+    有些音乐听起来可能怪怪的，
+    可以用音乐转换工具将mp3还转换成mp3格式就可以正常听了。
+    比如千千静听,foobar2000都内置转换器！

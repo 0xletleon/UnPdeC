@@ -45,6 +45,9 @@
     <ClCompile Include="OffsetLog.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="ExtraSearch.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="UnPdeC.h">
@@ -78,6 +81,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="OffsetLog.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ExtraSearch.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
