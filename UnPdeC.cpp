@@ -58,9 +58,9 @@ int main() {
 		// 可得到大部分文件和目录
 		Unpack::Try(0x1000, 0x1000, TryDir, false);
 
-		TryDir = { pde.Name, pde.Name + "/Other" };
+		/*TryDir = { pde.Name, pde.Name + "/Other" };
 		Unpack::Try(0x8f6000, 0x1000, TryDir, false);
-		Unpack::Try(0x953000, 0x1000, TryDir, false);
+		Unpack::Try(0x953000, 0x1000, TryDir, false);*/
 	}
 
 	// 保存日志到文件

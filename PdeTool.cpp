@@ -180,7 +180,15 @@ namespace UnPdeC {
 	/// <returns>解密后的数据</returns>
 	std::vector<unsigned char> PdeTool::DeFileOrBlock(const std::vector<unsigned char>& OffsetArr) {
 		// 当前临时解密字节数组
-		std::vector<uint8_t> TempDEArr(OffsetArr.size(), 0);
+		std::vector<uint8_t> TempDEArr;
+		// 为了防止二次解密时越位
+		if (OffsetArr.size() == 0x1000) {
+			// 初始化为大小为0x1000，每个元素都是0
+			TempDEArr = std::vector<uint8_t>(0x1000, 0);
+		} else {
+			// 初始化为OffsetArr.size() + 0x4的大小，每个元素都是0
+			TempDEArr = std::vector<uint8_t>(OffsetArr.size() + 0x4, 0);
+		}
 
 		// Key长度
 		//size_t KeyLength = GV::PdeKey.size() - 1;
