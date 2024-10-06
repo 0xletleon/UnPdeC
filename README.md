@@ -11,7 +11,7 @@
 
 ## 测试程序
 
-[UnPdeC.exe](TestRelease/UnPdeC.exe)
+[UnPdeC.exe](Release/UnPdeC.exe)
 
 ## DEBUG辅助工具
 
@@ -27,6 +27,10 @@
 
     用来生成文件在目录中可能位置的小工具
 
+[FastXOR C++版本](Tools/FastXOR/Release/FastXOR.exe)
+
+    C++版 FastXOR
+
 ## 线索
 
 ### 根目录
@@ -36,7 +40,7 @@
 
 ### 文件信息
 
-![fileinfo.jpg](Readme/fileinfo.jpg)
+![fileinfo.jpg](README/fileinfo.jpg)
 
 ### 类型 (黄色)
 
@@ -78,13 +82,13 @@
 
 ### 奇怪的地方
 
-![warn.jpg](Readme/warn.jpg)
+![warn.jpg](README/warn.jpg)
 
     正常来说文件名后面是00的话文件名就结束了
     有几处会出现00后面还有字符串？的情况
     0x2000 0x4000
 
-![warn.jpg](Readme/warn2.jpg)
+![warn.jpg](README/warn2.jpg)
 
     在某更新补丁内找到了相同的情况
     看样子应该是被复用了
@@ -93,7 +97,7 @@
 
 ### 文件验证
 
-![pdeverify](Readme/pdeverify.jpg)]
+![pdeverify](README/pdeverify.jpg)]
 
 [PDEVerify](https://letleon.coding.net/public/3d/PDEVerify/git/files)
 

@@ -1,6 +1,4 @@
-﻿// FindPde.h
-#ifndef FINDPDE_H
-#define FINDPDE_H
+﻿#pragma once
 
 #include "Common.h"
 #include "GV.h"
@@ -8,9 +6,7 @@
 
 namespace UnPdeC {
 
-	/// <summary>
-	/// 查找PDE文件
-	/// </summary>
+	// 查找PDE文件
 	class FindPde {
 	public:
 		/// <summary>
@@ -20,5 +16,3 @@ namespace UnPdeC {
 		static vector<TNowPde> Get();
 	};
 }
-
-#endif // FINDPDE_H

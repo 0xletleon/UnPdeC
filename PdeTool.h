@@ -1,6 +1,4 @@
-﻿// PdeTool.h
-#ifndef PDETOOL_H
-#define PDETOOL_H
+﻿#pragma once
 
 #include "Common.h"
 #include "GV.h"
@@ -42,7 +40,4 @@ namespace UnPdeC {
 		/// <returns>解密后的字节数据</returns>
 		static std::vector<unsigned char> DeFileOrBlock(const std::vector<unsigned char>& OffsetArr);
 	};
-
-} // namespace UnPdeC
-
-#endif // PDETOOL_H
+}

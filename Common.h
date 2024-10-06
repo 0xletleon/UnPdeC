@@ -1,6 +1,4 @@
-﻿// Common.h
-#ifndef COMMON_H
-#define COMMON_H
+﻿#pragma once
 
 #include <algorithm>
 #include <cstdint>
@@ -39,46 +37,31 @@ using std::min;
 
 /* 数据类型 */
 
-/// <summary>
-/// 当前Pde文件信息
-/// </summary>
+// 当前Pde文件信息
 struct TNowPde {
 	string Name; // Pde名称
 	long Size; // Pde大小
 	string Path; // Pde路径
 };
 
-/// <summary>
-/// 文件夹信息
-/// </summary>
+// 文件夹信息
 struct DirStr {
-	/// <summary>
-	/// 上级目录
-	/// </summary>
-	std::filesystem::path UpDir;
-	/// <summary>
-	/// 当前目录
-	/// </summary>
-	std::filesystem::path NowDir;
+	std::filesystem::path UpDir; // 上级目录
+	std::filesystem::path NowDir; // 当前目录
 };
 
-/// <summary>
-/// 文件偏移信息
-/// </summary>
+// 文件偏移信息
 struct HexOffsetInfo {
 	uint8_t Type; // 1 文件, 2 目录
-	string Name;	// 文件名或目录名
+	string Name; // 文件名或目录名
 	uint32_t PdeOffset; // 在PDE文件中的实际偏移值
 	uint32_t Size; // 大小
 	uint32_t OriginalOffset; // 原始偏移值
-	size_t PatternIndex;     // 用于存储模式索引
+	size_t PatternIndex; // 用于存储模式索引
 };
 
-/// <summary>
-/// GetByteOfPde() 返回的数据结构 
-/// </summary>
+// GetByteOfPde() 返回的数据结构 
 struct GetOffsetStr {
-	uint32_t Size;  // 实际获取到的块大小
-	vector<uint8_t> Byte;  // 获取到的字节数据
+	uint32_t Size; // 实际获取到的块大小
+	vector<uint8_t> Byte; // 获取到的字节数据
 };
-#endif // COMMON_H

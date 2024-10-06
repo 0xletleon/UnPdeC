@@ -1,6 +1,4 @@
-﻿// NameValidator.h
-#ifndef NAMEVALIDATOR_H
-#define NAMEVALIDATOR_H
+﻿#pragma once
 
 #include "Common.h"
 
@@ -32,6 +30,4 @@ namespace UnPdeC {
 		static bool IsValidName(const std::string& name, bool isDirectory);
 	};
 
-} // namespace UnPdeC
-
-#endif // NAMEVALIDATOR_H
+}

@@ -1,10 +1,9 @@
-﻿// UnPdeC.cpp
-#include "UnPdeC.h"
+﻿#include "Main.h"
 #include "ExtraSearch.h"
 #include <filesystem>
 
 int main() {
-	cout << "Hello CMake." << endl;
+	cout << "Hello CMake.";
 
 	// try {
 	// 	//文件名 155
@@ -43,7 +42,7 @@ int main() {
 	vector<TNowPde> PdeArr = FindPde::Get();
 	//遍历PdeArr进行解密
 	for (TNowPde pde : PdeArr) {
-		cout << " ！正在解码：" << pde.Name << endl;
+		cout << " ！正在解码：" << pde.Name;
 		// 设置当前解密的文件名
 		GV::NowPde = pde;
 
@@ -71,6 +70,7 @@ int main() {
 	//ExtraSearch::SearchAndDecrypt();
 
 	cout << "解密完成！" << endl;
+	std::cin.get();
 	return 0;
 }
 

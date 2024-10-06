@@ -1,6 +1,4 @@
-﻿// UnPdeC.h
-#ifndef MAIN_H
-#define MAIN_H
+﻿#pragma once
 
 #include "Common.h"
 #include "FindPde.h"
@@ -12,5 +10,3 @@
 #include "OffsetLog.h"
 
 using namespace UnPdeC;
-
-#endif // !MAIN_H

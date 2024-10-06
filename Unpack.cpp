@@ -60,7 +60,31 @@ namespace UnPdeC {
 				// 解密数据
 				std::vector<unsigned char> DeTempFileByte = PdeTool::DeFileOrBlock(TempFileByte.Byte);
 
-				// 判断是否是空文件
+				/*		uint8_t temp_6f6d = DeTempFileByte[0x18];
+						uint32_t tempsize;
+						if (temp_6f6d == 0x6F) {
+							tempsize = UnPdeC::UFunc::Get4Byte(DeTempFileByte, 0x19);
+						} else if (temp_6f6d == 0x6D) {
+							tempsize = DeTempFileByte[0x19];
+						}
+
+						std::cout << tempsize << std::endl;*/
+						// 0x18 是头部大小，+0x4是为了修补解密时越界的问题！
+						//uint32_t countsize = tempsize + 0x18 + 0x8;
+						//std::cout << countsize << std::endl;
+
+						//if (DirOrFile.Name == "skin_choujiang_bg01.tga.cache") {
+						//	std::cout << " ！文件大小不正确: " << DirOrFile.Name << std::endl;
+						//	//continue;
+						//}
+
+						//if (countsize == DeTempFileByte.size()) {
+						//	std::cout << " ！文件大小正确: " << DirOrFile.Name << std::endl;
+						//} else {
+						//	std::cout << " ！文件大小不正确: " << DirOrFile.Name << std::endl;
+						//}
+
+						// 判断是否是空文件
 				if (DeTempFileByte.empty() || DirOrFile.Name.empty()) break;
 
 				// todo: 保存数据到DebugPde，调试时使用
@@ -72,8 +96,12 @@ namespace UnPdeC {
 					std::filesystem::create_directories(DirPath);
 				}
 
+				if (DirOrFile.Name == "game_text.lua") {
+					std::cout << " ！文件名是 game_text.lua" << std::endl;
+				}
+
 				// 检查文件名是否包含.cache来确定是否需要二次解密
-				bool HasCache = DirOrFile.Name.find(".cache");
+				bool HasCache = DirOrFile.Name.find(".cache") != std::string::npos;
 
 				// 跳过二次解密
 				if (!HasCache) {

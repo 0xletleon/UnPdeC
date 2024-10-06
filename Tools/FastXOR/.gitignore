@@ -31,6 +31,4 @@
 *.app
 
 .vs/
-/TestFile
-/packages/
 /bin

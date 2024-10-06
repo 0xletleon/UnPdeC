@@ -1,6 +1,4 @@
-﻿// UFunc.h
-#ifndef UFUNC_H
-#define UFUNC_H
+﻿#pragma once
 
 #include "Common.h"
 
@@ -19,4 +17,3 @@ namespace UnPdeC {
 		static std::uint32_t Get4Byte(const std::vector<std::uint8_t>& data, std::uint32_t offset);
 	};
 }
-#endif // UFUNC_H

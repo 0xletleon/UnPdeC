@@ -16,4 +16,6 @@ namespace UnPdeC {
 	std::filesystem::path GV::ExeDir = "";
 	// 偏移日志结果
 	nlohmann::json GV::OffsetLogResult;
+	// 当前文件扩充的大小
+	uint32_t GV::NowExpandSize = 0x0;
 }

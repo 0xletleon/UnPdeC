@@ -186,8 +186,25 @@ namespace UnPdeC {
 			// 初始化为大小为0x1000，每个元素都是0
 			TempDEArr = std::vector<uint8_t>(0x1000, 0);
 		} else {
+			//int testi = 9;
 			// 初始化为OffsetArr.size() + 0x4的大小，每个元素都是0
-			TempDEArr = std::vector<uint8_t>(OffsetArr.size() + 0x4, 0);
+			//TempDEArr = std::vector<uint8_t>(OffsetArr.size() + 0x8, 0);
+			TempDEArr = std::vector<uint8_t>(OffsetArr.size(), 0);
+
+			// 计算需要补充到最近的0x1000的倍数的大小
+			//size_t currentSize = OffsetArr.size();
+			//size_t paddingSize = 0x1000 - (OffsetArr.size() % 0x1000);
+			//if (paddingSize < 0x1000) {
+			//	paddingSize += 0x1000; // 确保添加的是正数个元素
+			//}
+
+			// 补充容器大小
+			//if (paddingSize > 0) {
+			//	TempDEArr.resize(OffsetArr.size() + paddingSize, 0x0); // 假设补充的值为0
+			//	// new
+			//	GV::NowExpandSize = paddingSize;
+			//}
+
 		}
 
 		// Key长度

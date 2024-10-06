@@ -1,6 +1,4 @@
-﻿// Unpack.h
-#ifndef UNPACK_H
-#define UNPACK_H
+﻿#pragma once
 
 #include "Common.h"
 #include "PdeTool.h"
@@ -29,6 +27,4 @@ namespace UnPdeC {
 		static void Save(const vector<HexOffsetInfo>& DirOrFileArr, const DirStr& Dir, uint32_t BlockOffset);
 	};
 
-} // namespace UnPdeC
-
-#endif // UNPACK_H
+}

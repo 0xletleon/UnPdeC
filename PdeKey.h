@@ -1,6 +1,4 @@
-﻿// PdeKey.h
-#ifndef PDEKEY_H
-#define PDEKEY_H
+﻿#pragma once
 
 #include "Common.h"
 #include "GV.h"
@@ -17,7 +15,4 @@ namespace UnPdeC {
 		/// </summary>
 		static void Get();
 	};
-
-} // namespace UnPdeC
-
-#endif // PDEKEY_H
+}
