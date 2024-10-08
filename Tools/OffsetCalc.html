@@ -35,50 +35,32 @@
             background-color: #f1f1f1;
             border-radius: 10px;
             padding: 10px 0;
-            margin: 10px;
+            flex: 1;
         }
 
-        .valinputleft p {
-            text-align: right;
+        .valinputleft p,
+        .valinputright p {
             font-size: 18px;
             font-weight: lighter;
-            padding: 0 20px 10px 0;
+            padding: 0 20px 10px;
             line-height: 0;
+            text-align: left;
         }
 
-        .valinputleft input {
-            text-align: right;
+        .valinputleft input,
+        .valinputright input {
+            font-size: 40px;
+            border: 0;
+            background-color: #f1f1f1;
+            outline: none;
+            text-align: center;
+            width: 90%;
         }
 
         .valinputfh {
             font-size: 60px;
             line-height: 0;
-        }
-
-        .valinputright p {
-            text-align: left;
-            font-size: 18px;
-            font-weight: lighter;
-            padding: 0 0 10px 20px;
-            line-height: 0;
-        }
-
-        .valinputright input {
-            text-align: left;
-        }
-
-        #pdeOffsetValue,
-        #originalOffsetValue {
-            font-size: 40px;
-            border: 0;
-            padding: 0 20px;
-            background-color: #f1f1f1;
-            outline: none;
-        }
-
-        #pdeOffsetValue::placeholder,
-        #originalOffsetValue::placeholder {
-            font-size: 40px;
+            cursor: pointer;
         }
 
         footer {
@@ -101,93 +83,63 @@
         <div class="ovalinputs">
             <div class="valinputleft">
                 <p>PDE偏移</p>
-                <input id="pdeOffsetValue" size="10" placeholder="0x963B000" value="" oninput="PTO()">
+                <input id="pdeOffsetValue" placeholder="0x963B000" oninput="PTO()">
             </div>
-
-            <p class="valinputfh" onclick="CleanCache()">↔️</p>
-
+            <div class="valinputfh" onclick="CleanCache()">↔️</div>
             <div class="valinputright">
                 <p>原始偏移</p>
-                <input id="originalOffsetValue" size="10" placeholder="0x9615" value="" oninput="OTP()">
+                <input id="originalOffsetValue" placeholder="0x9615" oninput="OTP()">
             </div>
         </div>
     </div>
 
     <div id="results"></div>
 
-    <footer style="text-align: center; padding: 20px; color: var(--label-color); font-size: 14px;">
+    <footer>
         <p>Powered by: letleon</p>
         <p>Ai assistant powered by: claude-3-5-sonnet-20240620</p>
     </footer>
 
     <script>
-        // 当前点击按钮
-        let nowAct = "";
-        // 转换结果
-        let resultText = "";
-        // 结果计数
-        let resultCount = 0;
-
         // 清空缓存
         function CleanCache() {
             document.getElementById("pdeOffsetValue").value = "";
             document.getElementById("originalOffsetValue").value = "";
+            document.getElementById("results").innerHTML = "";
         }
 
-        // 原始偏移值转PDE实际偏移值
-        function OTP(pdeOffset) {
-            // 如果当前点击按钮为空 则 等于自己
-            if (nowAct == "") nowAct = "OTP"
-            // 获取偏移值 并 转换成 16进制
-            pdeOffset = pdeOffset || parseInt(document.getElementById("originalOffsetValue").value, 16);
-            // 将原始偏移 转换到 PDE实际偏移值
-            let offsetPde = ((pdeOffset >> 10) + pdeOffset + 1) << 12;
-            // 赋值输出结果到 resultText
-            resultText += `[原始: ${pdeOffset.toString(16)} → PDE: ${offsetPde.toString(16)} ] `;
-            // 判断是否需要反向转换 否则 输出 resultText
-            if (nowAct == "OTP") {
-                document.getElementById("pdeOffsetValue").value = offsetPde.toString(16);
-                PTO(offsetPde);
-            } else {
-                displayResult(resultText);
-            }
+        // 原始值 转 PDE文件偏移
+        function OTP() {
+            const originalOffset = parseInt(document.getElementById("originalOffsetValue").value, 16);
+            const offsetPde = ((originalOffset >> 10) + originalOffset + 1) << 12;
+            displayResult(`原始: ${originalOffset.toString(16).toUpperCase()} → PDE: ${offsetPde.toString(16).toUpperCase()}`);
+            document.getElementById("pdeOffsetValue").value = offsetPde.toString(16).toUpperCase();
         }
 
-        // PDE实际偏移值转原始偏移值
-        function PTO(pdeOffset) {
-            // 如果当前点击按钮为空 则 等于自己
-            if (nowAct == "") nowAct = "PTO"
-            // 获取偏移值 并 转换成 16进制
-            pdeOffset = pdeOffset || parseInt(document.getElementById("pdeOffsetValue").value, 16);
-            // PDE实际偏移值 转换到 将原始偏移
-            let offsetOriginal = (pdeOffset >> 12) - (pdeOffset >> 22);
-            // 判断是否 小于等于 0xC93FF000
-            if (pdeOffset <= 0xC93FF000) offsetOriginal -= 1;
-            // 使用DataView进行大小端转换
-            const view = new DataView(new Uint8Array([offsetOriginal >> 24, (offsetOriginal >> 16) & 0xFF, (offsetOriginal >> 8) & 0xFF, offsetOriginal & 0xFF]).buffer);
-            const littleEndianoffsetOriginal = view.getUint32(0, true);
-            // 赋值输出结果到 resultText
-            resultText += `[PDE: ${pdeOffset.toString(16)} → 原始: ${offsetOriginal.toString(16)} → 小端: ${littleEndianoffsetOriginal.toString(16)} ] `
-            // 判断是否需要反向转换 否则 输出 resultText
-            if (nowAct == "PTO") {
-                document.getElementById("originalOffsetValue").value = offsetOriginal.toString(16);
-                OTP(offsetOriginal);
-            } else {
-                displayResult(resultText);
-            }
+        // PDE文件偏移 转 原始值
+        function PTO() {
+            const pdeOffset = parseInt(document.getElementById("pdeOffsetValue").value, 16);
+            // 首先右移12位
+            let result = pdeOffset >> 12;
+            // 计算原始的 OffsetUint
+            let offsetUint = Math.floor((result * 1024) / 1025);
+            // 使用DataView进行小端转换
+            const view = new DataView(new Uint8Array([offsetUint & 0xFF, (offsetUint >> 8) & 0xFF, (offsetUint >> 16) & 0xFF, (offsetUint >> 24) & 0xFF]).buffer);
+            const littleEndianOffsetUint = view.getUint32(0, true);
+            // 转换为十六进制字符串并大写
+            let hexLittleEndian = littleEndianOffsetUint.toString(16).toUpperCase();
+            // 显示结果
+            displayResult(`PDE: ${pdeOffset.toString(16).toUpperCase()} → 原始小端: ${hexLittleEndian}`);
+            // 更新原始偏移输入框的值
+            document.getElementById("originalOffsetValue").value = hexLittleEndian;
         }
 
-        // 输出结果
+        // 显示结果
         function displayResult(message) {
             const resultsDiv = document.getElementById("results");
             const newResult = document.createElement("p");
-            // 计数
-            resultCount++;
-            newResult.textContent = `${resultCount}. ${message}`;
+            newResult.textContent = message;
             resultsDiv.insertBefore(newResult, resultsDiv.firstChild);
-            // 清空缓存
-            nowAct = "";
-            resultText = "";
         }
     </script>
 </body>
