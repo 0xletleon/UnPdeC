@@ -2,12 +2,12 @@
 #include "GV.h"
 
 namespace UnPdeC {
-	// 全局变量是否需要调试
-	bool GV::NeedDebugPde = false;
-	// 是否需要生成调试信息
-	bool GV::NeedOffsetLog = false;
-	// 是否需要生成解密后的PDE代码
-	bool GV::NeedFindDirs = false;
+	// 是否需要调试文件
+	bool GV::NeedDebugPde = true;
+	// 是否需要生成偏移记录
+	bool GV::NeedOffsetLog = true;
+	// 是否需要生查找未知文件或目录
+	bool GV::NeedFindDirs = true;
 	// 当前正在处理的PDE
 	TNowPde GV::NowPde = { "", 0L };
 	// 解密密钥
