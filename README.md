@@ -13,23 +13,26 @@
 
 [UnPdeC.exe](Release/UnPdeC.exe)
 
+## 使用
+
+    1：FastXor.exe 异或.pde文件
+    2：UnPdec.exe 即可解包.xor文件 
+
 ## DEBUG辅助工具
 
-[PDE偏移值计算器](Tools/OffsetCalc.html)
+![FastXOR.png](README/FastXOR.png)
 
-    PDE偏移值与实际偏移值互转小工具
+### [FastXOR C++版](Tools/FastXOR/Release/FastXOR.exe)
 
-[XOR快速验证](Tools/FastXor.html)
+### [FastXOR Html版](Tools/FastXor.html)
 
-    快速加解密验证小工具
+### [PDE偏移值计算器](Tools/OffsetCalc.html)
 
-[文件偏移值模糊计算器](Tools/XorShiftOffset.html)
+### [文件偏移值模糊计算器](Tools/XorShiftOffset.html)
 
-    用来生成文件在目录中可能位置的小工具
+### [PDEVerify](https://letleon.coding.net/public/3d/PDEVerify/git/files)
 
-[FastXOR C++版本](Tools/FastXOR/Release/FastXOR.exe)
-
-    C++版 FastXOR
+### [PDEVerifyGUI](https://letleon.coding.net/public/3d/PDEVerifyGUI/git/files)
 
 ## 线索
 
@@ -82,18 +85,30 @@
 
 ### 奇怪的地方
 
+#### 奇怪的名字
+
 ![warn.jpg](README/warn.jpg)
 
     正常来说文件名后面是00的话文件名就结束了
     有几处会出现00后面还有字符串？的情况
     0x2000 0x4000
 
-![warn.jpg](README/warn2.jpg)
+![warn2.jpg](README/warn2.jpg)
 
     在某更新补丁内找到了相同的情况
     看样子应该是被复用了
     程序只读到00就结束了
     所以不影响
+
+#### 不匹配的数据大小
+
+![warn3.jpg](README/warn3.jpg)
+
+    可以看到 team 文件夹描述中写的是0x4000
+    但是实际上却只有 0x100 大小
+    再往后的内容是某个DDS文件数据的空间
+
+    也就是说依赖描述中的信息有些不可靠了！
 
 ### 文件验证
 

@@ -47,8 +47,8 @@ namespace UnPdeC {
 	//	return result;
 	//}
 
-	std::uint32_t UFunc::Get4Byte(const std::vector<std::uint8_t>& data, std::uint32_t offset) {
-		if (static_cast<unsigned long long>(offset) + 4 > data.size()) {
+	std::uint32_t UFunc::Get4Byte(const std::vector<std::uint8_t>& data, std::uint64_t offset) {
+		if (offset + 4 > data.size()) {
 			throw std::out_of_range("PdeOffset out of range");
 		}
 		std::uint32_t value;

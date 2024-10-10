@@ -3,7 +3,7 @@
 
 namespace UnPdeC {
 	void PdeTool::Init() {
-		cout << "正在初始化 PdeTool" << endl;
+		std::cout << "正在初始化 PdeTool\n";
 
 		// 检查目录是否存在
 		std::filesystem::path PdeDir = GV::ExeDir / GV::NowPde.Name;
@@ -11,17 +11,17 @@ namespace UnPdeC {
 			// 目录不存在，创建它
 			try {
 				std::filesystem::create_directory(PdeDir);
-				std::cout << "已创建目录: " << PdeDir << std::endl;
+				std::cout << "已创建目录: " << PdeDir << "\n";
 			} catch (const std::exception& e) {
-				std::cerr << "创建目录失败: " << e.what() << std::endl;
+				std::cerr << "创建目录失败: " << e.what() << "\n";
 				return;
 			}
 		}
 
 		// 获取PdeKey
-		PdeKey::Get();
+		//PdeKey::Get();
 
-		cout << " √ 成功初始化PDE工具类" << endl;
+		std::cout << " √ 成功初始化PDE工具类\n";
 	}
 
 	/// <summary>
@@ -30,7 +30,7 @@ namespace UnPdeC {
 	/// <param name="data">初次解密后的数据</param>
 	/// <param name="BlockOffset">数据块在PDE文件中的偏移值</param>
 	/// <returns>文件或文件夹的偏移信息数组 </returns>
-	std::vector<HexOffsetInfo> PdeTool::GetOffsetInfo(const std::vector<unsigned char>& data, uint32_t BlockOffset) {
+	std::vector<HexOffsetInfo> PdeTool::GetOffsetInfo(const std::vector<unsigned char>& data, uint64_t BlockOffset) {
 		const int BlockSize = 128;
 		size_t BlockCount = data.size() / BlockSize;
 		std::vector<std::vector<char>> BlockArr(BlockCount);
@@ -38,7 +38,7 @@ namespace UnPdeC {
 		// 循环分块
 		for (int i = 0; i < BlockCount; ++i) {
 			int start = i * BlockSize;
-			int length = std::min(BlockSize, static_cast<int>(data.size()) - start);
+			int length = min(BlockSize, static_cast<int>(data.size()) - start);
 			BlockArr[i].resize(length);
 			std::copy(data.begin() + start, data.begin() + start + length, BlockArr[i].begin());
 		}
@@ -84,47 +84,47 @@ namespace UnPdeC {
 			// 使用C++17的构造器直接初始化最后4个字节
 			std::vector<uint8_t> SizeBytes(Block.end() - 4, Block.end());
 			union {
-				uint32_t value;
+				uint64_t value;
 				uint8_t bytes[4];
 			} ThisSize{};
 			// 直接将字节赋值给data的bytes数组，这会利用大端字节序
 			std::copy(SizeBytes.begin(), SizeBytes.end(), ThisSize.bytes);
 
 			// 现在data.value包含了合并后的32位数值
-			std::cout << "0x" << std::hex << ThisSize.value << std::endl;
+			std::cout << "0x" << std::hex << ThisSize.value << "\n";
 			ThisInfo.Size = ThisSize.value;
-			cout << "文件名: " << ThisInfo.Name << " 大小: " << ThisInfo.Size << " 类型: " << (ThisInfo.Type == 1 ? "文件" : "目录") << endl;
+			std::cout << "文件名: " << ThisInfo.Name << " 大小: " << ThisInfo.Size << " 类型: " << (ThisInfo.Type == 1 ? "文件" : "目录") << "\n";
 
 
 			// 读取原始偏移值
 			// 使用C++17的构造器直接初始化最后4个字节
 			std::vector<uint8_t> OriginalOffsetBytes(Block.end() - 8, Block.end() - 4);
 			union {
-				uint32_t value;
+				uint64_t value;
 				uint8_t bytes[4];
 			} OriginalOffset{};
 			// 直接将字节赋值给data的bytes数组，这会利用大端字节序
 			std::copy(OriginalOffsetBytes.begin(), OriginalOffsetBytes.end(), OriginalOffset.bytes);
 
 			// 现在data.value包含了合并后的32位数值
-			std::cout << "0x" << std::hex << OriginalOffset.value << std::endl;
+			std::cout << "0x" << std::hex << OriginalOffset.value << "\n";
 			ThisInfo.OriginalOffset = OriginalOffset.value;
 
 
 			// 计算实际偏移值
 			ThisInfo.PdeOffset = ((ThisInfo.OriginalOffset >> 10) + ThisInfo.OriginalOffset + 1) << 12;
-			cout << "PdeOffset: " << ThisInfo.PdeOffset << endl;
+			std::cout << "PdeOffset: " << ThisInfo.PdeOffset << "\n";
 
 			// 如果 ThisInfo.PdeOffset 越界，则退出循环
 			if (ThisInfo.PdeOffset >= GV::NowPde.Size) {
-				std::cerr << "ThisInfo.PdeOffset 越界退出循环" << std::endl;
+				std::cerr << "ThisInfo.PdeOffset 越界退出循环\n";
 				continue;
 			}
 
 			// todo: 读取标识
 			//// 读取标识
 			//std::vector<uint8_t> TagBytes(Block.end() - 0x10, Block.end() - 0xc);
-			//uint32_t TagOffSet = BlockOffset + ((bi + 1) * 0x80) - 0xC;
+			//uint64_t TagOffSet = BlockOffset + ((bi + 1) * 0x80) - 0xC;
 			//GetOffsetStr ThisTag = GetByteOfPde(TagOffSet, 4);
 			//// 打印 ThisTag.Byte
 
@@ -141,36 +141,36 @@ namespace UnPdeC {
 	/// <param name="Start">块在PDE文件中的起始偏移</param>
 	/// <param name="Size">块大小</param>
 	/// <returns>块数据</returns>
-	GetOffsetStr PdeTool::GetByteOfPde(uint32_t Start, uint32_t Size) {
+	GetOffsetStr PdeTool::GetByteOfPde(uint64_t Start, uint64_t Size) {
 		// 打开文件用于读取二进制数据
-		ifstream PDEFILE_FS(GV::NowPde.Path, ios::binary);
+		std::ifstream PDEFILE_FS(GV::NowPde.Path, std::ios::binary);
 
 		// 检查文件是否打开成功
 		if (!PDEFILE_FS) {
-			cerr << "无法打开PDE文件: " << GV::NowPde.Name << endl;
+			std::cerr << "无法打开PDE文件: " << GV::NowPde.Name << "\n";
 			// 退出程序
 			exit(1);
 		}
 
 		// 设置读取起点
-		PDEFILE_FS.seekg(Start, ios::beg);
+		PDEFILE_FS.seekg(Start, std::ios::beg);
 
 		// 检查文件位置是否正确
 		if (PDEFILE_FS.tellg() != Start) {
-			cerr << "文件定位失败" << endl;
-			return { 0, vector<uint8_t>() };
+			std::cerr << "文件定位失败\n";
+			return { 0, std::vector<uint8_t>() };
 		}
 
-		vector<uint8_t> buffer(Size);
+		std::vector<uint8_t> buffer(Size);
 		PDEFILE_FS.read(reinterpret_cast<char*>(buffer.data()), Size);
 
 		if (!PDEFILE_FS) {
-			cerr << "读取PDE文件失败" << endl;
+			std::cerr << "读取PDE文件失败\n";
 			// 如果读取失败，返回空的GetOffsetStr
-			return { 0, vector<uint8_t>() };
+			return { 0, std::vector<uint8_t>() };
 		}
 
-		return { static_cast<uint32_t>(PDEFILE_FS.gcount()), buffer };
+		return { static_cast<uint64_t>(PDEFILE_FS.gcount()), buffer };
 	}
 
 	/// <summary>
@@ -190,21 +190,6 @@ namespace UnPdeC {
 			// 初始化为OffsetArr.size() + 0x4的大小，每个元素都是0
 			//TempDEArr = std::vector<uint8_t>(OffsetArr.size() + 0x8, 0);
 			TempDEArr = std::vector<uint8_t>(OffsetArr.size(), 0);
-
-			// 计算需要补充到最近的0x1000的倍数的大小
-			//size_t currentSize = OffsetArr.size();
-			//size_t paddingSize = 0x1000 - (OffsetArr.size() % 0x1000);
-			//if (paddingSize < 0x1000) {
-			//	paddingSize += 0x1000; // 确保添加的是正数个元素
-			//}
-
-			// 补充容器大小
-			//if (paddingSize > 0) {
-			//	TempDEArr.resize(OffsetArr.size() + paddingSize, 0x0); // 假设补充的值为0
-			//	// new
-			//	GV::NowExpandSize = paddingSize;
-			//}
-
 		}
 
 		// Key长度

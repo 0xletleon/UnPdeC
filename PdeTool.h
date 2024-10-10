@@ -23,7 +23,7 @@ namespace UnPdeC {
 		/// <param name="data">初次解密后的数据</param>
 		/// <param name="BlockOffset">数据块在PDE文件中的偏移值</param>
 		/// <returns>文件或文件夹的偏移信息数组 </returns>
-		static std::vector<HexOffsetInfo> GetOffsetInfo(const std::vector<unsigned char>& data, uint32_t BlockOffset);
+		static std::vector<HexOffsetInfo> GetOffsetInfo(const std::vector<unsigned char>& data, uint64_t BlockOffset);
 
 		/// <summary>
 		/// 从PDE文件中获取指定块数据
@@ -31,7 +31,7 @@ namespace UnPdeC {
 		/// <param name="Start">块在PDE文件中的起始偏移</param>
 		/// <param name="Size">块大小</param>
 		/// <returns>块数据</returns>
-		static GetOffsetStr GetByteOfPde(uint32_t Start, uint32_t Size);
+		static GetOffsetStr GetByteOfPde(uint64_t Start, uint64_t Size);
 
 		/// <summary>
 		/// 解密文件 或! 数据块

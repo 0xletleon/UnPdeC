@@ -45,9 +45,6 @@
     <ClCompile Include="OffsetLog.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="ExtraSearch.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Main.h">
@@ -83,11 +80,21 @@
     <ClInclude Include="OffsetLog.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ExtraSearch.h">
+    <ClInclude Include="resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="UnPdeC.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="UnPdeC.ico">
+      <Filter>资源文件</Filter>
+    </Image>
   </ItemGroup>
 </Project>

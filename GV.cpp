@@ -11,7 +11,7 @@ namespace UnPdeC {
 	// 当前正在处理的PDE
 	TNowPde GV::NowPde = { "", 0L };
 	// 解密密钥
-	vector<unsigned char> GV::PdeKey = vector<unsigned char>(1000, 0);
+	std::vector<unsigned char> GV::PdeKey = std::vector<unsigned char>(1000, 0);
 	// 当前程序所在目录
 	std::filesystem::path GV::ExeDir = "";
 	// 偏移日志结果

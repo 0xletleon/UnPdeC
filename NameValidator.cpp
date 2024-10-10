@@ -2,7 +2,7 @@
 #include "NameValidator.h"
 
 namespace UnPdeC {
-	bool NameValidator::Check(uint8_t Type, const string& Name) {
+	bool NameValidator::Check(uint8_t Type, const std::string& Name) {
 		if (Type == 1) {
 			// 判断文件名是否合法
 			return IsValidName(Name, false);

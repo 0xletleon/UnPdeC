@@ -1,247 +1,412 @@
 ﻿#include "Main.h"
-#include "ExtraSearch.h"
 #include <filesystem>
+#include <algorithm>
+#include <cstdint>
+#include <fstream>
+#include <sstream>
+#include <nlohmann/json.hpp>
+#include "resource.h"
 
-int main() {
-	cout << "Hello CMake.";
+using json = nlohmann::json;
+namespace fs = std::filesystem;
 
-	// try {
-	// 	//文件名 155
-	// 	string finaName = "loadingmap_level_train.dds.cache";
-	// 	// 获取程序所在目录并拼接文件名
-	// 	std::filesystem::path file_path = std::filesystem::current_path();
+// 从.xor中读取文件信息
+struct FileInfo {
+	bool isValid = false; // 块是否有效
+	std::string type; // "1" for file, "2" for folder
+	std::string name; // 文件名
+	std::string encodedOffset; // 编码后的偏移值
+	std::string decodedOffset; // 解码后的偏移值
+	std::string size; // 数据块大小
+	std::string blockOffset; // 块的偏移值
+	std::string blockEncodedOffset; // 块的编码后的偏移值
+};
 
-	// 	// 打开文件
-	// 	std::ifstream file(file_path / "TestFile" / finaName, std::ios::binary);
-	// 	if (!file) {
-	// 		std::cerr << "无法打开文件: " << file_path / "TestFile" / finaName << std::endl;
-	// 		return 1;
-	// 	}
+// 解码保存时的数据块信息
+struct SaveInfo {
+	std::string type; // "1" for file, "2" for folder
+	std::string name; // 文件名
+	uint64_t offset; // 文件偏移值
+	uint64_t size; // 文件大小
+	std::string directoryPath; // 文件所在文件夹路径
+};
 
-	// 	// 读取文件内容到字节向量中
-	// 	std::vector<uint8_t> encrypted_data((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+// HEX -> "0x1234"
+std::string toHexString(uint64_t value) {
+	std::stringstream stream;
+	stream << "0x" << std::uppercase << std::hex << value;
+	return stream.str();
+}
 
-	// 	// 关闭文件
-	// 	file.close();
+/// <summary>
+/// 编码后的偏移值 -> 中的实际偏移值
+/// </summary>
+/// <param name="originalOffset">编码后的偏移值</param>
+/// <returns>pde中的实际偏移值</returns>
+uint64_t originalToPdeOffset(uint64_t originalOffset) {
+	return ((originalOffset >> 10) + originalOffset + 1) << 12;
+}
 
-	// 	std::vector<uint8_t> xaa = FinalUnpack::PreDecrypt(encrypted_data, finaName);
-	// 	cout << "xaa size: " << xaa.size() << endl;
-	// 	// 将 xaa 写入程序所在目录
-	// 	std::ofstream out("TestFile/" + finaName + ".bin", std::ios::binary);
-	// 	out.write((char*)&xaa[0], xaa.size());
-	// 	out.close();
-	// } catch (const std::filesystem::filesystem_error& e) {
-	// 	std::cerr << "文件系统错误: " << e.what() << std::endl;
-	// 	return 1;
-	// } catch (const std::exception& e) {
-	// 	std::cerr << "异常: " << e.what() << std::endl;
-	// 	return 1;
-	// }
+/// <summary>
+/// pde中的实际偏移值 -> 编码后的偏移值
+/// </summary>
+/// <param name="pdeOffset">pde中的实际偏移值</param>
+/// <returns>编码后的偏移值</returns>
+uint64_t pdeToOriginalOffset(uint64_t pdeOffset) {
+	return (pdeOffset >> 12) * 1024 / 1025;
+}
 
-	// 查找当前目录下所有的.pde文件
-	vector<TNowPde> PdeArr = FindPde::Get();
-	//遍历PdeArr进行解密
-	for (TNowPde pde : PdeArr) {
-		cout << " ！正在解码：" << pde.Name;
-		// 设置当前解密的文件名
-		GV::NowPde = pde;
+/// <summary>
+/// 验证名称
+/// </summary>
+/// <param name="name">名称</param>
+/// <returns>是否合法</returns>
+bool isValidFileName(const std::string& name) {
+	if (name.empty() || name.back() == ' ' || name.back() == '.') {
+		return false;
+	}
+	return std::all_of(name.begin(), name.end(), [](char ch) {
+		return (ch > 0x20 && ch < 0x7F) && ch != '\"' && ch != '*' && ch != '/' &&
+			ch != ':' && ch != '<' && ch != '>' && ch != '?' && ch != '\\' && ch != '|';
+		});
+}
 
-		// 初始化PDETool
-		PdeTool::Init();
+/// <summary>
+/// 验证并提取文件信息
+/// </summary>
+/// <param name="block">0x80大小的数据库</param>
+/// <param name="fileSize">.xor文件总大小</param>
+/// <returns>提取到的文件信息</returns>
+FileInfo extractFileInfo(const uint8_t* block, uint64_t fileSize) {
+	// 提取到的文件信息
+	FileInfo fileInfo{};
 
-		// 创建目录结构
-		// 由于是根目录，所以由pde文件名来命名根目录文件夹名
-		DirStr TryDir = { pde.Name , pde.Name };
-
-		// 从根目录开始解密
-		// 可得到大部分文件和目录
-		Unpack::Try(0x1000, 0x1000, TryDir, false);
-
-		/*TryDir = { pde.Name, pde.Name + "/Other" };
-		Unpack::Try(0x8f6000, 0x1000, TryDir, false);
-		Unpack::Try(0x953000, 0x1000, TryDir, false);*/
+	// 判断文件名是否合法
+	if (block[0] != 0x01 && block[0] != 0x02) {
+		return fileInfo;
 	}
 
-	// 保存日志到文件
-	OffsetLog::SaveToFile();
+	// 判断文件名是否合法
+	std::string name{ &block[1], std::find(&block[1], &block[0x50], '\0') };
+	if (!isValidFileName(name)) {
+		return fileInfo;
+	}
 
-	//OffsetLog::WriteToGV();
+	// 判断此区域是否位0x0
+	if (!std::all_of(block + 0x50, block + 0x70, [](uint8_t c) { return c == 0x00; })) {
+		return fileInfo;
+	}
 
-	//ExtraSearch::SearchAndDecrypt();
+	// 获取并判断编码后的偏移值是否合法
+	uint64_t originalOffset = *reinterpret_cast<const uint32_t*>(&block[0x78]);
+	if (originalOffset < 1) {
+		return fileInfo;
+	}
 
-	cout << "解密完成！" << endl;
+	// 读取并判断文件大小是否合法
+	uint64_t size = *reinterpret_cast<const uint32_t*>(&block[0x7c]);
+	if (size >= fileSize || size == 0) {
+		return fileInfo;
+	}
+
+	// 拼接信息
+	fileInfo = {
+		true,
+		(block[0] == 0x01) ? "1" : "2",
+		name,
+		toHexString(originalOffset),
+		toHexString(originalToPdeOffset(originalOffset)),
+		toHexString(size),
+		"",
+		""
+	};
+
+	// 返回文件/夹信息
+	return fileInfo;
+}
+
+/// <summary>
+/// 读取.xor中的所有元数据
+/// </summary>
+/// <param name="filePath">.xor文件路径</param>
+/// <returns>所有文件/夹的元数据json</returns>
+json ReadMatakForXorFile(const fs::path& filePath) {
+	if (!fs::exists(filePath)) {
+		throw std::runtime_error("File does not exist: " + filePath.string());
+	}
+
+	// 读取文件
+	std::ifstream file(filePath, std::ios::binary);
+	if (!file) {
+		throw std::runtime_error("Unable to open file: " + filePath.string());
+	}
+
+	file.seekg(0, std::ios::end);// 获取文件大小
+	uint64_t fileSize = file.tellg();// .xor文件大小
+	file.seekg(0x1000, std::ios::beg);// 跳过文件头 0x1000是根目录
+
+	const uint64_t blockSize = 0x80;// 块大小
+	std::vector<uint8_t> buffer(blockSize);// 缓冲区
+	json maps;// 存储目录与文件映射信息
+	json list;// 存储目录与文件元信息
+
+	uint64_t offsetIndex = 0x1000;// 跳过的偏移量
+	while (file.read(reinterpret_cast<char*>(buffer.data()), blockSize)) {
+		// 读取并验证块
+		FileInfo fileInfo = extractFileInfo(buffer.data(), fileSize);
+
+		if (fileInfo.isValid) {
+			// 获取当前偏移值对应的编码偏移值
+			auto blockEncodedOffset = toHexString(pdeToOriginalOffset(offsetIndex));
+			auto blockOffsetStr = toHexString(offsetIndex);
+			// 存储目录与文件映射信息
+			maps[toHexString(pdeToOriginalOffset(offsetIndex))].push_back(fileInfo.encodedOffset);
+			// 存储目录与文件元信息
+			list[fileInfo.encodedOffset] = {
+				{"type", fileInfo.type},
+				{"name", fileInfo.name},
+				{"encodedOffset", fileInfo.encodedOffset},
+				{"decodedOffset", fileInfo.decodedOffset},
+				{"size", fileInfo.size},
+				{"blockOffset", blockOffsetStr},
+				{"blockEncodedOffset", blockEncodedOffset}
+			};
+		}
+		// 下一个块
+		offsetIndex += blockSize;
+	}
+
+	// 合并JSON
+	json output = {
+		{"maps", maps},
+		{"list", list}
+	};
+
+	// 保存元信息到磁盘
+	std::string outputPath = (GV::ExeDir / (GV::NowPde.Name + ".json")).string();
+	std::ofstream outFile(outputPath);
+	outFile << output.dump(4);
+	outFile.close();
+
+	std::cout << "JSON file has been saved to: " << outputPath << "\n";
+
+	// 返回JSON
+	return output;
+}
+
+/// <summary>
+/// 解码并保存文件
+/// </summary>
+/// <param name="saveInfo">文件信息</param>
+void DecodeAndSaveFile(const SaveInfo& saveInfo) {
+	// 文件
+	if (saveInfo.type == "1") {
+		// 读取文件
+		GetOffsetStr tempFileByte = PdeTool::GetByteOfPde(saveInfo.offset, saveInfo.size);
+		// 检查文件大小
+		if (tempFileByte.Size != saveInfo.size) return;
+
+		// Ensure directory exists
+		fs::path dirPath = saveInfo.directoryPath;
+		if (!fs::exists(dirPath)) {
+			fs::create_directories(dirPath);
+		}
+
+		// Check if the file name contains ".cache" to determine if it needs secondary decryption
+		bool hasCache = saveInfo.name.find(".cache") != std::string::npos;
+
+		// 无需二次解码
+		if (!hasCache) {
+			// Save file
+			fs::path filePath = dirPath / saveInfo.name;
+			if (!fs::exists(filePath)) {
+				std::ofstream outFile(filePath, std::ios::binary);
+				outFile.write(reinterpret_cast<const char*>(tempFileByte.Byte.data()), tempFileByte.Byte.size());
+				outFile.close();
+			}
+		} else {
+			// Secondary decryption
+			std::vector<uint8_t> decryption2;
+			std::string fixedName = saveInfo.name;
+			try {
+				// 二次解码
+				decryption2 = FinalUnpack::PreDecrypt(tempFileByte.Byte, fixedName);
+				fixedName = saveInfo.name.substr(0, saveInfo.name.find(".cache"));
+			} catch (const std::exception&) {
+				std::cout << "Secondary decryption failed: " << saveInfo.name << "\n";
+				decryption2 = tempFileByte.Byte;
+			}
+
+			// Save file
+			fs::path filePath2 = dirPath / fixedName;
+			if (!fs::exists(filePath2)) {
+				std::ofstream outFile(filePath2, std::ios::binary);
+				outFile.write(reinterpret_cast<const char*>(decryption2.data()), decryption2.size());
+				outFile.close();
+			}
+		}
+	} else if (saveInfo.type == "2") {
+		// Create directory
+		fs::path parentPath = saveInfo.directoryPath;
+		fs::path dirName = saveInfo.name;
+		fs::path dirPath = parentPath / dirName;
+		if (!fs::exists(dirPath)) {
+			fs::create_directories(dirPath);
+			std::cout << "Directory created: " << dirPath << "\n";
+		}
+	} else {
+		std::cout << "Unknown type: " << saveInfo.name << "\n";
+	}
+}
+
+/// <summary>
+/// 解码文件/夹到磁盘
+/// </summary>
+/// <param name="offsetMaps">元信息JSON</param>
+void UnPackForJson(const json& offsetMaps) {
+	// 遍历所有Map映射信息
+	for (const auto& [key, values] : offsetMaps.at("maps").items()) {
+		if (values.empty()) {
+			std::cout << "Empty map key: " << key << "\n";
+			continue;
+		}
+
+		////////////////////////读取并拼接目录////////////////////////
+
+		// 当前路径向量
+		std::vector<std::string> currentDirPath;
+
+		// 获取编码后的目录值 key -> "0x123"
+		uint64_t blockOffsetHex = std::stoull(key.substr(2), nullptr, 16);
+
+		// 判断是否是根目录 0 是根目录(可以使用FastXor.html验证)
+		bool isRootDir = blockOffsetHex == 0;
+		if (isRootDir) {
+			std::cout << "Root directory\n";
+		}
+
+		// 非根目录 与 List下存在编码后的key
+		if (!isRootDir && offsetMaps.at("list").contains(key)) {
+			// 获取当前目录对象
+			json currentDirObj = offsetMaps.at("list")[key];
+
+			// 判断是否为目录
+			if (currentDirObj["type"] != "2") {
+				std::cout << "Error! Not a directory\n";
+				continue;
+			}
+
+			// 获取当前目录名称 -> currentDirPath向量
+			currentDirPath.push_back(currentDirObj["name"]);
+			// 获取16进制的编码后的偏移值
+			uint64_t upDirBlockOOffsetHex = std::stoull(currentDirObj["blockEncodedOffset"].get<std::string>(), nullptr, 16);
+
+			// 如果 > 0 则表示还有上级目录
+			while (upDirBlockOOffsetHex > 0) {
+				// 获取上级目录的编码偏移值
+				std::string upOffset = currentDirObj["blockEncodedOffset"];
+
+				// 判断是否存在
+				if (offsetMaps.at("list").contains(upOffset)) {
+					// 存在
+					// 获取上级目录对象
+					currentDirObj = offsetMaps.at("list")[upOffset];
+					// 获取上级目录名称 -> currentDirPath向量
+					currentDirPath.push_back(currentDirObj["name"]);
+					// 获取上级目录的编码偏移值
+					upDirBlockOOffsetHex = std::stoull(currentDirObj["blockEncodedOffset"].get<std::string>(), nullptr, 16);
+				} else {
+					// 不存在则放到 Other 目录下
+					currentDirPath.push_back("Other");
+					break;
+				}
+			}
+		} else {
+			// 非根目录
+			if (!isRootDir) {
+				// 编码偏移值 -> currentDirPath向量
+				currentDirPath.push_back(key);
+				// 放入Other目录
+				currentDirPath.push_back("Other");
+			}
+		}
+
+		// 当前正在处理的.xor文件名(无后缀) -> currentDirPath向量
+		currentDirPath.push_back(GV::NowPde.Name);
+		if (currentDirPath.size() > 1) {
+			// 反转
+			std::reverse(currentDirPath.begin(), currentDirPath.end());
+		}
+
+		// 拼接后的路径
+		std::string dirTempPath;
+		for (const auto& path : currentDirPath) {
+			dirTempPath += path + "\\";
+		}
+
+		// 拼接后的绝对路径
+		std::string filePath = (GV::ExeDir / dirTempPath).string();
+		std::cout << "Directory path: " << filePath << "\n";
+
+		////////////////////////遍历解码保存目录下的文件////////////////////////
+
+		// 遍历目录下的文件
+		for (const auto& value : values) {
+			// 判断是否包含
+			if (offsetMaps.at("list").contains(value)) {
+				// 获取信息
+				json info = offsetMaps.at("list")[value];
+				// 提取信息
+				SaveInfo saveInfo{
+					info["type"],
+					info["name"],
+					std::stoull(info["decodedOffset"].get<std::string>(), nullptr, 16),
+					std::stoull(info["size"].get<std::string>(), nullptr, 16),
+					filePath
+				};
+				// 解码并保存文件
+				DecodeAndSaveFile(saveInfo);
+			}
+		}
+	}
+}
+
+int main() {
+	// 设置控制台标题和图标
+	SetConsoleTitle(TEXT("UnPdeC Version: 0.0.2.0"));
+	HWND hwnd = GetConsoleWindow();
+	HICON hIcon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_APPICON));
+	if (hIcon) {
+		SendMessage(hwnd, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(hIcon));
+		SendMessage(hwnd, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(hIcon));
+	}
+
+	// 启用 ANSI 转义序列
+	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+	DWORD dwMode = 0;
+	GetConsoleMode(hOut, &dwMode);
+	SetConsoleMode(hOut, dwMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+
+	// 显示程序信息和使用说明
+	std::cout << "UnPdeC\n By:letleon\n Version: 0.0.2.0\n Desc: UnPack Pde file\n\n";
+	std::cout << "Usage:\n Firstly, use FastXOR.exe to XOR the. pde file\n Then, execute UnPdeC.exe to unpack .xor file\n\n";
+
+	// 搜索并解密所有.xor文件
+	std::vector<TNowPde> pdeArray = FindPde::Get();
+	// 遍历所有文件.xor文件
+	for (const TNowPde& pde : pdeArray) {
+		std::cout << "Decoding: " << pde.Name << "\n";
+
+		GV::NowPde = pde;//将当前处理的.xor信息传递给GV
+
+		PdeTool::Init();//初始化
+
+		json offsetMaps = ReadMatakForXorFile(GV::NowPde.Path);//读取.xor中的文件/夹信息
+
+		UnPackForJson(offsetMaps);//解码文件/夹到磁盘
+	}
+
+	std::cout << "Decoding complete!\n";
 	std::cin.get();
 	return 0;
 }
-
-
-//#include <iostream>
-//#include <vector>
-//#include <string>
-//#include <filesystem>
-//#include <fstream>
-//#include <algorithm>
-//#include <thread>
-//#include <mutex>
-//#include <Windows.h>
-//#include <nlohmann/json.hpp>
-//#include <iomanip>
-//#include <sstream>
-//
-//namespace fs = std::filesystem;
-//using json = nlohmann::json;
-//
-//struct Signature {
-//	std::string name;
-//	std::vector<uint8_t> bytes;
-//};
-//
-////std::vector<Signature> signatures = {
-////	{".anim", {0x1F, 0xD4, 0xE3, 0x7B, 0x68, 0xD9, 0xE1, 0xCF, 0xFD, 0x14, 0xC3, 0x67}},
-////	{".lua/.occ - FC", {0x1E, 0xDB, 0xE3, 0x7B, 0x68, 0xD9, 0xE3, 0xCF, 0xFD, 0x14, 0xC3, 0x67}},
-////	{".lua - AS",{0x04, 0x9D, 0x96, 0x1A, 0x3B, 0xD9, 0xE3, 0xCB, 0xF9, 0x10, 0xCB, 0x67}},
-////	{".tag/.dds", {0x1E, 0xD3, 0xE3, 0x7B, 0x68, 0xD9, 0xE3, 0xCF, 0xFD, 0x14, 0xC3, 0x67}},
-////	{"noise3d.dds", {0x1D, 0xD3, 0xE3, 0x7B, 0x68, 0xD9, 0xE3, 0xCF, 0xFD, 0x14, 0xC3, 0x67}},
-////	{".dcl", {0x1F, 0xDD, 0xE3, 0x7B, 0x68, 0xD9, 0xE0, 0xCF, 0xFD, 0x14, 0xC3, 0x67}},
-////	{".mesh", {0x1F, 0xD0, 0xE3, 0x7B, 0x68, 0xD9, 0xEA, 0xCF, 0xFD, 0x14, 0xC3, 0x67}},
-////	{".physx", {0x1F, 0xD6, 0xE3, 0x7B, 0x68, 0xD9, 0xE7, 0xCF, 0xFD, 0x14, 0xC3, 0x67}},
-////	{".pd9", {0x1D, 0xD5, 0xE3, 0x7B, 0x68, 0xD9, 0xE1, 0xCF, 0xFD, 0x14, 0xC3, 0x67}},
-////	{".vd9", {0x1E, 0xD5, 0xE3, 0x7B, 0x68, 0xD9, 0xE1, 0xCF, 0xFD, 0x14, 0xC3, 0x67}},
-////	{".skel", {0x1F, 0xD7, 0xE3, 0x7B, 0x68, 0xD9, 0xE1, 0xCF, 0xFD, 0x14, 0xC3, 0x67}},
-////	{".spr", {0x1F, 0xDC, 0xE3, 0x7B, 0x68, 0xD9, 0xE2, 0xCF, 0xFD, 0x14, 0xC3, 0x67}},
-////	{".vfx", {0x1F, 0xD2, 0xE3, 0x7B, 0x68, 0xD9, 0xE6, 0xCF, 0xFD, 0x14, 0xC3, 0x67}},
-////	{".fsb", {0x59, 0x82, 0xA1, 0x4F}},
-////	{".swf", {0x5C, 0x86, 0xB0, 0x71}},
-////	{".ttf", {0x1F, 0xD0, 0xE3, 0x7B, 0x6A, 0xCB, 0xE3, 0xCF, 0xFD, 0x10, 0xC3, 0x47, 0xFE, 0x91, 0x0A, 0xB3}}
-////};
-//
-//std::vector<Signature> signatures = {
-//	{".1", {0xEA, 0x33, 0x17, 0x4E}},
-//	{".2", {0x58, 0x6D, 0x57, 0xC9}},
-//	{".3", {0x31, 0xF8, 0xFD, 0xFE}},
-//	{".4", {0x8B, 0xF4, 0x63, 0x72}},
-//	{".5", {0x4A, 0xEB, 0x64, 0xE5}},
-//	{".6", {0x48, 0xB0, 0xA5, 0x59}},
-//	{".7", {0x48, 0xB9, 0x66, 0xC0}},
-//	{".8", {0x40, 0x0F, 0xAE, 0xEB}},
-//	{".9", {0x39, 0xD0, 0x0B, 0x08}},
-//	{".10", {0x64, 0xC6, 0x47, 0x2A}},
-//	{".11", {0xA3, 0xD9, 0xD8, 0xAB}},
-//	{".12", {0x0C, 0x23, 0xB4, 0xD0}},
-//	{".13", {0x1A, 0x16, 0x81, 0x9E}},
-//	{".14", {0x90, 0x4B, 0x88, 0xD8}},
-//	{".15", {0xCD, 0x18, 0xFD, 0xC6}},
-//	{".16", {0x68, 0x04, 0x0B, 0xFE}},
-//	{".17", {0x8B, 0x79, 0x5C, 0xC3}},
-//	{".18", {0xA3, 0x03, 0x82, 0xC8}},
-//	{".19", {0x5D, 0x1E, 0xCB, 0x23}},
-//	{".20", {0x40, 0xD6, 0xB9, 0xF1}},
-//	{".21", {0x6D, 0x11, 0xDE, 0x93}},
-//	{".22", {0x14, 0x3E, 0xFF, 0xFE}},
-//	{".23", {0x33, 0xD7, 0x58, 0x33}},
-//	{".24", {0xCD, 0x5D, 0xA0, 0x09}},
-//	{".25", {0xF5, 0xCA, 0x21, 0x9F}},
-//	{".26", {0x99, 0x28, 0x9D, 0xB7}},
-//	{".27", {0xBA, 0xB3, 0xAE, 0x1E}},
-//	{".28", {0xB8, 0xB9, 0xE2, 0x11}},
-//	{".29", {0x13, 0xD0, 0xAB, 0x6B}},
-//	{".30", {0xCF, 0x65, 0xF2, 0xBB}},
-//	{".31", {0x81, 0x22, 0x47, 0x5C}},
-//	{".32", {0x73, 0xD6, 0x76, 0x39}},
-//};
-//
-//
-//std::mutex resultMutex;
-//json jsonResult;
-//
-//std::string toHexString(uint64_t value) {
-//	std::stringstream stream;
-//	stream << "0x" << std::setfill('0') << std::setw(8) << std::hex << value;
-//	return stream.str();
-//}
-//
-//void searchChunk(const uint8_t* data, size_t size, size_t offset, const std::vector<Signature>& sigs) {
-//	for (const auto& sig : sigs) {
-//		for (size_t i = 0; i <= size - sig.bytes.size(); ++i) {
-//			if (memcmp(data + i, sig.bytes.data(), sig.bytes.size()) == 0) {
-//				std::lock_guard<std::mutex> lock(resultMutex);
-//				jsonResult[sig.name].push_back(toHexString(offset + i));
-//			}
-//		}
-//	}
-//}
-//
-//int main() {
-//	//fs::path filePath = "D:\\letleon\\Source\\Cpp\\UnPdeC\\x64\\Debug\\finalcombat.pde";
-//	fs::path filePath = "D:\\letleon\\Source\\Cpp\\UnPdeC\\x64\\Debug\\AvatarStar_zh_cn.pde";
-//
-//
-//	// 初始化 jsonResult
-//	for (const auto& sig : signatures) {
-//		jsonResult[sig.name] = json::array();
-//	}
-//
-//	HANDLE hFile = CreateFile(filePath.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-//	if (hFile == INVALID_HANDLE_VALUE) {
-//		std::cerr << "Failed to open file:" << filePath.string() << std::endl;
-//		return 1;
-//	}
-//
-//	LARGE_INTEGER fileSize;
-//	GetFileSizeEx(hFile, &fileSize);
-//
-//	HANDLE hMapping = CreateFileMapping(hFile, NULL, PAGE_READONLY, 0, 0, NULL);
-//	if (hMapping == NULL) {
-//		std::cerr << "Failed to create file mapping" << std::endl;
-//		CloseHandle(hFile);
-//		return 1;
-//	}
-//
-//	LPVOID lpFileBase = MapViewOfFile(hMapping, FILE_MAP_READ, 0, 0, 0);
-//	if (lpFileBase == NULL) {
-//		std::cerr << "Failed to map view of file" << std::endl;
-//		CloseHandle(hMapping);
-//		CloseHandle(hFile);
-//		return 1;
-//	}
-//
-//	const size_t chunkSize = 1024 * 1024; // 1MB chunks
-//	std::vector<std::thread> threads;
-//	unsigned int threadCount = std::thread::hardware_concurrency();
-//
-//	for (size_t i = 0; i < threadCount; ++i) {
-//		threads.emplace_back([&, i]() {
-//			for (size_t offset = i * chunkSize; offset < fileSize.QuadPart; offset += threadCount * chunkSize) {
-//				//size_t size = std::min(chunkSize, static_cast<size_t>(fileSize.QuadPart - offset));
-//				size_t size = std::min<size_t>(chunkSize, static_cast<size_t>(fileSize.QuadPart - offset));
-//				searchChunk(static_cast<const uint8_t*>(lpFileBase) + offset, size, offset, signatures);
-//			}
-//			});
-//	}
-//
-//	for (auto& t : threads) {
-//		t.join();
-//	}
-//
-//	UnmapViewOfFile(lpFileBase);
-//	CloseHandle(hMapping);
-//	CloseHandle(hFile);
-//
-//	// 将JSON写入文件
-//	std::ofstream outputFile("search_results1.json");
-//	if (outputFile.is_open()) {
-//		outputFile << jsonResult.dump(4); // 4 spaces for indentation
-//		outputFile.close();
-//		std::cout << "Results saved to search_results.json" << std::endl;
-//	} else {
-//		std::cerr << "Unable to open output file" << std::endl;
-//	}
-//
-//	int totalFound = 0;
-//	for (const auto& [key, value] : jsonResult.items()) {
-//		totalFound += value.size();
-//	}
-//	std::cout << "Total signatures found: " << totalFound << std::endl;
-//
-//	return 0;
-//}

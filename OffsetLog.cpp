@@ -72,7 +72,7 @@ namespace UnPdeC {
 		std::filesystem::path logFilePath = GV::ExeDir / GV::NowPde.Name / "offsetlog.json";
 		std::ofstream File(logFilePath);
 		if (File.is_open()) {
-			File << std::setw(4) << LogData << std::endl;
+			File << std::setw(4) << LogData << "\n";
 		} else {
 			throw std::runtime_error("无法打开日志文件进行写入");
 		}
@@ -80,7 +80,7 @@ namespace UnPdeC {
 
 	void OffsetLog::WriteToGV() {
 		GV::OffsetLogResult = LogData;
-		std::cout << "偏移日志数据已写入 GV::OffsetLogResult" << std::endl;
+		std::cout << "偏移日志数据已写入 GV::OffsetLogResult" << "\n";
 	}
 
 } // namespace UnPdeC

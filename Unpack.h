@@ -24,7 +24,7 @@ namespace UnPdeC {
 		/// <param name="DirOrFileArr">文件或目录数组</param>
 		/// <param name="Dir">目录</param>
 		/// <param name="BlockOffset">数据块在PDE文件中的偏移值</param>
-		static void Save(const vector<HexOffsetInfo>& DirOrFileArr, const DirStr& Dir, uint32_t BlockOffset);
+		static void Save(const std::vector<HexOffsetInfo>& DirOrFileArr, const DirStr& Dir, uint32_t BlockOffset);
 	};
 
 }

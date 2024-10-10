@@ -12,6 +12,7 @@ namespace UnPdeC {
 		/// 位移表
 		/// </summary>
 		static uint8_t ByteLimit[16];
+		static uint64_t bswap64(uint64_t value);
 
 		/// <summary>
 		/// 二次解密方法
@@ -19,7 +20,7 @@ namespace UnPdeC {
 		/// <param name="DeTempFileByte">需要解密的数据</param>
 		/// <param name="">解码后的数据大小</param>
 		/// <returns></returns>
-		static std::vector<uint8_t> FinalDecrypt2(const std::vector<uint8_t>& DeTempFileByte, uint32_t decryptedSize, const std::string& FileName);
+		static std::vector<uint8_t> FinalDecrypt2(const std::vector<uint8_t>& DeTempFileByte, uint64_t decryptedSize, const std::string& FileName);
 	public:
 		/// <summary>
 		/// 二次解密预处理

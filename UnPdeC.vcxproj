@@ -71,20 +71,20 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(ProjectDir)bin\$(Configuration)\$(Platform)</OutDir>
-    <IntDir>$(ProjectDir)bin\$(Configuration)\$(Platform)\intdir</IntDir>
+    <OutDir>$(ProjectDir)bin\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(ProjectDir)bin\$(Configuration)\$(Platform)\intdir\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(ProjectDir)bin\$(Configuration)\$(Platform)</OutDir>
-    <IntDir>$(ProjectDir)bin\$(Configuration)\$(Platform)\intdir</IntDir>
+    <OutDir>$(ProjectDir)bin\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(ProjectDir)bin\$(Configuration)\$(Platform)\intdir\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(ProjectDir)bin\$(Configuration)\$(Platform)</OutDir>
-    <IntDir>$(ProjectDir)bin\$(Configuration)\$(Platform)\intdir</IntDir>
+    <OutDir>$(ProjectDir)bin\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(ProjectDir)bin\$(Configuration)\$(Platform)\intdir\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(ProjectDir)bin\$(Configuration)\$(Platform)</OutDir>
-    <IntDir>$(ProjectDir)bin\$(Configuration)\$(Platform)\intdir</IntDir>
+    <OutDir>$(ProjectDir)bin\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(ProjectDir)bin\$(Configuration)\$(Platform)\intdir\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -151,7 +151,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ExtraSearch.cpp" />
     <ClCompile Include="FinalUnpack.cpp" />
     <ClCompile Include="FindPde.cpp" />
     <ClCompile Include="GV.cpp" />
@@ -165,7 +164,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h" />
-    <ClInclude Include="ExtraSearch.h" />
     <ClInclude Include="FinalUnpack.h" />
     <ClInclude Include="FindPde.h" />
     <ClInclude Include="GV.h" />
@@ -173,12 +171,19 @@
     <ClInclude Include="OffsetLog.h" />
     <ClInclude Include="PdeKey.h" />
     <ClInclude Include="PdeTool.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="UFunc.h" />
     <ClInclude Include="Unpack.h" />
     <ClInclude Include="Main.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="UnPdeC.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="UnPdeC.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

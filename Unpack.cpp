@@ -10,11 +10,11 @@ namespace UnPdeC {
 	/// <param name="Dir">目录</param>
 	/// <param name="Is170">是否为170表数据</param>
 	void Unpack::Try(uint32_t PdeOffset, uint32_t Size, const DirStr& Dir, bool Is170) {
-		std::cout << " ！正在尝试解密: " << Dir.NowDir << std::endl;
+		std::cout << " ！正在尝试解密: " << Dir.NowDir << "\n";
 
 		//定义变量
 		GetOffsetStr TryByte;
-		vector<uint8_t> DeTryByte;
+		std::vector<uint8_t> DeTryByte;
 
 		try {
 			// 读取数据
@@ -24,7 +24,7 @@ namespace UnPdeC {
 			// 解密数据块 -> 同时生成一个供调试时使用的PDE文件
 			DeTryByte = PdeTool::DeFileOrBlock(TryByte.Byte);
 		} catch (const std::exception& e) {
-			std::cout << " ！读取数据失败: " << e.what() << std::endl;
+			std::cout << " ！读取数据失败: " << e.what() << "\n";
 			return;
 		}
 
@@ -45,7 +45,7 @@ namespace UnPdeC {
 	/// <param name="DirOrFileArr">文件或目录数组</param>
 	/// <param name="Dir">目录</param>
 	/// <param name="BlockOffset">数据块在PDE文件中的偏移值</param>
-	void Unpack::Save(const vector<HexOffsetInfo>& DirOrFileArr, const DirStr& Dir, uint32_t BlockOffset) {
+	void Unpack::Save(const std::vector<HexOffsetInfo>& DirOrFileArr, const DirStr& Dir, uint32_t BlockOffset) {
 
 		for (const HexOffsetInfo DirOrFile : DirOrFileArr) {
 			if (DirOrFile.Type == 1) { // 文件
@@ -60,31 +60,7 @@ namespace UnPdeC {
 				// 解密数据
 				std::vector<unsigned char> DeTempFileByte = PdeTool::DeFileOrBlock(TempFileByte.Byte);
 
-				/*		uint8_t temp_6f6d = DeTempFileByte[0x18];
-						uint32_t tempsize;
-						if (temp_6f6d == 0x6F) {
-							tempsize = UnPdeC::UFunc::Get4Byte(DeTempFileByte, 0x19);
-						} else if (temp_6f6d == 0x6D) {
-							tempsize = DeTempFileByte[0x19];
-						}
-
-						std::cout << tempsize << std::endl;*/
-						// 0x18 是头部大小，+0x4是为了修补解密时越界的问题！
-						//uint32_t countsize = tempsize + 0x18 + 0x8;
-						//std::cout << countsize << std::endl;
-
-						//if (DirOrFile.Name == "skin_choujiang_bg01.tga.cache") {
-						//	std::cout << " ！文件大小不正确: " << DirOrFile.Name << std::endl;
-						//	//continue;
-						//}
-
-						//if (countsize == DeTempFileByte.size()) {
-						//	std::cout << " ！文件大小正确: " << DirOrFile.Name << std::endl;
-						//} else {
-						//	std::cout << " ！文件大小不正确: " << DirOrFile.Name << std::endl;
-						//}
-
-						// 判断是否是空文件
+				// 判断是否是空文件
 				if (DeTempFileByte.empty() || DirOrFile.Name.empty()) break;
 
 				// todo: 保存数据到DebugPde，调试时使用
@@ -97,7 +73,7 @@ namespace UnPdeC {
 				}
 
 				if (DirOrFile.Name == "game_text.lua") {
-					std::cout << " ！文件名是 game_text.lua" << std::endl;
+					std::cout << " ！文件名是 game_text.lua" << "\n";
 				}
 
 				// 检查文件名是否包含.cache来确定是否需要二次解密
@@ -115,7 +91,7 @@ namespace UnPdeC {
 							outFile.write(reinterpret_cast<const char*>(DeTempFileByte.data()), DeTempFileByte.size());
 							outFile.close();
 						} catch (const std::exception&) {
-							cout << " ！保存文件失败: " << DirOrFile.Name << endl;
+							std::cout << " ！保存文件失败: " << DirOrFile.Name << "\n";
 						}
 					}
 				} else {
@@ -127,7 +103,7 @@ namespace UnPdeC {
 						// 去除 DirOrFile.Name 中的 .cache
 						fixName = DirOrFile.Name.substr(0, DirOrFile.Name.find(".cache"));
 					} catch (const std::exception&) {
-						cout << " ！二次解密失败: " << DirOrFile.Name << endl;
+						std::cout << " ！二次解密失败: " << DirOrFile.Name << "\n";
 						Decryption2 = DeTempFileByte;
 					}
 
@@ -141,7 +117,7 @@ namespace UnPdeC {
 							outFile.write(reinterpret_cast<const char*>(Decryption2.data()), Decryption2.size());
 							outFile.close();
 						} catch (const std::exception&) {
-							cout << " ！保存文件失败: " << DirOrFile.Name << endl;
+							std::cout << " ！保存文件失败: " << DirOrFile.Name << "\n";
 						}
 					}
 				}
@@ -159,14 +135,15 @@ namespace UnPdeC {
 						//cout << " ！创建目录成功!!!!: " << DirPath << endl;
 					}
 				} catch (const std::filesystem::filesystem_error& e) {
-					cerr << "创建目录时发生错误: " << e.what() << endl;
+					std::cerr << "创建目录时发生错误: " << e.what() << "\n";
 				}
 
 				// 递归解密
 				Unpack::Try(DirOrFile.PdeOffset, DirOrFile.Size, NewDir, false);
 			} else {
-				std::cout << "其他类型: " << DirOrFile.Name << std::endl;
+				std::cout << "其他类型: " << DirOrFile.Name << "\n";
 			}
 		}
 	}
+
 }

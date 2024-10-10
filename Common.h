@@ -17,31 +17,31 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <windows.h>
 
-using std::string;
-using std::vector;
-using std::cout;
-using std::endl;
-using std::cin;
-using std::dec;
-using std::hex;
-using std::ios;
-using std::ifstream;
-using std::filesystem::path;
-using std::cerr;
-using std::regex;
-using std::all_of;
-using std::isdigit;
-using std::isalpha;
+//using std::string;
+//using std::vector;
+//using std::cout;
+//using std::cin;
+//using std::dec;
+//using std::hex;
+//using std::ios;
+//using std::ifstream;
+//using std::filesystem::path;
+//using std::cerr;
+//using std::regex;
+//using std::all_of;
+//using std::isdigit;
+//using std::isalpha;
 using std::min;
 
 /* 数据类型 */
 
 // 当前Pde文件信息
 struct TNowPde {
-	string Name; // Pde名称
+	std::string Name; // Pde名称
 	long Size; // Pde大小
-	string Path; // Pde路径
+	std::string Path; // Pde路径
 };
 
 // 文件夹信息
@@ -53,15 +53,15 @@ struct DirStr {
 // 文件偏移信息
 struct HexOffsetInfo {
 	uint8_t Type; // 1 文件, 2 目录
-	string Name; // 文件名或目录名
-	uint32_t PdeOffset; // 在PDE文件中的实际偏移值
-	uint32_t Size; // 大小
-	uint32_t OriginalOffset; // 原始偏移值
+	std::string Name; // 文件名或目录名
+	uint64_t PdeOffset; // 在PDE文件中的实际偏移值
+	uint64_t Size; // 大小
+	uint64_t OriginalOffset; // 原始偏移值
 	size_t PatternIndex; // 用于存储模式索引
 };
 
 // GetByteOfPde() 返回的数据结构 
 struct GetOffsetStr {
-	uint32_t Size; // 实际获取到的块大小
-	vector<uint8_t> Byte; // 获取到的字节数据
+	uint64_t Size; // 实际获取到的块大小
+	std::vector<uint8_t> Byte; // 获取到的字节数据
 };

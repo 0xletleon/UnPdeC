@@ -4,7 +4,7 @@
 namespace UnPdeC {
 	void PdeKey::Get() {
 		// 初始化为0
-		vector<unsigned char> KeyByte(0x1000, 0);
+		std::vector<unsigned char> KeyByte(0x1000, 0);
 
 		// 逻辑从 汇编 0x00A608E0 处获得
 		uint32_t EAX = 0x42574954;
@@ -18,7 +18,7 @@ namespace UnPdeC {
 			KeyByte[i] = static_cast<unsigned char>(CL);
 		}
 
-		cout << " √PDEKEY计算完成" << endl;
+		std::cout << " √PDEKEY计算完成\n";
 		// 给全局变量
 		GV::PdeKey = KeyByte;
 	}
