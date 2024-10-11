@@ -198,7 +198,7 @@ namespace UnPdeC {
 			fs::path dirPath = parentPath / dirName;
 			if (!fs::exists(dirPath)) {
 				fs::create_directories(dirPath);
-				std::cout << " << Dir: " << dirPath << "\n";
+				std::cout << " << Dir: " << MataJson.name << "\n";
 			}
 		} else {
 			std::cout << " £¡UNKONW:" << MataJson.name << "\n";
