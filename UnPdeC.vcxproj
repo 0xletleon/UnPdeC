@@ -151,29 +151,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="FinalUnpack.cpp" />
-    <ClCompile Include="FindPde.cpp" />
+    <ClCompile Include="Decrypt.cpp" />
     <ClCompile Include="GV.cpp" />
-    <ClCompile Include="NameValidator.cpp" />
-    <ClCompile Include="OffsetLog.cpp" />
-    <ClCompile Include="PdeKey.cpp" />
-    <ClCompile Include="PdeTool.cpp" />
-    <ClCompile Include="UFunc.cpp" />
-    <ClCompile Include="Unpack.cpp" />
+    <ClCompile Include="Mate.cpp" />
+    <ClCompile Include="Tools.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h" />
-    <ClInclude Include="FinalUnpack.h" />
-    <ClInclude Include="FindPde.h" />
+    <ClInclude Include="Decrypt.h" />
     <ClInclude Include="GV.h" />
-    <ClInclude Include="NameValidator.h" />
-    <ClInclude Include="OffsetLog.h" />
-    <ClInclude Include="PdeKey.h" />
-    <ClInclude Include="PdeTool.h" />
+    <ClInclude Include="Mata.h" />
+    <ClInclude Include="Tools.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="UFunc.h" />
-    <ClInclude Include="Unpack.h" />
     <ClInclude Include="Main.h" />
   </ItemGroup>
   <ItemGroup>

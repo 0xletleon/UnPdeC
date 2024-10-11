@@ -224,8 +224,8 @@ int main(int argc, char* argv[]) {
 	SetConsoleMode(hOut, dwMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
 
 	// 显示程序信息和使用说明
-	std::cout << "FastXOR\n By:letleon\n Version: 0.0.2.0\n Desc: Fast xor .pde bin file\n\n";
-	std::cout << "Usage:\n FastXOR.exe <file_path_or_directory>\n Or drag and drop files or a directory onto FastXOR.exe\n\n";
+	std::cout << "FastXOR\n	By:letleon\n	Version: 0.0.2.0\n	Desc: Fast xor .pde bin file\n\n";
+	std::cout << "Usage:\n	FastXOR.exe <file_path_or_directory>\n	Or drag and drop files or a directory onto FastXOR.exe\n\n";
 
 	// 检查命令行参数
 	if (argc < 2) {

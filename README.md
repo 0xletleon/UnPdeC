@@ -1,38 +1,55 @@
+![UnPdeC.png](README/UnPdeC.png)
+
 # UnPdeC
 
-    使用 腾讯元宝，Kimi 辅助将C#版UnPde转换为C++版UnPdeC
-    算是学习C++代码了，请勿用于任何商业目的！
+    此项目是Unpde(c#)的替代项项目
+    使用 腾讯元宝，Kimi, Claude 辅助开发
+    使用新的方法来导出全部文件！
+    为了学习编程和加解密算法而研究
+    请勿用于任何商业目的！
+
+## 依赖
+
+    nlohmann.json" version="3.11.2"
+    FastXor.exe
 
 ## Build
 
-    C++标准
-    项目属性 -> 配置属性 -> 常规 -> C++ 语言标准
-    改成 ISO C++20 标准 (/std:c++20)
+    C++标准 -> C++20
+    VS2022
+    Win64平台
 
 ## 测试程序
 
 [UnPdeC.exe](Release/UnPdeC.exe)
 
+[FastXOR.exe](Release/FastXOR.exe)
+
 ## 使用
 
-    1：FastXor.exe 异或.pde文件
+    0: .pde文件需要和 FastOR.exe与UnPdeC.exe在同一目录下
+    1：FastXOR.exe 异或.pde文件
     2：UnPdec.exe 即可解包.xor文件 
 
 ## DEBUG辅助工具
 
 ![FastXOR.png](README/FastXOR.png)
 
-### [FastXOR C++版](Tools/FastXOR/Release/FastXOR.exe)
+### 本方案内项目
 
-### [FastXOR Html版](Tools/FastXor.html)
+#### [FastXOR C++版(本方案内项目)](Tools/FastXOR/Release/FastXOR.exe)
 
-### [PDE偏移值计算器](Tools/OffsetCalc.html)
+#### [FastXOR Html版](Tools/FastXor.html)
 
-### [文件偏移值模糊计算器](Tools/XorShiftOffset.html)
+#### [PDE偏移值计算器](Tools/OffsetCalc.html)
 
-### [PDEVerify](https://letleon.coding.net/public/3d/PDEVerify/git/files)
+#### [文件偏移值模糊计算器](Tools/XorShiftOffset.html)
 
-### [PDEVerifyGUI](https://letleon.coding.net/public/3d/PDEVerifyGUI/git/files)
+### 其他仓库
+
+#### [PDEVerify](https://letleon.coding.net/public/3d/PDEVerify/git/files)
+
+#### [PDEVerifyGUI](https://letleon.coding.net/public/3d/PDEVerifyGUI/git/files)
 
 ## 线索
 
@@ -112,44 +129,11 @@
 
 ### 文件验证
 
-![pdeverify](README/pdeverify.jpg)]
+![pdeverify](README/pdeverify.jpg)
 
 [PDEVerify](https://letleon.coding.net/public/3d/PDEVerify/git/files)
 
 [PDEVerifyGUI](https://letleon.coding.net/public/3d/PDEVerifyGUI/git/files)
-
-### 文件特征码(原始加密状态)
-
-    .anim
-    1FD4E37B68D9E1CFFD14C367
-    .lua / .occ
-    1EDBE37B68D9E3CFFD14C367
-    .tag / .dds
-    1ED3E37B68D9E3CFFD14C367
-    特殊的dds (noise3d.dds)
-    1DD3E37B68D9E3CFFD14C367
-    .dcl
-    1FDDE37B68D9E0CFFD14C367
-    .mesh
-    1FD0E37B68D9EACFFD14C367
-    .physx
-    1FD6E37B68D9E7CFFD14C367
-    .pd9
-    1DD5E37B68D9E1CFFD14C367
-    .vd9
-    1ED5E37B68D9E1CFFD14C367
-    .skel
-    1FD7E37B68D9E1CFFD14C367
-    .spr
-    1FDCE37B68D9E2CFFD14C367
-    .vfx
-    1FD2E37B68D9E6CFFD14C367
-    .fsb
-    5982A14F
-    .swf
-    5C86B071
-    .ttf
-    1FD0E37B6ACBE3CFFD10C347FE910AB3
 
 ## 资源预览工具
 

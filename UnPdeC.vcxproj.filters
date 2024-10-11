@@ -18,31 +18,16 @@
     <ClCompile Include="Main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="FinalUnpack.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="FindPde.cpp">
+    <ClCompile Include="Decrypt.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="GV.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="NameValidator.cpp">
+    <ClCompile Include="Tools.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="PdeKey.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="PdeTool.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Unpack.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="UFunc.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="OffsetLog.cpp">
+    <ClCompile Include="Mate.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -53,34 +38,19 @@
     <ClInclude Include="Common.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="FinalUnpack.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="FindPde.h">
+    <ClInclude Include="Decrypt.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="GV.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="NameValidator.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="PdeKey.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="PdeTool.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Unpack.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="UFunc.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="OffsetLog.h">
+    <ClInclude Include="Tools.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Mata.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

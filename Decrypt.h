@@ -1,18 +1,23 @@
 ﻿#pragma once
 
 #include "Common.h"
-#include "UFunc.h"
-#include "GV.h"
 
 namespace UnPdeC {
 
-	class FinalUnpack {
+	class Decrypt {
 	private:
 		/// <summary>
 		/// 位移表
 		/// </summary>
 		static uint8_t ByteLimit[16];
-		static uint64_t bswap64(uint64_t value);
+
+		/// <summary>
+		///  获取4字节数据
+		/// </summary>
+		/// <param name="data"> 数据</param>
+		/// <param name="offset"> 偏移</param>
+		/// <returns> 4字节数据</returns>
+		static std::uint32_t Get4Byte(const std::vector<std::uint8_t>& data, std::uint64_t offset);
 
 		/// <summary>
 		/// 二次解密方法

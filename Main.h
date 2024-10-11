@@ -1,12 +1,9 @@
 ﻿#pragma once
 
+#include "resource.h"
 #include "Common.h"
-#include "FindPde.h"
-#include "PdeKey.h"
 #include "GV.h"
-#include "PdeTool.h"
-#include "Unpack.h"
-#include "FinalUnpack.h"
-//#include "OffsetLog.h"
+#include "Mata.h"
+#include "Tools.h"
 
 using namespace UnPdeC;
