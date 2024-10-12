@@ -1,6 +1,6 @@
 ![UnPdeC.png](README/UnPdeC.png)
 
-# UnPdeC
+# 🎮 UnPdeC
 
     此项目是Unpde(c#)的替代项项目
     使用 腾讯元宝，Kimi, Claude 辅助开发
@@ -8,30 +8,30 @@
     为了学习编程和加解密算法而研究
     请勿用于任何商业目的！
 
-## 依赖
+## 🦋 依赖
 
     nlohmann.json" version="3.11.2"
     FastXor.exe
 
-## Build
+## 🔨 Build
 
     C++标准 -> C++20
     VS2022
     Win64平台
 
-## 测试程序
+## 🔧 测试程序
 
 [UnPdeC.exe](Release/UnPdeC.exe)
 
 [FastXOR.exe](Release/FastXOR.exe)
 
-## 使用
+## 🚀 使用
 
     0: .pde文件需要和 FastOR.exe与UnPdeC.exe在同一目录下
     1：FastXOR.exe 异或.pde文件
     2：UnPdec.exe 即可解包.xor文件 
 
-## DEBUG辅助工具
+## 🐛 DEBUG辅助工具
 
 ![FastXOR.png](README/FastXOR.png)
 
@@ -45,13 +45,46 @@
 
 #### [文件偏移值模糊计算器](Tools/XorShiftOffset.html)
 
+#### [Blender PDE Mesh 导入插件](Tools/import_mesh.py)
+    目前只能导入顶点，Blender 4.1'
+    严禁用于商业目的，仅为学习交流！！！
+
 ### 其他仓库
 
 #### [PDEVerify](https://letleon.coding.net/public/3d/PDEVerify/git/files)
 
 #### [PDEVerifyGUI](https://letleon.coding.net/public/3d/PDEVerifyGUI/git/files)
 
-## 线索
+### 🧊🧸 探索 Mesh文件
+
+    经过与AI们亲切友好交流之后发现.mesh文件似乎可以手动重建！
+    使用 Blender PDE Mesh 导入插件可以导入部分文件
+    当然这也仅仅只是个测试！
+
+![mesh1.png](README/mesh1.png)
+
+    👆 导入之后只有顶点，没有边和面，上面是暴力F之后自动建立的面
+    可以看出这是训练关中胖子木板假人模型
+
+    0X31处的4个字节是模型数据块总大小
+        10A00000 -> 模型数据块总大小
+
+    mesh中每0X34为一个顶点的信息(还需要继续探索)
+        D4DEC6BD C151723E A579B13D -> 顶点 X Y Z
+        00000000 003C0000 210000BC -> 未知
+        00000000 00BC2180 00000000 -> 未知
+        ED38CA3A 3D37BF34 00380038 -> 未知
+        FFFFFFFF -> 结束标记？
+
+![mesh2.png](README/mesh2.png)
+
+    这是火焰兵？那个喜欢烤肉的男人？🔥
+
+![mesh3.png](README/mesh3.png)
+
+    这是根据顶点信息手动创建边和面，在加上贴图后的金币！
+
+## 🐼🐻‍❄️🐻 线索
 
 ### 根目录
 
@@ -121,7 +154,7 @@
 
 [PDEVerifyGUI](https://letleon.coding.net/public/3d/PDEVerifyGUI/git/files)
 
-## 资源预览工具
+## 🖼️🎵 资源预览工具
 
 ### DDS/TGA预览工具
 

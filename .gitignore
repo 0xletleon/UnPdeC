@@ -30,6 +30,7 @@
 *.out
 *.app
 
+.vscode
 .vs/
 /TestFile
 /packages/
