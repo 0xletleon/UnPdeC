@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) {
 	std::cout << " ！Input file: " << input_file << "\n";
 
 	// Construct the command to run UnLuacGVM.exe
-	std::string command = "UnLuacGVM.exe --lua_version 5.2-alpha \"" + input_file + "\" > \"" + output_file.string() + "\"";
+	std::string command = "UnLuacGVM.exe --rawstring --lua_version 5.2-alpha \"" + input_file + "\" > \"" + output_file.string() + "\"";
 	int result = std::system(command.c_str());
 
 	if (result != 0) {
