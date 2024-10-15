@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnPdeC", "UnPdeC.vcxproj", 
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FastXOR", "Tools\FastXOR\FastXOR.vcxproj", "{5BE28072-C89D-41AE-BD6C-C9B36FF2FE74}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnLuacBAT", "Tools\UnLuacBAT\UnLuacBAT.vcxproj", "{046A9532-DBBC-4598-A3A5-F2DF2C80EFDD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -29,6 +31,14 @@ Global
 		{5BE28072-C89D-41AE-BD6C-C9B36FF2FE74}.Release|x64.ActiveCfg = Release|x64
 		{5BE28072-C89D-41AE-BD6C-C9B36FF2FE74}.Release|x64.Build.0 = Release|x64
 		{5BE28072-C89D-41AE-BD6C-C9B36FF2FE74}.Release|x86.ActiveCfg = Release|Win32
+		{046A9532-DBBC-4598-A3A5-F2DF2C80EFDD}.Debug|x64.ActiveCfg = Debug|x64
+		{046A9532-DBBC-4598-A3A5-F2DF2C80EFDD}.Debug|x64.Build.0 = Debug|x64
+		{046A9532-DBBC-4598-A3A5-F2DF2C80EFDD}.Debug|x86.ActiveCfg = Debug|Win32
+		{046A9532-DBBC-4598-A3A5-F2DF2C80EFDD}.Debug|x86.Build.0 = Debug|Win32
+		{046A9532-DBBC-4598-A3A5-F2DF2C80EFDD}.Release|x64.ActiveCfg = Release|x64
+		{046A9532-DBBC-4598-A3A5-F2DF2C80EFDD}.Release|x64.Build.0 = Release|x64
+		{046A9532-DBBC-4598-A3A5-F2DF2C80EFDD}.Release|x86.ActiveCfg = Release|Win32
+		{046A9532-DBBC-4598-A3A5-F2DF2C80EFDD}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

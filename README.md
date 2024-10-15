@@ -49,6 +49,14 @@
     目前只能导入顶点，Blender 4.1'
     严禁用于商业目的，仅为学习交流！！！
 
+#### [UnLuacBAT & UnLuacGVM](Release/UnLuacBAT/)
+    UnLuacGVM
+        由 AeonLucid 修改的UnLuac源码,使用Oracle GraalVM生成单独的可执行程序
+        感谢 AeonLucid
+    UnLuacBAT
+        用来调用UnLuacGVM的控制台程序,设置打开方式为此程序后，
+        双击.luac文件即可得到name_d.lua文件
+
 ### 其他仓库
 
 #### [PDEVerify](https://letleon.coding.net/public/3d/PDEVerify/git/files)
