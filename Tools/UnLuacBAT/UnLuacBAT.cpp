@@ -25,6 +25,15 @@ static void waitForTwoSeconds() {
 }
 
 int main(int argc, char* argv[]) {
+	// 设置控制台标题和图标
+	SetConsoleTitle(TEXT("UnLuacBAT Version: 0.0.1.0 仅限学习严禁商用"));
+	HWND hwnd = GetConsoleWindow();
+	HICON hIcon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_APPICON));
+	if (hIcon) {
+		SendMessage(hwnd, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(hIcon));
+		SendMessage(hwnd, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(hIcon));
+	}
+
 	showLicenseInfo();
 
 	// Check if input file is provided
