@@ -26,10 +26,10 @@
 [FastXOR.exe](Release/FastXOR.exe)
 
 ## 🚀 使用
-
-    0: .pde文件需要和 FastOR.exe与UnPdeC.exe在同一目录下
-    1：FastXOR.exe 异或.pde文件
-    2：UnPdec.exe 即可解包.xor文件 
+    0: Visual C++ RunTime: https://aka.ms/vs/17/release/vc_redist.x64.exe
+    1: .pde文件需要和 FastOR.exe与UnPdeC.exe在同一目录下
+    2：FastXOR.exe 异或.pde文件
+    3：UnPdec.exe 即可解包.xor文件 
 
 ## 🐛 DEBUG辅助工具
 

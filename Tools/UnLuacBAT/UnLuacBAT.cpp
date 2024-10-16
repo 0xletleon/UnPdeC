@@ -39,6 +39,7 @@ int main(int argc, char* argv[]) {
 	// Check if input file is provided
 	if (argc != 2) {
 		std::cout << "No input file provided.\n\nUsage: UnLuacBat <input_file.luac or input_file.lua>\n";
+		std::cin.get();
 		return 1;
 	}
 
@@ -47,12 +48,14 @@ int main(int argc, char* argv[]) {
 	// Check if file exists
 	if (!fs::exists(input_file)) {
 		std::cout << "File not found: " << input_file << "\n\nPress any key to close the console...";
+		std::cin.get();
 		return 1;
 	}
 
 	// Check if file extension is .luac or .lua
 	if (fs::path(input_file).extension() != ".luac" && fs::path(input_file).extension() != ".lua") {
 		std::cout << "The input file must be a .luac or .lua file." << "\n\nPress any key to close the console...";
+		std::cin.get();
 		return 1;
 	}
 
@@ -69,6 +72,7 @@ int main(int argc, char* argv[]) {
 	// Check if UnLuacGVM.exe exists
 	if (!fs::exists(unluacgvm_exe)) {
 		std::cout << "UnLuacGVM.exe not found at:" << unluacgvm_exe.string() << "\n\nPress any key to close the console...";
+		std::cin.get();
 		return 1;
 	}
 
@@ -76,11 +80,12 @@ int main(int argc, char* argv[]) {
 	std::cout << " ！Input file: " << input_file << "\n";
 
 	// Construct the command to run UnLuacGVM.exe
-	std::string command = "UnLuacGVM.exe --rawstring --lua_version 5.2-alpha \"" + input_file + "\" > \"" + output_file.string() + "\"";
+	std::string command = exe_dir.string() + "\\UnLuacGVM.exe --rawstring --lua_version 5.2-alpha \"" + input_file + "\" > \"" + output_file.string() + "\"";
 	int result = std::system(command.c_str());
 
 	if (result != 0) {
 		std::cout << " ！Failed to process " << input_file << ". Error code: " << result << "\n";
+		std::cin.get();
 		return 1;
 	}
 
