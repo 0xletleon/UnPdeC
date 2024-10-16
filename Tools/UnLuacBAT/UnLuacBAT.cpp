@@ -5,6 +5,7 @@
 #include <chrono>
 #include <thread>
 #include <windows.h>
+#include "resource.h"
 
 namespace fs = std::filesystem;
 
