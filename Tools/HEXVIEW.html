@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HEXVIEW</title>
+    <meta name="author" content="letleon">
+    <meta name="author" content="claude-3-5-sonnet-20240620">
+    <style>
+        :root {
+            --system-blue: #007AFF;
+            --system-gray: #8E8E93;
+            --system-background: #F2F2F7;
+            --label-color: #3C3C43;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Icons', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+            background-color: var(--system-background);
+            color: #000;
+            line-height: 1.5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 90px;
+            font-weight: 100;
+            line-height: 0;
+        }
+
+        label {
+            color: var(--label-color);
+            font-size: 15px;
+        }
+
+        .encodingBox {
+            text-align: right;
+            padding-bottom: 10px;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 97%;
+            padding: 12px;
+            margin-bottom: 16px;
+            border: 1px solid var(--system-gray);
+            border-radius: 10px;
+            font-size: 17px;
+            background-color: #fff;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--system-blue);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+
+        h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-top: 24px;
+            margin-bottom: 8px;
+        }
+
+        #hexView {
+            font-family: 'Courier New', monospace;
+            white-space: pre;
+            overflow-x: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 14px;
+            line-height: 1.2;
+            letter-spacing: 0.5px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        footer {
+            padding: 20px;
+            color: var(--label-color);
+            font-size: 18px;
+            display: flex;
+            justify-content: center;
+        }
+
+        footer p {
+            margin: 0 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="content">
+            <h1>HEXVIEW</h1>
+            <input type="text" id="data" value="E4B8ADE6 96873132 33414243" placeholder="16进制待解密数据" oninput="ViewHex()">
+            <div class="encodingBox">
+                <label for="encoding">编码方式：</label>
+                <select id="encoding" onchange="ViewHex()">
+                    <option value="ASCII">ASCII</option>
+                    <option value="UTF-8">UTF-8</option>
+                    <option value="GB18030">GB18030</option>
+                    <option value="ANSI">ANSI (Windows-1252)</option>
+                </select>
+            </div>
+            <div id="hexView"></div>
+        </div>
+    </div>
+
+    <footer style="text-align: center; padding: 20px; color: var(--label-color); font-size: 14px;">
+        <p>Powered by: letleon</p>
+        <p>Ai assistant powered by: claude-3-5-sonnet-20240620</p>
+    </footer>
+
+    <script>
+        window.onload = function () {
+            ViewHex();
+        }
+
+        function ViewHex() {
+            let inputData = document.getElementById('data').value.replace(/\s/g, '');
+            let data = [];
+
+            if (!/^[0-9A-Fa-f]*$/.test(inputData)) {
+                document.getElementById('hexView').textContent = "请输入有效的十六进制数据";
+                return;
+            }
+
+            for (let i = 0; i < inputData.length; i += 2) {
+                data.push(parseInt(inputData.substr(i, 2), 16));
+            }
+
+            displayHexView(data, 'hexView');
+        }
+
+        function displayHexView(data, elementId) {
+            const hexView = document.getElementById(elementId);
+            const encoding = document.getElementById('encoding').value;
+            let output = '';
+            const bytesPerLine = 16;
+
+            output += 'OFFSET     00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F   ' + encoding + '\n';
+            output += '\n';
+
+            for (let i = 0; i < data.length; i += bytesPerLine) {
+                // 地址
+                output += i.toString(16).padStart(8, '0') + ' │';
+
+                // 十六进制值
+                let encodedPart = new Uint8Array(bytesPerLine);
+                let hexPart = '';
+                for (let j = 0; j < bytesPerLine; j++) {
+                    if (i + j < data.length) {
+                        const byte = data[i + j];
+                        hexPart += ' ' + byte.toString(16).padStart(2, '0').toUpperCase();
+                        encodedPart[j] = byte;
+                    } else {
+                        hexPart += '   ';
+                        encodedPart[j] = 0;
+                    }
+                    if (j === 7) hexPart += ' ';
+                }
+                output += hexPart;
+
+                // 编码表示
+                let decodedText = decodeText(encodedPart.slice(0, Math.min(bytesPerLine, data.length - i)), encoding);
+                output += ' │ ' + formatDecodedText(decodedText, bytesPerLine) + ' \n';
+            }
+
+            hexView.textContent = output;
+        }
+
+        function decodeText(data, encoding) {
+            let decoder;
+            switch (encoding) {
+                case 'UTF-8':
+                    decoder = createDecoder('utf-8');
+                    break;
+                case 'GB18030':
+                    decoder = createDecoder('gb18030');
+                    break;
+                case 'ANSI':
+                    decoder = createDecoder('windows-1252');
+                    break;
+                case 'ASCII':
+                default:
+                    return Array.from(data).map(byte =>
+                        (byte >= 32 && byte <= 126) ? String.fromCharCode(byte) : '.'
+                    ).join('');
+            }
+            try {
+                return decoder.decode(data).replace(/[\x00-\x1F\x7F-\xFF]/g, '.');
+            } catch (e) {
+                console.error('Decoding error:', e);
+                return '.'.repeat(data.length);
+            }
+        }
+
+        function createDecoder(encoding) {
+            try {
+                return new TextDecoder(encoding);
+            } catch (e) {
+                console.warn(`TextDecoder does not support ${encoding}, falling back to ASCII`);
+                return {
+                    decode: (data) => Array.from(data).map(byte =>
+                        (byte >= 32 && byte <= 126) ? String.fromCharCode(byte) : '.'
+                    ).join('')
+                };
+            }
+        }
+
+        function formatDecodedText(text, bytesPerLine) {
+            let formatted = '';
+            let currentLength = 0;
+            for (let char of text) {
+                if (currentLength >= bytesPerLine) break;
+                if (char.charCodeAt(0) > 255) {
+                    // 中文字符占用两个字节的空间
+                    if (currentLength + 2 > bytesPerLine) break;
+                    formatted += char;
+                    currentLength += 2;
+                } else {
+                    formatted += char;
+                    currentLength += 1;
+                }
+            }
+            return formatted.padEnd(bytesPerLine, ' ');
+        }
+    </script>
+
+</body>
+
+</html>
