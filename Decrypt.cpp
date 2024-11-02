@@ -15,10 +15,6 @@ namespace UnPdeC {
 	}
 
 	std::vector<uint8_t> Decrypt::PreDecrypt(const std::vector<uint8_t>& DeTempFileByte, const std::string& FileName) {
-		if (DeTempFileByte.size() <= 0x29) {
-			throw std::runtime_error("初次解密后的字节数组长度不足，无法删除前0x29个字节");
-		}
-
 		// 判断哪些文件不需要二次解密
 		// 解码后大小标识
 		uint8_t SizeFlag = DeTempFileByte[0x18];
@@ -29,32 +25,32 @@ namespace UnPdeC {
 			std::vector<uint8_t> EncryptedData;
 			// 解密后的数据大小
 			uint64_t DecryptedSize;
-			std::cout << "    File: " << FileName << "\n";
+			//std::cout << "    File: " << FileName << "\n";
 
 			// 根据标识设置偏移值
 			switch (SizeFlag) {
-			case 0x6F: // 常规文件? 6F 标识
-				// 获取解密后数据长度
-				DecryptedSize = Get4Byte(DeTempFileByte, 0x1D);
+				case 0x6F: // 常规文件? 6F 标识
+					// 获取解密后数据长度
+					DecryptedSize = Get4Byte(DeTempFileByte, 0x1D);
 
-				// 初始化 待解密的数据 大小
-				EncryptedData.resize(DeTempFileByte.size() - 0x21);
+					// 初始化 待解密的数据 大小
+					EncryptedData.resize(DeTempFileByte.size() - 0x21);
 
-				// 从 0x21 开始到 结束 复制到 待解密的数据
-				std::copy(DeTempFileByte.begin() + 0x21, DeTempFileByte.end(), EncryptedData.begin());
-				break;
-			case 0x6D: // 非常规文件? 6D 标识
-				// 获取解密后数据长度
-				DecryptedSize = DeTempFileByte[0x1A];
-				// 初始化EncryptedData大小
-				EncryptedData.resize(DeTempFileByte.size() - 0x1B);
+					// 从 0x21 开始到 结束 复制到 待解密的数据
+					std::copy(DeTempFileByte.begin() + 0x21, DeTempFileByte.end(), EncryptedData.begin());
+					break;
+				case 0x6D: // 非常规文件? 6D 标识
+					// 获取解密后数据长度
+					DecryptedSize = DeTempFileByte[0x1A];
+					// 初始化EncryptedData大小
+					EncryptedData.resize(DeTempFileByte.size() - 0x1B);
 
-				// 从 0x1A 开始到 结束 复制到 EncryptedData
-				std::copy(DeTempFileByte.begin() + 0x1B, DeTempFileByte.end(), EncryptedData.begin());
-				break;
-			default:
-				// 未知文件类型
-				throw std::runtime_error(" ！解码后大小标识");
+					// 从 0x1A 开始到 结束 复制到 EncryptedData
+					std::copy(DeTempFileByte.begin() + 0x1B, DeTempFileByte.end(), EncryptedData.begin());
+					break;
+				default:
+					// 未知文件类型
+					throw std::runtime_error(" ！解码后大小标识");
 			}
 
 			// 解码后数据
@@ -65,18 +61,18 @@ namespace UnPdeC {
 			DecryptedData.erase(DecryptedData.begin(), DecryptedData.begin() + 8);
 			// 返回处理后的字节数组
 			return DecryptedData;
-		}
-		else { // 不需要二次解密
+		} else { // 不需要二次解密
+			//std::vector<uint8_t> result = DeTempFileByte;
 			if (DeTempFileByte.size() <= 0x29) {
-				throw std::runtime_error("初次解密后的字节数组长度不足，无法删除前0x29个字节");
+				std::cout << "初次解密后的字节数组长度不足，无法删除前0x29个字节/n";
+				return DeTempFileByte;
+			} else {
+				// 删除前0x29个字节
+				std::vector<uint8_t> result(std::next(DeTempFileByte.begin(), 0x29), DeTempFileByte.end());
+				return result;
 			}
-			// 删除前0x29个字节
-			std::vector<uint8_t> result(std::next(DeTempFileByte.begin(), 0x29), DeTempFileByte.end());
 
 			std::cout << " ！" << FileName << " 无需二次解密" << "\n";
-
-			// 返回处理后的字节数组
-			return result;
 		}
 	}
 
@@ -109,8 +105,7 @@ namespace UnPdeC {
 					EBP += shiftAmount;
 					ESI += shiftAmount;
 					EAX >>= shiftAmount;
-				}
-				else {
+				} else {
 					EAX >>= 1;
 					ESP58 = EAX;
 					uint32_t offset = 0;
@@ -123,26 +118,22 @@ namespace UnPdeC {
 									offset = ECX >> 15;
 									length = ((ECX >> 7) & 0xFF) + 3;
 									ESI += 4;
-								}
-								else {
+								} else {
 									offset = (ECX >> 7) & 0x1FFFF;
 									length = ((ECX >> 2) & 0x1F) + 2;
 									ESI += 3;
 								}
-							}
-							else {
+							} else {
 								offset = (ECX >> 6) & 0x3FF;
 								length = ((ECX >> 2) & 0xF) + 3;
 								ESI += 2;
 							}
-						}
-						else {
+						} else {
 							offset = (ECX >> 2) & 0x3FFF;
 							length = 3;
 							ESI += 2;
 						}
-					}
-					else {
+					} else {
 						offset = (ECX >> 2) & 0x3F;
 						length = 3;
 						ESI += 1;
@@ -176,8 +167,7 @@ namespace UnPdeC {
 
 			return decryptedData;
 
-		}
-		catch (const std::exception& e) {
+		} catch (const std::exception& e) {
 			throw std::runtime_error(" ！Decrypt::FinalDecrypt2() 函数执行出错：" + std::string(e.what()));
 		}
 	}

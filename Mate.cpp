@@ -165,11 +165,14 @@ namespace UnPdeC {
 			// 无需二次解码
 			if (!hasCache) {
 				// 检查 fixedName 是否以 .lua 结尾
-				 if (MataJson.name.size() >= 4 && MataJson.name.substr(MataJson.name.size() - 4) == ".lua") {
+				if (MataJson.name.size() >= 4 && MataJson.name.substr(MataJson.name.size() - 4) == ".lua") {
 					// 更改后缀为 .luac
 					fixedName = MataJson.name.substr(0, MataJson.name.size() - 4) + ".luac";
+				} else {
+					// 赋值为原始的名字
+					fixedName = MataJson.name;
 				}
-				
+
 				// Save file
 				fs::path filePath = dirPath / fixedName;
 				if (!fs::exists(filePath)) {
