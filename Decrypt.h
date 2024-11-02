@@ -36,4 +36,4 @@ namespace UnPdeC {
 		static std::vector<uint8_t> PreDecrypt(const std::vector<uint8_t>& DeTempFileByte, const std::string& FileName);
 	};
 
-}
+} 

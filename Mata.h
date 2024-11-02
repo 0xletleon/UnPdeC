@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "Common.h"
 #include "GV.h"
@@ -7,35 +7,35 @@
 
 namespace UnPdeC {
 	/// <summary>
-	/// PDE¹¤¾ßÀà
+	/// PDEå·¥å…·ç±»
 	/// </summary>
 	class Mata {
 	public:
 		/// <summary>
-		/// ÌáÈ¡ÔªĞÅÏ¢
+		/// æå–å…ƒä¿¡æ¯
 		/// </summary>
-		/// <param name="MataBlock">¿éÊı¾İ</param>
-		/// <param name="XorFileSize">.xorÎÄ¼ş´óĞ¡</param>
-		/// <returns>ÔªĞÅÏ¢</returns>
+		/// <param name="MataBlock">å—æ•°æ®</param>
+		/// <param name="XorFileSize">.xoræ–‡ä»¶å¤§å°</param>
+		/// <returns>å…ƒä¿¡æ¯</returns>
 		static BlockInfo ExtractMataInfo(const uint8_t* MataBlock, uint64_t XorFileSize);
 
 		/// <summary>
-		/// ¶ÁÈ¡.xorÖĞËùÓĞÔªÊı¾İ¿é
+		/// è¯»å–.xorä¸­æ‰€æœ‰å…ƒæ•°æ®å—
 		/// </summary>
-		/// <param name="FilePath">.xorÎÄ¼şÂ·¾¶</param>
-		/// <returns>ËùÓĞÎÄ¼ş/¼ĞµÄÔªÊı¾İjson</returns>
+		/// <param name="FilePath">.xoræ–‡ä»¶è·¯å¾„</param>
+		/// <returns>æ‰€æœ‰æ–‡ä»¶/å¤¹çš„å…ƒæ•°æ®json</returns>
 		static json ReadMatakForXorFile(const std::filesystem::path& FilePath);
 
 		/// <summary>
-		/// ½âÂë²¢±£´æÎÄ¼ş/¼Ğ
+		/// è§£ç å¹¶ä¿å­˜æ–‡ä»¶/å¤¹
 		/// </summary>
-		/// <param name="MataJson">´ı±£ÎÄ¼ş¼ĞÔªĞÅÏ¢</param>
+		/// <param name="MataJson">å¾…ä¿æ–‡ä»¶å¤¹å…ƒä¿¡æ¯</param>
 		static void DecodeAndSaveFile(const MataSaveInfo& MataJson);
 
 		/// <summary>
-		/// ÌáÈ¡ÔªĞÅÏ¢²¢½âÂë
+		/// æå–å…ƒä¿¡æ¯å¹¶è§£ç 
 		/// </summary>
-		/// <param name="XorFileMatas">XorÎÄ¼şÔªĞÅÏ¢</param>
+		/// <param name="XorFileMatas">Xoræ–‡ä»¶å…ƒä¿¡æ¯</param>
 		static void ExtractMateAndDecode(const json& XorFileMatas);
 	};
 }

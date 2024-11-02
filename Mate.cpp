@@ -1,57 +1,57 @@
-#include "Mata.h"
+ï»¿#include "Mata.h"
 
 namespace UnPdeC {
 	/// <summary>
-	/// ÌáÈ¡ÔªĞÅÏ¢
+	/// æå–å…ƒä¿¡æ¯
 	/// </summary>
-	/// <param name="MataBlock">¿éÊı¾İ</param>
-	/// <param name="XorFileSize">.xorÎÄ¼ş´óĞ¡</param>
-	/// <returns>ÔªĞÅÏ¢</returns>
+	/// <param name="MataBlock">å—æ•°æ®</param>
+	/// <param name="XorFileSize">.xoræ–‡ä»¶å¤§å°</param>
+	/// <returns>å…ƒä¿¡æ¯</returns>
 	BlockInfo Mata::ExtractMataInfo(const uint8_t* MataBlock, uint64_t XorFileSize) {
-		// ÌáÈ¡µ½µÄÎÄ¼şĞÅÏ¢
+		// æå–åˆ°çš„æ–‡ä»¶ä¿¡æ¯
 		BlockInfo blockInfo{};
 
-		// ÅĞ¶ÏÎÄ¼şÃûÊÇ·ñºÏ·¨
+		// åˆ¤æ–­æ–‡ä»¶åæ˜¯å¦åˆæ³•
 		if (MataBlock[0] != 0x01 && MataBlock[0] != 0x02) {
 			return blockInfo;
 		}
 
-		// ÅĞ¶ÏÎÄ¼şÃûÊÇ·ñºÏ·¨
+		// åˆ¤æ–­æ–‡ä»¶åæ˜¯å¦åˆæ³•
 		std::string name{ &MataBlock[1], std::find(&MataBlock[1], &MataBlock[0x50], '\0') };
 		if (!Tools::NameCheck(name)) {
 			return blockInfo;
 		}
 
-		// ÅĞ¶Ï´ËÇøÓòÊÇ·ñÎ»0x0
+		// åˆ¤æ–­æ­¤åŒºåŸŸæ˜¯å¦ä½0x0
 		if (!std::all_of(MataBlock + 0x50, MataBlock + 0x70, [](uint8_t c) { return c == 0x00; })) {
 			return blockInfo;
 		}
 
-		// »ñÈ¡²¢ÅĞ¶Ï±àÂëºóµÄÆ«ÒÆÖµÊÇ·ñºÏ·¨
+		// è·å–å¹¶åˆ¤æ–­ç¼–ç åçš„åç§»å€¼æ˜¯å¦åˆæ³•
 		uint64_t originalOffset = *reinterpret_cast<const uint32_t*>(&MataBlock[0x78]);
 		if (originalOffset < 1) {
 			return blockInfo;
 		}
 
-		// ¶ÁÈ¡²¢ÅĞ¶ÏÎÄ¼ş´óĞ¡ÊÇ·ñºÏ·¨
+		// è¯»å–å¹¶åˆ¤æ–­æ–‡ä»¶å¤§å°æ˜¯å¦åˆæ³•
 		uint64_t size = *reinterpret_cast<const uint32_t*>(&MataBlock[0x7c]);
 		if (size >= XorFileSize || size == 0) {
 			return blockInfo;
 		}
 
-		// ´Ó.xorÖĞ¶ÁÈ¡ÎÄ¼şĞÅÏ¢
+		// ä».xorä¸­è¯»å–æ–‡ä»¶ä¿¡æ¯
 		struct BlockInfo {
-			bool isValid = false; // ¿éÊÇ·ñÓĞĞ§
+			bool isValid = false; // å—æ˜¯å¦æœ‰æ•ˆ
 			std::string type; // "1" for file, "2" for folder
-			std::string name; // ÎÄ¼şÃû
-			std::string encodedOffset; // ±àÂëºóµÄÆ«ÒÆÖµ
-			std::string decodedOffset; // ½âÂëºóµÄÆ«ÒÆÖµ
-			std::string size; // Êı¾İ¿é´óĞ¡
-			std::string blockOffset; // ¿éµÄÆ«ÒÆÖµ
-			std::string blockEncodedOffset; // ¿éµÄ±àÂëºóµÄÆ«ÒÆÖµ
+			std::string name; // æ–‡ä»¶å
+			std::string encodedOffset; // ç¼–ç åçš„åç§»å€¼
+			std::string decodedOffset; // è§£ç åçš„åç§»å€¼
+			std::string size; // æ•°æ®å—å¤§å°
+			std::string blockOffset; // å—çš„åç§»å€¼
+			std::string blockEncodedOffset; // å—çš„ç¼–ç åçš„åç§»å€¼
 		};
 
-		// Æ´½ÓĞÅÏ¢
+		// æ‹¼æ¥ä¿¡æ¯
 		blockInfo = {
 			true,
 			(MataBlock[0] == 0x01) ? "1" : "2",
@@ -63,51 +63,51 @@ namespace UnPdeC {
 			""
 		};
 
-		// ·µ»ØÔªĞÅÏ¢
+		// è¿”å›å…ƒä¿¡æ¯
 		return blockInfo;
 	}
 
 	/// <summary>
-	/// ¶ÁÈ¡.xorÖĞËùÓĞÔªÊı¾İ¿é
+	/// è¯»å–.xorä¸­æ‰€æœ‰å…ƒæ•°æ®å—
 	/// </summary>
-	/// <param name="FilePath">.xorÎÄ¼şÂ·¾¶</param>
-	/// <returns>ËùÓĞÎÄ¼ş/¼ĞµÄÔªÊı¾İjson</returns>
+	/// <param name="FilePath">.xoræ–‡ä»¶è·¯å¾„</param>
+	/// <returns>æ‰€æœ‰æ–‡ä»¶/å¤¹çš„å…ƒæ•°æ®json</returns>
 	json Mata::ReadMatakForXorFile(const fs::path& FilePath) {
-		std::cout << "\n £¡Reading Mate information......\n";
+		std::cout << "\n ï¼Reading Mate information......\n";
 
 		if (!fs::exists(FilePath)) {
 			throw std::runtime_error("File does not exist: " + FilePath.string());
 		}
 
-		// ¶ÁÈ¡ÎÄ¼ş
+		// è¯»å–æ–‡ä»¶
 		std::ifstream file(FilePath, std::ios::binary);
 		if (!file) {
 			throw std::runtime_error("Unable to open file: " + FilePath.string());
 		}
 
-		file.seekg(0, std::ios::end);// »ñÈ¡ÎÄ¼ş´óĞ¡
-		uint64_t fileSize = file.tellg();// .xorÎÄ¼ş´óĞ¡
-		file.seekg(0x1000, std::ios::beg);// Ìø¹ıÎÄ¼şÍ· 0x1000ÊÇ¸ùÄ¿Â¼
+		file.seekg(0, std::ios::end);// è·å–æ–‡ä»¶å¤§å°
+		uint64_t fileSize = file.tellg();// .xoræ–‡ä»¶å¤§å°
+		file.seekg(0x1000, std::ios::beg);// è·³è¿‡æ–‡ä»¶å¤´ 0x1000æ˜¯æ ¹ç›®å½•
 
-		const uint64_t blockSize = 0x80;// ¿é´óĞ¡
-		std::vector<uint8_t> buffer(blockSize);// »º³åÇø
+		const uint64_t blockSize = 0x80;// å—å¤§å°
+		std::vector<uint8_t> buffer(blockSize);// ç¼“å†²åŒº
 
-		json maps;// ´æ´¢Ä¿Â¼ÓëÎÄ¼şÓ³ÉäĞÅÏ¢
-		json list;// ´æ´¢Ä¿Â¼ÓëÎÄ¼şÔªĞÅÏ¢
+		json maps;// å­˜å‚¨ç›®å½•ä¸æ–‡ä»¶æ˜ å°„ä¿¡æ¯
+		json list;// å­˜å‚¨ç›®å½•ä¸æ–‡ä»¶å…ƒä¿¡æ¯
 
-		uint64_t offsetIndex = 0x1000;// Ìø¹ıµÄÆ«ÒÆÁ¿
+		uint64_t offsetIndex = 0x1000;// è·³è¿‡çš„åç§»é‡
 
 		while (file.read(reinterpret_cast<char*>(buffer.data()), blockSize)) {
-			// ¶ÁÈ¡²¢ÑéÖ¤¿é
+			// è¯»å–å¹¶éªŒè¯å—
 			BlockInfo BlockInfo = Mata::ExtractMataInfo(buffer.data(), fileSize);
 
 			if (BlockInfo.isValid) {
-				// »ñÈ¡µ±Ç°Æ«ÒÆÖµ¶ÔÓ¦µÄ±àÂëÆ«ÒÆÖµ
+				// è·å–å½“å‰åç§»å€¼å¯¹åº”çš„ç¼–ç åç§»å€¼
 				auto blockEncodedOffset = Tools::ToHexString(Tools::PdeToOrigOffset(offsetIndex));
 				auto blockOffsetStr = Tools::ToHexString(offsetIndex);
-				// ´æ´¢Ä¿Â¼ÓëÎÄ¼şÓ³ÉäĞÅÏ¢
+				// å­˜å‚¨ç›®å½•ä¸æ–‡ä»¶æ˜ å°„ä¿¡æ¯
 				maps[Tools::ToHexString(Tools::PdeToOrigOffset(offsetIndex))].push_back(BlockInfo.encodedOffset);
-				// ´æ´¢Ä¿Â¼ÓëÎÄ¼şÔªĞÅÏ¢
+				// å­˜å‚¨ç›®å½•ä¸æ–‡ä»¶å…ƒä¿¡æ¯
 				list[BlockInfo.encodedOffset] = {
 					{"type", BlockInfo.type},
 					{"name", BlockInfo.name},
@@ -118,38 +118,38 @@ namespace UnPdeC {
 					{"blockEncodedOffset", blockEncodedOffset}
 				};
 			}
-			// ÏÂÒ»¸ö¿é
+			// ä¸‹ä¸€ä¸ªå—
 			offsetIndex += blockSize;
 		}
 
-		// ºÏ²¢JSON
+		// åˆå¹¶JSON
 		json output = {
 			{"maps", maps},
 			{"list", list}
 		};
 
-		// ±£´æÔªĞÅÏ¢µ½´ÅÅÌ
+		// ä¿å­˜å…ƒä¿¡æ¯åˆ°ç£ç›˜
 		std::string outputPath = (GV::ExeDir / (GV::NowXor.Name + ".json")).string();
 		std::ofstream outFile(outputPath);
 		outFile << output.dump(4);
 		outFile.close();
 
-		std::cout << " << JSON: " << outputPath << "\n ¡Ì Meta information reading completed\n";
+		std::cout << " << JSON: " << outputPath << "\n âˆš Meta information reading completed\n";
 
-		// ·µ»ØJSON
+		// è¿”å›JSON
 		return output;
 	}
 
 	/// <summary>
-	/// ½âÂë²¢±£´æÎÄ¼ş/¼Ğ
+	/// è§£ç å¹¶ä¿å­˜æ–‡ä»¶/å¤¹
 	/// </summary>
-	/// <param name="MataJson">´ı±£ÎÄ¼ş¼ĞÔªĞÅÏ¢</param>
+	/// <param name="MataJson">å¾…ä¿æ–‡ä»¶å¤¹å…ƒä¿¡æ¯</param>
 	void Mata::DecodeAndSaveFile(const MataSaveInfo& MataJson) {
-		// ÎÄ¼ş
+		// æ–‡ä»¶
 		if (MataJson.type == "1") {
-			// ¶ÁÈ¡ÎÄ¼ş
+			// è¯»å–æ–‡ä»¶
 			GetOffsetStr tempFileByte = Tools::GetByteOfXor(MataJson.offset, MataJson.size);
-			// ¼ì²éÎÄ¼ş´óĞ¡
+			// æ£€æŸ¥æ–‡ä»¶å¤§å°
 			if (tempFileByte.Size != MataJson.size) return;
 
 			// Ensure directory exists
@@ -162,11 +162,11 @@ namespace UnPdeC {
 			bool hasCache = MataJson.name.find(".cache") != std::string::npos;
 			std::string fixedName;
 
-			// ÎŞĞè¶ş´Î½âÂë
+			// æ— éœ€äºŒæ¬¡è§£ç 
 			if (!hasCache) {
-				// ¼ì²é fixedName ÊÇ·ñÒÔ .lua ½áÎ²
+				// æ£€æŸ¥ fixedName æ˜¯å¦ä»¥ .lua ç»“å°¾
 				 if (MataJson.name.size() >= 4 && MataJson.name.substr(MataJson.name.size() - 4) == ".lua") {
-					// ¸ü¸Äºó×ºÎª .luac
+					// æ›´æ”¹åç¼€ä¸º .luac
 					fixedName = MataJson.name.substr(0, MataJson.name.size() - 4) + ".luac";
 				}
 				
@@ -181,19 +181,19 @@ namespace UnPdeC {
 				// Secondary decryption
 				std::vector<uint8_t> decryption2;
 				try {
-					// ¶ş´Î½âÂë
+					// äºŒæ¬¡è§£ç 
 					decryption2 = Decrypt::PreDecrypt(tempFileByte.Byte, MataJson.name);
 
-					// ÒÆ³ı .cache ²¿·Ö
+					// ç§»é™¤ .cache éƒ¨åˆ†
 					fixedName = MataJson.name.substr(0, MataJson.name.find(".cache"));
 
-					// ¼ì²é fixedName ÊÇ·ñÒÔ .lua ½áÎ²
+					// æ£€æŸ¥ fixedName æ˜¯å¦ä»¥ .lua ç»“å°¾
 					if (fixedName.size() >= 4 && fixedName.substr(fixedName.size() - 4) == ".lua") {
-						// ¸ü¸Äºó×ºÎª .luac
+						// æ›´æ”¹åç¼€ä¸º .luac
 						fixedName.replace(fixedName.size() - 4, 4, ".luac");
 					}
 				} catch (const std::exception&) {
-					std::cout << " £¡Secondary decryption failed: " << MataJson.name << "\n";
+					std::cout << " ï¼Secondary decryption failed: " << MataJson.name << "\n";
 					decryption2 = tempFileByte.Byte;
 				}
 
@@ -215,107 +215,107 @@ namespace UnPdeC {
 				std::cout << " << Dir: " << MataJson.name << "\n";
 			}
 		} else {
-			std::cout << " £¡UNKONW:" << MataJson.name << "\n";
+			std::cout << " ï¼UNKONW:" << MataJson.name << "\n";
 		}
 	}
 
 	/// <summary>
-	/// ÌáÈ¡ÔªĞÅÏ¢²¢½âÂë
+	/// æå–å…ƒä¿¡æ¯å¹¶è§£ç 
 	/// </summary>
-	/// <param name="XorFileMatas">XorÎÄ¼şÔªĞÅÏ¢</param>
+	/// <param name="XorFileMatas">Xoræ–‡ä»¶å…ƒä¿¡æ¯</param>
 	void Mata::ExtractMateAndDecode(const json& XorFileMatas) {
-		std::cout << "\n £¡Extracting Mate And Decode......\n\n";
+		std::cout << "\n ï¼Extracting Mate And Decode......\n\n";
 
-		// ±éÀúËùÓĞMapÓ³ÉäĞÅÏ¢
+		// éå†æ‰€æœ‰Mapæ˜ å°„ä¿¡æ¯
 		for (const auto& [key, values] : XorFileMatas.at("maps").items()) {
 			if (values.empty()) {
-				std::cout << " £¡Empty map key: " << key << "\n";
+				std::cout << " ï¼Empty map key: " << key << "\n";
 				continue;
 			}
 
-			////////////////////////¶ÁÈ¡²¢Æ´½ÓÄ¿Â¼////////////////////////
+			////////////////////////è¯»å–å¹¶æ‹¼æ¥ç›®å½•////////////////////////
 
-			// µ±Ç°Â·¾¶ÏòÁ¿
+			// å½“å‰è·¯å¾„å‘é‡
 			std::vector<std::string> currentDirPath;
 
-			// »ñÈ¡±àÂëºóµÄÄ¿Â¼Öµ key -> "0x123"
+			// è·å–ç¼–ç åçš„ç›®å½•å€¼ key -> "0x123"
 			uint64_t blockOffsetHex = std::stoull(key.substr(2), nullptr, 16);
 
-			// ÅĞ¶ÏÊÇ·ñÊÇ¸ùÄ¿Â¼ 0 ÊÇ¸ùÄ¿Â¼(¿ÉÒÔÊ¹ÓÃFastXor.htmlÑéÖ¤)
+			// åˆ¤æ–­æ˜¯å¦æ˜¯æ ¹ç›®å½• 0 æ˜¯æ ¹ç›®å½•(å¯ä»¥ä½¿ç”¨FastXor.htmléªŒè¯)
 			bool isRootDir = blockOffsetHex == 0;
 
-			// ·Ç¸ùÄ¿Â¼ Óë ListÏÂ´æÔÚ±àÂëºóµÄkey
+			// éæ ¹ç›®å½• ä¸ Listä¸‹å­˜åœ¨ç¼–ç åçš„key
 			if (!isRootDir && XorFileMatas.at("list").contains(key)) {
-				// »ñÈ¡µ±Ç°Ä¿Â¼¶ÔÏó
+				// è·å–å½“å‰ç›®å½•å¯¹è±¡
 				json currentDirObj = XorFileMatas.at("list")[key];
 
-				// ÅĞ¶ÏÊÇ·ñÎªÄ¿Â¼
+				// åˆ¤æ–­æ˜¯å¦ä¸ºç›®å½•
 				if (currentDirObj["type"] != "2") {
-					std::cout << " £¡Error! Not a directory\n";
+					std::cout << " ï¼Error! Not a directory\n";
 					continue;
 				}
 
-				// »ñÈ¡µ±Ç°Ä¿Â¼Ãû³Æ -> currentDirPathÏòÁ¿
+				// è·å–å½“å‰ç›®å½•åç§° -> currentDirPathå‘é‡
 				currentDirPath.push_back(currentDirObj["name"]);
-				// »ñÈ¡16½øÖÆµÄ±àÂëºóµÄÆ«ÒÆÖµ
+				// è·å–16è¿›åˆ¶çš„ç¼–ç åçš„åç§»å€¼
 				uint64_t upDirBlockOOffsetHex = std::stoull(currentDirObj["blockEncodedOffset"].get<std::string>(), nullptr, 16);
 
-				// Èç¹û > 0 Ôò±íÊ¾»¹ÓĞÉÏ¼¶Ä¿Â¼
+				// å¦‚æœ > 0 åˆ™è¡¨ç¤ºè¿˜æœ‰ä¸Šçº§ç›®å½•
 				while (upDirBlockOOffsetHex > 0) {
-					// »ñÈ¡ÉÏ¼¶Ä¿Â¼µÄ±àÂëÆ«ÒÆÖµ
+					// è·å–ä¸Šçº§ç›®å½•çš„ç¼–ç åç§»å€¼
 					std::string upOffset = currentDirObj["blockEncodedOffset"];
 
-					// ÅĞ¶ÏÊÇ·ñ´æÔÚ
+					// åˆ¤æ–­æ˜¯å¦å­˜åœ¨
 					if (XorFileMatas.at("list").contains(upOffset)) {
-						// ´æÔÚ
-						// »ñÈ¡ÉÏ¼¶Ä¿Â¼¶ÔÏó
+						// å­˜åœ¨
+						// è·å–ä¸Šçº§ç›®å½•å¯¹è±¡
 						currentDirObj = XorFileMatas.at("list")[upOffset];
-						// »ñÈ¡ÉÏ¼¶Ä¿Â¼Ãû³Æ -> currentDirPathÏòÁ¿
+						// è·å–ä¸Šçº§ç›®å½•åç§° -> currentDirPathå‘é‡
 						currentDirPath.push_back(currentDirObj["name"]);
-						// »ñÈ¡ÉÏ¼¶Ä¿Â¼µÄ±àÂëÆ«ÒÆÖµ
+						// è·å–ä¸Šçº§ç›®å½•çš„ç¼–ç åç§»å€¼
 						upDirBlockOOffsetHex = std::stoull(currentDirObj["blockEncodedOffset"].get<std::string>(), nullptr, 16);
 					} else {
-						// ²»´æÔÚÔò·Åµ½ Other Ä¿Â¼ÏÂ
+						// ä¸å­˜åœ¨åˆ™æ”¾åˆ° Other ç›®å½•ä¸‹
 						currentDirPath.push_back("Other");
 						break;
 					}
 				}
 			} else {
-				// ·Ç¸ùÄ¿Â¼
+				// éæ ¹ç›®å½•
 				if (!isRootDir) {
-					// ±àÂëÆ«ÒÆÖµ -> currentDirPathÏòÁ¿
+					// ç¼–ç åç§»å€¼ -> currentDirPathå‘é‡
 					currentDirPath.push_back(key);
-					// ·ÅÈëOtherÄ¿Â¼
+					// æ”¾å…¥Otherç›®å½•
 					currentDirPath.push_back("Other");
 				}
 			}
 
-			// µ±Ç°ÕıÔÚ´¦ÀíµÄ.xorÎÄ¼şÃû(ÎŞºó×º) -> currentDirPathÏòÁ¿
+			// å½“å‰æ­£åœ¨å¤„ç†çš„.xoræ–‡ä»¶å(æ— åç¼€) -> currentDirPathå‘é‡
 			currentDirPath.push_back(GV::NowXor.Name);
 			if (currentDirPath.size() > 1) {
-				// ·´×ª
+				// åè½¬
 				std::reverse(currentDirPath.begin(), currentDirPath.end());
 			}
 
-			// Æ´½ÓºóµÄÂ·¾¶
+			// æ‹¼æ¥åçš„è·¯å¾„
 			std::string dirTempPath;
 			for (const auto& path : currentDirPath) {
 				dirTempPath += path + "\\";
 			}
 
-			// Æ´½ÓºóµÄ¾ø¶ÔÂ·¾¶
+			// æ‹¼æ¥åçš„ç»å¯¹è·¯å¾„
 			std::string filePath = (GV::ExeDir / dirTempPath).string();
 			std::cout << " Dir: " << dirTempPath << "\n";
 
-			////////////////////////±éÀú½âÂë±£´æÄ¿Â¼ÏÂµÄÎÄ¼ş////////////////////////
+			////////////////////////éå†è§£ç ä¿å­˜ç›®å½•ä¸‹çš„æ–‡ä»¶////////////////////////
 
-			// ±éÀúÄ¿Â¼ÏÂµÄÎÄ¼ş
+			// éå†ç›®å½•ä¸‹çš„æ–‡ä»¶
 			for (const auto& value : values) {
-				// ÅĞ¶ÏÊÇ·ñ°üº¬
+				// åˆ¤æ–­æ˜¯å¦åŒ…å«
 				if (XorFileMatas.at("list").contains(value)) {
-					// »ñÈ¡ĞÅÏ¢
+					// è·å–ä¿¡æ¯
 					json info = XorFileMatas.at("list")[value];
-					// ÌáÈ¡ĞÅÏ¢
+					// æå–ä¿¡æ¯
 					MataSaveInfo saveInfo{
 						info["type"],
 						info["name"],
@@ -323,11 +323,11 @@ namespace UnPdeC {
 						std::stoull(info["size"].get<std::string>(), nullptr, 16),
 						filePath
 					};
-					// ½âÂë²¢±£´æÎÄ¼ş
+					// è§£ç å¹¶ä¿å­˜æ–‡ä»¶
 					Mata::DecodeAndSaveFile(saveInfo);
 				}
 			}
 		}
-		std::cout << "\n £¡Extracting Mate And Decode completed!\n\n";
+		std::cout << "\n ï¼Extracting Mate And Decode completed!\n\n";
 	}
 }

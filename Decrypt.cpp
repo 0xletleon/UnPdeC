@@ -65,7 +65,8 @@ namespace UnPdeC {
 			DecryptedData.erase(DecryptedData.begin(), DecryptedData.begin() + 8);
 			// 返回处理后的字节数组
 			return DecryptedData;
-		} else { // 不需要二次解密
+		}
+		else { // 不需要二次解密
 			if (DeTempFileByte.size() <= 0x29) {
 				throw std::runtime_error("初次解密后的字节数组长度不足，无法删除前0x29个字节");
 			}
@@ -108,7 +109,8 @@ namespace UnPdeC {
 					EBP += shiftAmount;
 					ESI += shiftAmount;
 					EAX >>= shiftAmount;
-				} else {
+				}
+				else {
 					EAX >>= 1;
 					ESP58 = EAX;
 					uint32_t offset = 0;
@@ -121,22 +123,26 @@ namespace UnPdeC {
 									offset = ECX >> 15;
 									length = ((ECX >> 7) & 0xFF) + 3;
 									ESI += 4;
-								} else {
+								}
+								else {
 									offset = (ECX >> 7) & 0x1FFFF;
 									length = ((ECX >> 2) & 0x1F) + 2;
 									ESI += 3;
 								}
-							} else {
+							}
+							else {
 								offset = (ECX >> 6) & 0x3FF;
 								length = ((ECX >> 2) & 0xF) + 3;
 								ESI += 2;
 							}
-						} else {
+						}
+						else {
 							offset = (ECX >> 2) & 0x3FFF;
 							length = 3;
 							ESI += 2;
 						}
-					} else {
+					}
+					else {
 						offset = (ECX >> 2) & 0x3F;
 						length = 3;
 						ESI += 1;
@@ -170,7 +176,8 @@ namespace UnPdeC {
 
 			return decryptedData;
 
-		} catch (const std::exception& e) {
+		}
+		catch (const std::exception& e) {
 			throw std::runtime_error(" ！Decrypt::FinalDecrypt2() 函数执行出错：" + std::string(e.what()));
 		}
 	}
