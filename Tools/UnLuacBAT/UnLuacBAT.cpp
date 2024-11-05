@@ -20,10 +20,6 @@ static void showLicenseInfo() {
 	std::cout << "Repository: https://github.com/AeonLucid/AvatarStarCBT\n\n";
 }
 
-static void waitForTwoSeconds() {
-	std::this_thread::sleep_for(std::chrono::seconds(1));
-}
-
 int main(int argc, char* argv[]) {
 	// 设置控制台标题和图标
 	SetConsoleTitle(TEXT("UnLuacBAT Version: 0.0.1.0 仅限学习严禁商用"));
@@ -61,7 +57,7 @@ int main(int argc, char* argv[]) {
 
 	// Set input and output files
 	fs::path input_path(input_file);
-	fs::path output_file = input_path.parent_path() / (input_path.stem().string() + "_d.lua");
+	fs::path output_file = input_path.parent_path() / (input_path.stem().string() + ".lua");
 
 	// Get the directory of the executable
 	fs::path exe_dir = fs::absolute(fs::path(argv[0])).parent_path();
@@ -90,9 +86,6 @@ int main(int argc, char* argv[]) {
 	}
 
 	std::cout << "√ Success " << output_file.string() << "\n";
-
-	// Wait for 2 seconds before closing the console
-	waitForTwoSeconds();
 
 	return 0;
 }

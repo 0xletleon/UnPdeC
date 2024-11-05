@@ -72,10 +72,10 @@ namespace UnPdeC {
 	/// </summary>
 	/// <param name="FilePath">.xor文件路径</param>
 	/// <returns>所有文件/夹的元数据json</returns>
-	json Mata::ReadMatakForXorFile(const fs::path& FilePath) {
+	nlohmann::json Mata::ReadMatakForXorFile(const std::filesystem::path& FilePath) {
 		std::cout << "\n ！Reading Mate information......\n";
 
-		if (!fs::exists(FilePath)) {
+		if (!std::filesystem::exists(FilePath)) {
 			throw std::runtime_error("File does not exist: " + FilePath.string());
 		}
 
@@ -92,8 +92,8 @@ namespace UnPdeC {
 		const uint64_t blockSize = 0x80;// 块大小
 		std::vector<uint8_t> buffer(blockSize);// 缓冲区
 
-		json maps;// 存储目录与文件映射信息
-		json list;// 存储目录与文件元信息
+		nlohmann::json maps;// 存储目录与文件映射信息
+		nlohmann::json list;// 存储目录与文件元信息
 
 		uint64_t offsetIndex = 0x1000;// 跳过的偏移量
 
@@ -123,7 +123,7 @@ namespace UnPdeC {
 		}
 
 		// 合并JSON
-		json output = {
+		nlohmann::json output = {
 			{"maps", maps},
 			{"list", list}
 		};
@@ -153,9 +153,9 @@ namespace UnPdeC {
 			if (tempFileByte.Size != MataJson.size) return;
 
 			// Ensure directory exists
-			fs::path dirPath = MataJson.directoryPath;
-			if (!fs::exists(dirPath)) {
-				fs::create_directories(dirPath);
+			std::filesystem::path dirPath = MataJson.directoryPath;
+			if (!std::filesystem::exists(dirPath)) {
+				std::filesystem::create_directories(dirPath);
 			}
 
 			// Check if the file name contains ".cache" to determine if it needs secondary decryption
@@ -174,8 +174,8 @@ namespace UnPdeC {
 				}
 
 				// Save file
-				fs::path filePath = dirPath / fixedName;
-				if (!fs::exists(filePath)) {
+				std::filesystem::path filePath = dirPath / fixedName;
+				if (!std::filesystem::exists(filePath)) {
 					std::ofstream outFile(filePath, std::ios::binary);
 					outFile.write(reinterpret_cast<const char*>(tempFileByte.Byte.data()), tempFileByte.Byte.size());
 					outFile.close();
@@ -201,8 +201,8 @@ namespace UnPdeC {
 				}
 
 				// Save file
-				fs::path filePath2 = dirPath / fixedName;
-				if (!fs::exists(filePath2)) {
+				std::filesystem::path filePath2 = dirPath / fixedName;
+				if (!std::filesystem::exists(filePath2)) {
 					std::ofstream outFile(filePath2, std::ios::binary);
 					outFile.write(reinterpret_cast<const char*>(decryption2.data()), decryption2.size());
 					outFile.close();
@@ -210,11 +210,11 @@ namespace UnPdeC {
 			}
 		} else if (MataJson.type == "2") {
 			// Create directory
-			fs::path parentPath = MataJson.directoryPath;
-			fs::path dirName = MataJson.name;
-			fs::path dirPath = parentPath / dirName;
-			if (!fs::exists(dirPath)) {
-				fs::create_directories(dirPath);
+			std::filesystem::path parentPath = MataJson.directoryPath;
+			std::filesystem::path dirName = MataJson.name;
+			std::filesystem::path dirPath = parentPath / dirName;
+			if (!std::filesystem::exists(dirPath)) {
+				std::filesystem::create_directories(dirPath);
 				std::cout << " << Dir: " << MataJson.name << "\n";
 			}
 		} else {
@@ -226,7 +226,7 @@ namespace UnPdeC {
 	/// 提取元信息并解码
 	/// </summary>
 	/// <param name="XorFileMatas">Xor文件元信息</param>
-	void Mata::ExtractMateAndDecode(const json& XorFileMatas) {
+	void Mata::ExtractMateAndDecode(const nlohmann::json& XorFileMatas) {
 		std::cout << "\n ！Extracting Mate And Decode......\n\n";
 
 		// 遍历所有Map映射信息
@@ -250,7 +250,7 @@ namespace UnPdeC {
 			// 非根目录 与 List下存在编码后的key
 			if (!isRootDir && XorFileMatas.at("list").contains(key)) {
 				// 获取当前目录对象
-				json currentDirObj = XorFileMatas.at("list")[key];
+				nlohmann::json currentDirObj = XorFileMatas.at("list")[key];
 
 				// 判断是否为目录
 				if (currentDirObj["type"] != "2") {
@@ -317,7 +317,7 @@ namespace UnPdeC {
 				// 判断是否包含
 				if (XorFileMatas.at("list").contains(value)) {
 					// 获取信息
-					json info = XorFileMatas.at("list")[value];
+					nlohmann::json info = XorFileMatas.at("list")[value];
 					// 提取信息
 					MataSaveInfo saveInfo{
 						info["type"],

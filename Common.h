@@ -10,7 +10,6 @@
 #include <iomanip>
 #include <iostream>
 #include <map>
-#include <nlohmann/json.hpp>
 #include <ranges>
 #include <regex>
 #include <stdexcept>
@@ -20,10 +19,6 @@
 #include <windows.h>
 #include <sstream>
 #include <exception>
-
-using json = nlohmann::json;
-
-namespace fs = std::filesystem;
 
 /* 数据类型 */
 

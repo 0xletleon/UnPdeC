@@ -4,6 +4,7 @@
 #include "GV.h"
 #include "Tools.h"
 #include "Decrypt.h"
+#include <nlohmann/json.hpp>
 
 namespace UnPdeC {
 	/// <summary>
@@ -24,7 +25,7 @@ namespace UnPdeC {
 		/// </summary>
 		/// <param name="FilePath">.xor文件路径</param>
 		/// <returns>所有文件/夹的元数据json</returns>
-		static json ReadMatakForXorFile(const std::filesystem::path& FilePath);
+		static nlohmann::json ReadMatakForXorFile(const std::filesystem::path& FilePath);
 
 		/// <summary>
 		/// 解码并保存文件/夹
@@ -36,6 +37,6 @@ namespace UnPdeC {
 		/// 提取元信息并解码
 		/// </summary>
 		/// <param name="XorFileMatas">Xor文件元信息</param>
-		static void ExtractMateAndDecode(const json& XorFileMatas);
+		static void ExtractMateAndDecode(const nlohmann::json& XorFileMatas);
 	};
 }

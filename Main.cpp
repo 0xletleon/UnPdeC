@@ -25,7 +25,7 @@ int main() {
 
 		Tools::Init();//初始化
 
-		json offsetMaps = Mata::ReadMatakForXorFile(GV::NowXor.Path);//读取.xor中的文件/夹信息
+		nlohmann::json offsetMaps = Mata::ReadMatakForXorFile(GV::NowXor.Path);//读取.xor中的文件/夹信息
 
 		Mata::ExtractMateAndDecode(offsetMaps);//解码文件/夹到磁盘
 	}
