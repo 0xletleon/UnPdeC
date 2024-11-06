@@ -18,12 +18,12 @@
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Decrypt.cpp">
+    <ClCompile Include="Encrypt.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Decrypt.h">
+    <ClInclude Include="Encrypt.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

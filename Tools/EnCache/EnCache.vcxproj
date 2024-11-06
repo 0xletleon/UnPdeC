@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{2913cf52-7e0a-491a-af8f-47d891a906ed}</ProjectGuid>
-    <RootNamespace>UnCache</RootNamespace>
+    <ProjectGuid>{6e85b1f2-a415-4750-8fdb-150c41ad4d2b}</ProjectGuid>
+    <RootNamespace>EnCache</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -147,11 +147,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Decrypt.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Encrypt.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Decrypt.h" />
+    <ClInclude Include="Encrypt.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -58,7 +58,8 @@ namespace UnCache {
 			// 执行解密
 			DecryptedData = FinalDecrypt2(EncryptedData, DecryptedSize, FileName);
 			// 删除前 8 个字节,因为8个字节之后才是原始数据
-			DecryptedData.erase(DecryptedData.begin(), DecryptedData.begin() + 8);
+			// 为了能还原回去，所以不删除任何字节
+			//DecryptedData.erase(DecryptedData.begin(), DecryptedData.begin() + 8);
 			// 返回处理后的字节数组
 			return DecryptedData;
 		} else { // 不需要二次解密
@@ -68,8 +69,9 @@ namespace UnCache {
 				return DeTempFileByte;
 			} else {
 				// 删除前0x29个字节
-				std::vector<uint8_t> result(std::next(DeTempFileByte.begin(), 0x29), DeTempFileByte.end());
-				return result;
+				// 为了能还原回去，所以不删除任何字节
+				//std::vector<uint8_t> result(std::next(DeTempFileByte.begin(), 0x29), DeTempFileByte.end());
+				return DeTempFileByte;
 			}
 
 			std::cout << " ！" << FileName << " 无需二次解密" << "\n";
