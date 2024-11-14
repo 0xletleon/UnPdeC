@@ -22,7 +22,6 @@
 ## 🔧 测试程序
 
 [UnPdeC.exe](Release/UnPdeC.exe)
-
 [FastXOR.exe](Release/FastXOR.exe)
 
 ## 🚀 使用
@@ -31,42 +30,73 @@
     2：FastXOR.exe 异或.pde文件
     3：UnPdec.exe 即可解包.xor文件 
 
-## 🐛 DEBUG辅助工具
+## 🐛 辅助工具
 
-![FastXOR.png](README/FastXOR.png)
+### C++
 
-### 本方案内项目
+#### [FastXOR](Release/FastXOR.exe)
+    快速的将 .pde 文件异或为 .xor 文件
+    使其可以被 UnPdeC.exe 使用
 
-#### [FastXOR C++版(本方案内项目)](Release/FastXOR.exe)
-
-#### [FastXOR Html版](Tools/FastXor.html)
-
-#### [PDE偏移值计算器](Tools/OffsetCalc.html)
-
-#### [文件偏移值模糊计算器](Tools/XorShiftOffset.html)
-
-#### [Blender PDE Mesh 导入插件](Tools/import_mesh.py)
-    目前只能导入顶点，Blender 4.1'
-    严禁用于商业目的，仅为学习交流！！！
 
 #### [UnLuacBAT & UnLuacGVM](Release/UnLuacBAT/)
     UnLuacGVM
         由 AeonLucid 修改的UnLuac源码,使用Oracle GraalVM生成单独的可执行程序
-        感谢 AeonLucid
+        感谢 AeonLucid (https://github.com/AeonLucid)
+        以及 AvatarStarCBT项目
     UnLuacBAT
         用来调用UnLuacGVM的控制台程序,设置打开方式为此程序后，
         双击.luac文件即可得到name_d.lua文件
 
-### 其他仓库
+#### [UnCache](Tools/UnCache/)
+    可以单独解压 .cache 文件
+
+#### [EnCache](Tools/EnCache/)
+    未完成的压缩工具
+
+### HTML
+
+#### [FastXOR](Tools/Html_Tools/FastXor.html)
+    快速在网页中异或原始字节
+
+#### [PDE偏移值计算器](Tools/Html_Tools/OffsetCalc.html)
+    可以将加密的文件或文件夹偏移值转换为实际偏移地址
+    也可以将实际的偏移地址转换为回加密的偏移地址
+
+#### [文件偏移模糊计算器](Tools/Html_Tools/XorShiftOffset.html)
+    由于异或的大小是0x1000
+    那么就可以计算出在某个位置下你需要的值被加密后的值是多少
+
+#### [生成博文中需要的16进制](Tools/Html_Tools/HEXVIEW.html)
+    用于生成博文中需要的16进制数据(HxD Style)
+    OFFSET    00       04       08       0C        ASCII
+    00000000  55736564 20746F20 67656E65 72617465  Used to generate 
+    00000010  20746865 20686578 61646563 696D616C   the hexadecimal 
+    00000020  20646174 61206E65 65646564 20696E20   data needed in  
+    00000030  626C6F67 20706F73 7473               blog posts
+
+#### [IEEE754浮点计算器](Tools/Html_Tools/IEEE754.html)
+    用于快速计算.mesh .anim .skel文件中的浮点数
+
+### Blender插件
+
+#### [Blender Mesh Anim Skel 导入插件](Tools/Blender_Plugin/)
+    Blender 4.1 , 不完整未完成
+    严禁用于商业目的，仅为学习交流！！！
+
+### C# .NET8 (其他仓库)
 
 #### [PDEVerify](https://letleon.coding.net/public/3d/PDEVerify/git/files)
+    可以计算出文件中的校验码
+![pdeverify](README/pdeverify.jpg)
 
 #### [PDEVerifyGUI](https://letleon.coding.net/public/3d/PDEVerifyGUI/git/files)
+    GUI版本
 
-### 🧊🧸 探索 Mesh文件
+### 🧩 探索 Mesh文件
 
     经过与AI们亲切友好交流之后发现.mesh文件似乎可以手动重建！
-    使用 Blender PDE Mesh 导入插件可以导入部分文件
+    使用 Blender Mesh 导入插件可以导入部分文件
     当然这也仅仅只是个测试！
 
 ![mesh1.png](README/mesh1.png)
@@ -153,14 +183,6 @@
 
     也就是说依赖描述中的信息有些不可靠了！
     或者说这些错误的信息是被抛弃的？
-
-### 文件验证
-
-![pdeverify](README/pdeverify.jpg)
-
-[PDEVerify](https://letleon.coding.net/public/3d/PDEVerify/git/files)
-
-[PDEVerifyGUI](https://letleon.coding.net/public/3d/PDEVerifyGUI/git/files)
 
 ## 🖼️🎵 资源预览工具
 
