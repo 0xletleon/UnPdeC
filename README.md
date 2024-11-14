@@ -54,6 +54,10 @@
 #### [EnCache](Tools/EnCache/)
     未完成的压缩工具
 
+#### [VerifyCRC](Tools/VerifyCRC/)
+    可以计算出文件中的校验码
+![pdeverify](README/pdeverify.jpg)
+
 ### HTML
 
 #### [FastXOR](Tools/Html_Tools/FastXor.html)
@@ -85,10 +89,6 @@
     严禁用于商业目的，仅为学习交流！！！
 
 ### C# .NET8 (其他仓库)
-
-#### [PDEVerify](https://letleon.coding.net/public/3d/PDEVerify/git/files)
-    可以计算出文件中的校验码
-![pdeverify](README/pdeverify.jpg)
 
 #### [PDEVerifyGUI](https://letleon.coding.net/public/3d/PDEVerifyGUI/git/files)
     GUI版本
