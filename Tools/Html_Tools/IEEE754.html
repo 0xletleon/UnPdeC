@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>IEEE754 浮点数计算器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .title {
+            font-size: 50px;
+            font-weight: 100;
+            margin: 3px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            padding: 5px;
+        }
+
+        input {
+            padding: 5px;
+            margin-right: 5px;
+            flex: 10;
+            font-size: 20px;
+        }
+
+        select {
+            flex: 2;
+            font-size: 20px;
+            text-align: center;
+        }
+
+        button {
+            flex: 2;
+            font-size: 20px;
+            text-align: center;
+            margin-left: 5px;
+        }
+
+        .result {
+            margin: 5px;
+            padding: 10px;
+            background-color: #f0f0f0;
+        }
+
+        .float-value {
+            margin: 5px 0;
+            font-size: 20px;
+        }
+
+        .error {
+            color: red;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2 class="title">IEEE754 浮点数计算器</h2>
+
+        <div class="input-group">
+            <input type="text" id="hexInput" placeholder="输入十六进制值 (如: E49E863E BB08233E 8FC2F53C)"
+                oninput="convertMultiple()">
+            <select id="endian" onchange="convertMultiple()">
+                <option value="little">小端</option>
+                <option value="big">大端</option>
+            </select>
+            <button onclick="copyResults()">复制结果</button>
+        </div>
+        <div id="error" class="error"></div>
+        <div id="multipleResult" class="result"></div>
+    </div>
+
+    <script>
+        function isValidHex(hex) {
+            return /^[0-9a-fA-F]+$/.test(hex);
+        }
+
+        function hexToFloat(hex, endian) {
+            hex = hex.replace(/^0x/, '');
+            while (hex.length < 8) hex = '0' + hex;
+            var intArray = [];
+
+            if (endian === 'little') {
+                hex = hex.match(/.{2}/g)?.reverse()?.join('');
+            }
+
+            var int = parseInt(hex, 16);
+            var float32 = new Float32Array(1);
+            var int32 = new Int32Array(float32.buffer);
+            int32[0] = int;
+            var floatNum = float32[0].toString().split('.');
+            return floatNum[0] + '.' + (floatNum[1] ? floatNum[1].slice(0, 8) : '00000000');
+        }
+
+        function convertMultiple() {
+            var hexInput = document.getElementById('hexInput').value;
+            var endian = document.getElementById('endian').value;
+            hexInput = hexInput.replace(/\s+/g, '');
+            var hexValues = [];
+            var error = false;
+            for (var i = 0; i < hexInput.length; i += 8) {
+                var hex = hexInput.substr(i, 8);
+                if (!isValidHex(hex)) {
+                    document.getElementById('error').textContent = '输入错误：存在非法的十六进制值。';
+                    error = true;
+                    break;
+                }
+                hexValues.push(hex);
+            }
+            if (error) {
+                document.getElementById('multipleResult').innerHTML = '';
+                return;
+            }
+            document.getElementById('error').textContent = '';
+            var results = [];
+            var resultDiv = document.getElementById('multipleResult');
+            resultDiv.innerHTML = '';
+
+            hexValues.forEach(hex => {
+                var result = hexToFloat(hex, endian);
+                results.push(`<div class="float-value"> ${hex} &emsp; >> &emsp; ${result}</div>`);
+            });
+
+            results.forEach(result => {
+                resultDiv.innerHTML += result;
+            });
+        }
+
+        function copyResults() {
+            var resultDiv = document.getElementById('multipleResult');
+            var textToCopy = resultDiv.innerText;
+            var textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+        }
+    </script>
+</body>
+
+</html>

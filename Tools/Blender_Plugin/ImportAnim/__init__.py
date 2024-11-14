@@ -7,14 +7,14 @@ import re
 
 # 插件元数据
 bl_info = {
-    "name": "Game Anim (.anim)",
+    "name": "导入.anim动画",
     "author": "letleon",
     "version": (1, 1),
     "blender": (4, 1, 0),
     "location": "File > Import",
-    "description": "导入游戏动画文件",
+    "description": "导入.anim动画",
     "warning": "仅供学习，严禁商用！",
-    "category": "Import",
+    "category": "Import-Export",
 }
 
 
@@ -22,24 +22,24 @@ bl_info = {
 class ImportAnimOperator(bpy.types.Operator):
     """Import an game .anim file"""
 
-    bl_idname = "import_game_anim.anim_file"
-    bl_label = "Game Anim (.anim)"
+    bl_idname = "import.game_anim"
+    bl_label = "导入.anim动画"
     bl_options = {"REGISTER", "UNDO"}
 
     # 使用bpy.props顶义文件路径属性
     filepath: bpy.props.StringProperty(
         subtype="FILE_PATH",
         default="",
-    )
+    ) # type: ignore
 
     # 顶义invoke方法来显示文件选择对话框
     def invoke(self, context, event):
         # 设置文件选择对话框的属性
-        selffilepath = bpy.props.StringProperty(
-            subtype="FILE_PATH", default=self.filepath
-        )
+        # selffilepath = bpy.props.StringProperty(
+        #     subtype="FILE_PATH", default=self.filepath
+        # )
         # 设置文件过滤器为.anim后缀
-        self.filter_glob = "*.anim;*.Anim;*.ANIM"
+        self.filter_glob = "*.anim;"
         context.window_manager.fileselect_add(self)
         return {"RUNNING_MODAL"}
 
@@ -292,7 +292,7 @@ class ImportAnimOperator(bpy.types.Operator):
 
 # 添加菜单选项
 def menu_func_import(self, context):
-    self.layout.operator(ImportAnimOperator.bl_idname, text="Game Anim (.anim)")
+    self.layout.operator(ImportAnimOperator.bl_idname, text="导入动画 (.anim)")
 
 
 # 注册和注销函数

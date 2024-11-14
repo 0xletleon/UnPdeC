@@ -4,29 +4,28 @@ import os
 
 # 插件元数据
 bl_info = {
-    "name": "Import PDE Mesh",
+    "name": "导入.mesh模型",
     "author": "letleon",
     "version": (1, 0),
     "blender": (4, 1, 0),
     "location": "File > Import",
-    "description": "Import PDE mesh from a binary file",
+    "description": "导入.mesh模型",
     "warning": "仅为学习，严禁商用！",
-    "doc_url": "https://letleon.coding.net/public/3d/UnPdeC/git/files",
-    "category": "Import",
+    "category": "Import-Export",
 }
 
 # 定义操作类
 class ImportMeshOperator(bpy.types.Operator):
     """Import a .mesh file"""
-    bl_idname = "import_mesh.mesh"
-    bl_label = "Import .mesh"
+    bl_idname = "import.game_mesh"
+    bl_label = "导入.mesh模型"
     bl_options = {'REGISTER', 'UNDO'}
 
     # 使用bpy.props定义文件路径属性
     filepath: bpy.props.StringProperty(
         subtype='FILE_PATH',
         default="",
-    )
+    ) # type: ignore
 
     # 定义invoke方法来显示文件选择对话框
     def invoke(self, context, event):
@@ -70,7 +69,7 @@ class ImportMeshOperator(bpy.types.Operator):
         # 解析数据块
         vertices = []
         index = data_start
-
+        # 0.309 0.450 0.029 0.0 2.152 -4.245 0.0 0.0078 0.0 1.119 2.069 3.056
         for i in range(data_start, data_start + data_size, block_size):
             # 读取每个块中的顶点数据
             if index + block_size <= len(data):
@@ -97,7 +96,7 @@ class ImportMeshOperator(bpy.types.Operator):
         return {'FINISHED'}
 
 def menu_func_import(self, context):
-    self.layout.operator(ImportMeshOperator.bl_idname, text="Import .mesh")
+    self.layout.operator(ImportMeshOperator.bl_idname, text="导入模型 (.mesh)")
 
 # 注册和注销函数
 def register():
