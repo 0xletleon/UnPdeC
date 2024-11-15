@@ -91,6 +91,11 @@
     Blender 4.1 , 不完整未完成
     严禁用于商业目的，仅为学习交流！！！
 
+#### [Addon Reloader](https://github.com/0xletleon/AddonReloader)
+    快速重新加载Blender插件
+    无需进入设置手动禁用在启用
+    适合开发调试Blender插件时是用
+
 ### C# .NET8 (其他仓库)
 
 #### [PDEVerifyGUI](https://letleon.coding.net/public/3d/PDEVerifyGUI/git/files)
