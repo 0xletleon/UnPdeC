@@ -98,6 +98,7 @@ def read_vertex_index_value(self,vertex_index_data_block, index_length):
     print(f">>> 开始解析顶点索引数据 {index_length}")
     vertex_indices = []
     try:
+        # todo: 这里可能不对！！！有空再搞！
         for i in range(0, index_length - 7, 8):  # 确保有足够的字节进行解包
             e0 = struct.unpack_from("H", vertex_index_data_block, i)[0]
             e1 = struct.unpack_from("H", vertex_index_data_block, i + 4)[0]
