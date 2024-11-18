@@ -92,9 +92,10 @@
     严禁用于商业目的，仅为学习交流！！！
 
 #### [Import Map Mesh](Tools/Blender_Plugin/ImportMapMesh/)
-    可以导入自定义(没错是我自定义的(只包含顶点数据和顶点索引数据))到Blender
+    可以导入自定义(没错是我自定义的)到Blender
+    目前可以解析 顶点 和 面 数据
 
-![testmapmesh.jpg](Tools/Blender_Plugin/ImportMapMesh/testmapmesh.jpg)
+![testmap.jpg.jpg](Tools/Blender_Plugin/ImportMapMesh/testmap.jpg)
 
 #### [Addon Reloader](https://github.com/0xletleon/AddonReloader)
     快速重新加载Blender插件
