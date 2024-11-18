@@ -104,6 +104,8 @@
             return floatNum[0] + '.' + (floatNum[1] ? floatNum[1].slice(0, 8) : '00000000');
         }
 
+        // 将十六进制转换为浮点数
+        // 由通义千问优化性能
         function convertMultiple() {
             var hexInput = document.getElementById('hexInput').value;
             var endian = document.getElementById('endian').value;
@@ -125,17 +127,13 @@
             }
             document.getElementById('error').textContent = '';
             var results = [];
-            var resultDiv = document.getElementById('multipleResult');
-            resultDiv.innerHTML = '';
-
             hexValues.forEach(hex => {
                 var result = hexToFloat(hex, endian);
-                results.push(`<div class="float-value"> ${hex} &emsp; >> &emsp; ${result}</div>`);
+                results.push(`<div class="float-value">${hex} &emsp; >> &emsp; ${result}</div>`);
             });
 
-            results.forEach(result => {
-                resultDiv.innerHTML += result;
-            });
+            // 一次性设置结果，减少DOM操作
+            document.getElementById('multipleResult').innerHTML = results.join('');
         }
 
         function copyResults() {
