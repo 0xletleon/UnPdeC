@@ -6,9 +6,9 @@ import os
 
 # 插件元数据
 bl_info = {
-    "name": "导入.mesh地图模型",
+    "name": "导入道具.mesh模型",
     "author": "letleon",
-    "description": "导入.mesh地图模型",
+    "description": "导入道具.mesh模型",
     "blender": (4, 1, 0),
     "version": (0, 2),
     "location": "File > Import",
@@ -20,15 +20,16 @@ bl_info = {
 # 定义读取头部信息函数
 def read_head(self, data, start_index):
     """读取头部信息"""
-    print(">>> 开始读取头部信息")
+    print(">>> 开始读取头部信息:",hex(start_index))
 
     # 检查是否有足够的字节数进行解包
-    if len(data) < start_index + 29:
+    if len(data) < start_index + 0x1D:
         print(f"! 头部信息解析失败: 不足的字节数在偏移量 {start_index}")
         self.report({"ERROR"}, "头部信息解析失败")
         traceback.print_exc()
         return {"CANCELLED"}
 
+    print("start_index:",hex(start_index))
     # 文件中包含网格物体数量(仅头一个文件有用)
     mesh_obj_number = struct.unpack_from("<I", data, start_index)[0]
     # 本网格变换矩阵数量
@@ -138,12 +139,20 @@ def read_faces(self, faces_data_block, index_length):
 def split_mesh(self, data):
     """分割网格数据"""
     print(">>> 开始分割网格数据")
+
     # 数据起始位置
     data_start = 0
+    # 是否为首次读取
+    first_read = True
     # 网格对象
     mesh_obj = []
+
     try:
         while True:
+            if first_read:
+                data_start += 24
+                first_read = False
+
             # 读取头部信息 -> 文件中包含网格物体数量, 本网格变换矩阵数量, 本网格字节总数
             mesh_obj_number, mesh_matrices_number, mesh_byte_size = read_head(
                 self, data, data_start
@@ -225,11 +234,11 @@ def split_mesh(self, data):
 
 
 # 定义操作类
-class ImportMapMeshClass(bpy.types.Operator):
+class ImporPropMeshClass(bpy.types.Operator):
     """Import a .mesh file"""
 
-    bl_idname = "import.game_map_mesh"
-    bl_label = "导入.mesh地图模型"
+    bl_idname = "import.game_prop_mesh"
+    bl_label = "导入道具.mesh模型"
     bl_options = {"REGISTER", "UNDO"}
     # 使用bpy.props定义文件路径属性
     filepath: bpy.props.StringProperty(subtype="FILE_PATH", default="")  # type: ignore
@@ -237,6 +246,12 @@ class ImportMapMeshClass(bpy.types.Operator):
     filename_ext = ".mesh"
     filter_glob: bpy.props.StringProperty(default="*.mesh", options={"HIDDEN"})  # type: ignore
 
+    # 定义invoke方法来显示文件选择对话框
+    def invoke(self, context, event):
+        # 调用文件选择对话框
+        context.window_manager.fileselect_add(self)
+        return {"RUNNING_MODAL"}
+    
     def execute(self, context):
         # 清除当前场景中的所有物体
         # bpy.ops.object.select_all(action="SELECT")
@@ -271,9 +286,9 @@ class ImportMapMeshClass(bpy.types.Operator):
                 faces = this_obj["faces"]["data"]
 
                 # 读取UV坐标
-                uv_coords = this_obj["vertices"]["uv_coords"]
+                # uv_coords = this_obj["vertices"]["uv_coords"]
                 # 读取切线
-                tangents = this_obj["vertices"]["tangents"]
+                # tangents = this_obj["vertices"]["tangents"]
 
                 # 创建新网格
                 new_mesh = bpy.data.meshes.new(f"{mesh_name}_{idx}")
@@ -317,30 +332,24 @@ class ImportMapMeshClass(bpy.types.Operator):
             self.report({"INFO"}, "模型加载成功")
             return {"FINISHED"}
         except Exception as e:
-            self.report({"ERROR"}, f"地图模型加载失败: {e}")
+            self.report({"ERROR"}, f"模型加载失败: {e}")
             traceback.print_exc()
             return {"CANCELLED"}
 
-    # 定义invoke方法来显示文件选择对话框
-    def invoke(self, context, event):
-        # 调用文件选择对话框
-        context.window_manager.fileselect_add(self)
-        return {"RUNNING_MODAL"}
-
 
 def menu_func_import(self, context):
-    self.layout.operator(ImportMapMeshClass.bl_idname, text="导入地图模型 (.mesh)")
+    self.layout.operator(ImporPropMeshClass.bl_idname, text="导入道具模型 (.mesh)")
 
 
 # 注册和注销函数
 def register():
-    bpy.utils.register_class(ImportMapMeshClass)
+    bpy.utils.register_class(ImporPropMeshClass)
     bpy.types.TOPBAR_MT_file_import.append(menu_func_import)
 
 
 def unregister():
     bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
-    bpy.utils.unregister_class(ImportMapMeshClass)
+    bpy.utils.unregister_class(ImporPropMeshClass)
 
 
 # 注册插件

@@ -6,9 +6,9 @@ import os
 
 # 插件元数据
 bl_info = {
-    "name": "导入.mesh地图模型",
+    "name": "导入武器.mesh模型",
     "author": "letleon",
-    "description": "导入.mesh地图模型",
+    "description": "导入武器.mesh模型",
     "blender": (4, 1, 0),
     "version": (0, 2),
     "location": "File > Import",
@@ -17,18 +17,80 @@ bl_info = {
 }
 
 
-# 定义读取头部信息函数
-def read_head(self, data, start_index):
+def read_dynamic_head(self, data):
     """读取头部信息"""
     print(">>> 开始读取头部信息")
 
-    # 检查是否有足够的字节数进行解包
-    if len(data) < start_index + 29:
-        print(f"! 头部信息解析失败: 不足的字节数在偏移量 {start_index}")
-        self.report({"ERROR"}, "头部信息解析失败")
+    try:
+        # 网格信息
+        mesh_info = []
+        # 文件读取位置
+        data_index = 0
+        # 读取包含的对象数量1
+        include_obj_number1 = struct.unpack_from("<I", data, data_index)[0]
+        # 修正数据读取位置
+        data_index += 4
+
+        # 读取包含的对象名称
+        for i in range(include_obj_number1):
+            # 读取物体名称长度
+            name_length = struct.unpack_from("<I", data, data_index)[0]
+            # 修正数据读取位置
+            data_index += 4
+            # 读取物体名称
+            obj_name = struct.unpack_from(f"<{name_length}s", data, data_index)[
+                0
+            ].decode("utf-8")
+            print(f"对象名称: {obj_name}")
+            # 保存名称
+            mesh_info.append(obj_name)
+            # 修正数据读取位置
+            data_index += name_length
+
+        # 读取包含的对象数量2
+        include_obj_number2 = struct.unpack_from("<I", data, data_index)[0]
+        # 修正数据读取位置
+        data_index += 4
+
+        # 检查头部数量是否一致
+        if include_obj_number1 != include_obj_number2:
+            print("! 头部信息解析失败: 包含的对象数量不一致")
+            self.report({"ERROR"}, "头部信息解析失败")
+            traceback.print_exc()
+            return {"CANCELLED"}
+
+        # 跳过物体的 初始位置和相机初始位置？这个不确定！
+        skip_len = include_obj_number1 * 0x18
+        print(f"data_index: {hex(data_index)}")
+
+        # 修正数据读取位置
+        data_index += skip_len
+
+        print(f"data_index: {hex(data_index)} skip_len: {hex(skip_len)}")
+
+        # 返回 物体开始位置，物体信息
+        return data_index, mesh_info
+    except Exception as e:
+        print("! 读取头部信息失败:", e)
+        self.report({"ERROR"}, "读取头部信息失败")
         traceback.print_exc()
         return {"CANCELLED"}
 
+
+# 定义读取头部信息函数
+def read_head(self, data, start_index):
+    """读取头部信息"""
+    print(">>> 开始读取头部信息:", hex(start_index))
+
+    # 检查是否有足够的字节数进行解包
+    if len(data) < start_index + 0x1D:
+        print(f"! 头部信息解析失败: 不足的字节数在偏移量 {start_index}")
+        return None
+        # self.report({"ERROR"}, "头部信息解析失败")
+        # traceback.print_exc()
+        # return {"CANCELLED"}
+
+    print("start_index:", hex(start_index))
     # 文件中包含网格物体数量(仅头一个文件有用)
     mesh_obj_number = struct.unpack_from("<I", data, start_index)[0]
     # 本网格变换矩阵数量
@@ -42,7 +104,7 @@ def read_head(self, data, start_index):
 
     # 打印头部信息
     print(
-        f"<<< 网格物体数量: {mesh_obj_number} 本网格变换矩阵数量: {mesh_matrices_number} 本网格字节总数: {mesh_byte_size}"
+        f"<<< 网格物体数量: {hex(mesh_obj_number)} 本网格变换矩阵数量: {hex(mesh_matrices_number)} 本网格字节总数: {hex(mesh_byte_size)}"
     )
 
     # 返回文件中包含网格物体数量, 本网格变换矩阵数量, 本网格字节总数
@@ -62,7 +124,7 @@ def read_vertices(self, vertices_data, mesh_matrices_number, mesh_byte_size):
     # 切线数据
     tangents = []
 
-    # 数据块的大小 (0x34)
+    # 数据块的大小 (0x34 是一个猜测的大小，可能需要根据实际情况动态计算)
     block_size = int(mesh_byte_size / mesh_matrices_number)
     if block_size <= 0:
         print(f"! 数据块的大小计算失败: {block_size}")
@@ -105,7 +167,7 @@ def read_vertices(self, vertices_data, mesh_matrices_number, mesh_byte_size):
         traceback.print_exc()
         return {"CANCELLED"}
 
-    print(f"<<< 顶点数据解析完成: {len(vertices)} 组")
+    print(f"<<< 顶点数据解析完成: {hex(len(vertices))} 组")
 
     return vertices, uv_coords, tangents
 
@@ -113,7 +175,7 @@ def read_vertices(self, vertices_data, mesh_matrices_number, mesh_byte_size):
 # 定义解析面数据函数
 def read_faces(self, faces_data_block, index_length):
     """解析面数据"""
-    print(f">>> 开始解析面数据 {index_length}")
+    print(f">>> 开始解析面数据 {hex(index_length)}")
     faces = []
     try:
         # 确保有足够的字节进行解包
@@ -129,7 +191,7 @@ def read_faces(self, faces_data_block, index_length):
         traceback.print_exc()
         return {"CANCELLED"}
 
-    print(f"<<< 面数据读取完毕: {len(faces)} 组")
+    print(f"<<< 面数据读取完毕: {hex(len(faces))} 组")
 
     return faces
 
@@ -138,20 +200,39 @@ def read_faces(self, faces_data_block, index_length):
 def split_mesh(self, data):
     """分割网格数据"""
     print(">>> 开始分割网格数据")
+
     # 数据起始位置
     data_start = 0
+    # 是否为首次读取
+    first_read = True
     # 网格对象
     mesh_obj = []
+
+    # 读取动态头部
+    data_index, mesh_info = read_dynamic_head(self, data)
+    # 修正数据起始位置
+    data_start = data_index
+    print("> fix数据起始位置:", hex(data_start))
+
     try:
-        while True:
+        for mi_name in mesh_info:
+            print(f">>> 读取网格信息名称: {mi_name}")
+            # if first_read:
+            #     data_start += 24
+            #     first_read = False
+
             # 读取头部信息 -> 文件中包含网格物体数量, 本网格变换矩阵数量, 本网格字节总数
-            mesh_obj_number, mesh_matrices_number, mesh_byte_size = read_head(
-                self, data, data_start
-            )
+            read_head_temp = read_head(self, data, data_start)
+
+            if read_head_temp is None:
+                print("! 读取头部信息失败")
+                return mesh_obj
+
+            mesh_obj_number, mesh_matrices_number, mesh_byte_size = read_head_temp
 
             # 获取顶点数据长度
             vertices_data = data[data_start + 0x1D : data_start + 0x1D + mesh_byte_size]
-            print("> 获取顶点数据长度:", len(vertices_data))
+            print("> 获取顶点数据长度:", hex(len(vertices_data)))
             if len(vertices_data) <= 0:
                 print("! 获取顶点数据长度失败")
                 self.report({"ERROR"}, "获取顶点数据长度失败")
@@ -175,7 +256,7 @@ def split_mesh(self, data):
                     + 4
                 ],
             )[0]
-            print(f"> 获取面数据块大小: {faces_data_size}")
+            print(f"> 获取面数据块大小: {hex(faces_data_size)}")
             # 获取面数据块
             faces_data_block = data[
                 data_start
@@ -188,19 +269,20 @@ def split_mesh(self, data):
                 + faces_data_size
             ]
             print(f"> 索引地址: {hex(data_start + 0x1d + mesh_byte_size + 4)}")
-            print(f"> 获取面数据块: {len(faces_data_block)}")
+            print(f"> 获取面数据块: {hex(len(faces_data_block))}")
             # 解析面数据块
             faces_array = read_faces(self, faces_data_block, len(faces_data_block))
 
             # 向mesh_obj中添加数据
             mesh_obj.append(
                 {
+                    "name": mi_name,
                     "vertices": {
                         "mesh_obj_number": mesh_obj_number,
                         "mesh_matrices_number": mesh_matrices_number,
                         "mesh_byte_size": mesh_byte_size,
                         "data": vertices_array,
-                        "uv_coords": uv_coords,# xx
+                        "uv_coords": uv_coords,  # xx
                         "tangents": tangents,
                     },
                     "faces": {"size": faces_data_size, "data": faces_array},
@@ -209,12 +291,12 @@ def split_mesh(self, data):
 
             # 结束位置,也是新的开始
             data_start += 0x1D + mesh_byte_size + 4 + faces_data_size
-            print("> data_start:", data_start)
+            print("> data_start:", hex(data_start))
 
             # 检查是否到达文件末尾
-            if len(mesh_obj) >= mesh_obj[0]["vertices"]["mesh_obj_number"] - 1:
-                print("<<< 数据到达尾部")
-                break
+            # if len(mesh_obj) >= mesh_obj[0]["vertices"]["mesh_obj_number"] - 1:
+            #     print("<<< 数据到达尾部")
+            #     break
 
         return mesh_obj
     except Exception as e:
@@ -225,17 +307,23 @@ def split_mesh(self, data):
 
 
 # 定义操作类
-class ImportMapMeshClass(bpy.types.Operator):
+class ImporWeaponMeshClass(bpy.types.Operator):
     """Import a .mesh file"""
 
-    bl_idname = "import.game_map_mesh"
-    bl_label = "导入.mesh地图模型"
+    bl_idname = "import.game_weapon_mesh"
+    bl_label = "导入武器.mesh模型"
     bl_options = {"REGISTER", "UNDO"}
     # 使用bpy.props定义文件路径属性
     filepath: bpy.props.StringProperty(subtype="FILE_PATH", default="")  # type: ignore
     # 文件扩展名过滤
     filename_ext = ".mesh"
     filter_glob: bpy.props.StringProperty(default="*.mesh", options={"HIDDEN"})  # type: ignore
+
+    # 定义invoke方法来显示文件选择对话框
+    def invoke(self, context, event):
+        # 调用文件选择对话框
+        context.window_manager.fileselect_add(self)
+        return {"RUNNING_MODAL"}
 
     def execute(self, context):
         # 清除当前场景中的所有物体
@@ -257,6 +345,7 @@ class ImportMapMeshClass(bpy.types.Operator):
 
             # 获得文件名(不带后缀)
             mesh_name = os.path.splitext(os.path.basename(file_path))[0]
+            print(f"<<< 读取到的模型名称: {mesh_name}")
 
             # 分割网格数据
             mesh_obj = split_mesh(self, data)
@@ -271,9 +360,9 @@ class ImportMapMeshClass(bpy.types.Operator):
                 faces = this_obj["faces"]["data"]
 
                 # 读取UV坐标
-                uv_coords = this_obj["vertices"]["uv_coords"]
+                # uv_coords = this_obj["vertices"]["uv_coords"]
                 # 读取切线
-                tangents = this_obj["vertices"]["tangents"]
+                # tangents = this_obj["vertices"]["tangents"]
 
                 # 创建新网格
                 new_mesh = bpy.data.meshes.new(f"{mesh_name}_{idx}")
@@ -317,30 +406,24 @@ class ImportMapMeshClass(bpy.types.Operator):
             self.report({"INFO"}, "模型加载成功")
             return {"FINISHED"}
         except Exception as e:
-            self.report({"ERROR"}, f"地图模型加载失败: {e}")
+            self.report({"ERROR"}, f"模型加载失败: {e}")
             traceback.print_exc()
             return {"CANCELLED"}
 
-    # 定义invoke方法来显示文件选择对话框
-    def invoke(self, context, event):
-        # 调用文件选择对话框
-        context.window_manager.fileselect_add(self)
-        return {"RUNNING_MODAL"}
-
 
 def menu_func_import(self, context):
-    self.layout.operator(ImportMapMeshClass.bl_idname, text="导入地图模型 (.mesh)")
+    self.layout.operator(ImporWeaponMeshClass.bl_idname, text="导入武器模型 (.mesh)")
 
 
 # 注册和注销函数
 def register():
-    bpy.utils.register_class(ImportMapMeshClass)
+    bpy.utils.register_class(ImporWeaponMeshClass)
     bpy.types.TOPBAR_MT_file_import.append(menu_func_import)
 
 
 def unregister():
     bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
-    bpy.utils.unregister_class(ImportMapMeshClass)
+    bpy.utils.unregister_class(ImporWeaponMeshClass)
 
 
 # 注册插件
