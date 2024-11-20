@@ -163,12 +163,13 @@ def read_vertices(self, vertices_data, mesh_matrices_number, mesh_byte_size):
                 break
     except Exception as e:
         print(f"! 顶点数据解析失败: {e}")
-        self.report({"ERROR"}, f"顶点数据解析失败 : {e}")
-        traceback.print_exc()
-        return {"CANCELLED"}
+        # self.report({"ERROR"}, f"顶点数据解析失败 : {e}")
+        # traceback.print_exc()
+        # return {"CANCELLED"}
+        return None
 
     print(f"<<< 顶点数据解析完成: {hex(len(vertices))} 组")
-
+    # 返回 顶点数据, UV坐标数据, 切线数据
     return vertices, uv_coords, tangents
 
 
@@ -187,9 +188,10 @@ def read_faces(self, faces_data_block, index_length):
             # print(f"> 解析面: {i} -> {f0} {f1} {f2}")
     except Exception as e:
         print(f"! 面数据解析失败: {e}")
-        self.report({"ERROR"}, f"面数据解析失败 : {e}")
-        traceback.print_exc()
-        return {"CANCELLED"}
+        # self.report({"ERROR"}, f"面数据解析失败 : {e}")
+        # traceback.print_exc()
+        # return {"CANCELLED"}
+        return None
 
     print(f"<<< 面数据读取完毕: {hex(len(faces))} 组")
 
@@ -226,7 +228,8 @@ def split_mesh(self, data):
 
             if read_head_temp is None:
                 print("! 读取头部信息失败")
-                return mesh_obj
+                # return mesh_obj
+                break
 
             mesh_obj_number, mesh_matrices_number, mesh_byte_size = read_head_temp
 
@@ -235,14 +238,22 @@ def split_mesh(self, data):
             print("> 获取顶点数据长度:", hex(len(vertices_data)))
             if len(vertices_data) <= 0:
                 print("! 获取顶点数据长度失败")
-                self.report({"ERROR"}, "获取顶点数据长度失败")
-                traceback.print_exc()
-                return {"CANCELLED"}
+                # self.report({"ERROR"}, "获取顶点数据长度失败")
+                # traceback.print_exc()
+                # return {"CANCELLED"}
+                break
 
             # 解析顶点数据块
-            vertices_array, uv_coords, tangents = read_vertices(
+            read_vertices_temp = read_vertices(
                 self, vertices_data, mesh_matrices_number, mesh_byte_size
             )
+            # 判断是否读取失败
+            if read_vertices_temp is None:
+                print("! 解析顶点数据失败")
+                # return mesh_obj
+                break
+            # 顶点数据, UV坐标数据, 切线数据
+            vertices_array, uv_coords, tangents  = read_vertices_temp
 
             # 获取面数据块大小
             faces_data_size = struct.unpack(
@@ -272,6 +283,11 @@ def split_mesh(self, data):
             print(f"> 获取面数据块: {hex(len(faces_data_block))}")
             # 解析面数据块
             faces_array = read_faces(self, faces_data_block, len(faces_data_block))
+            # 判断是否读取失败
+            if faces_array is None:
+                print("! 解析面数据失败")
+                # return mesh_obj
+                break
 
             # 向mesh_obj中添加数据
             mesh_obj.append(
@@ -301,9 +317,10 @@ def split_mesh(self, data):
         return mesh_obj
     except Exception as e:
         print("! 分割网格数据失败:", e)
-        self.report({"ERROR"}, f"分割网格数据失败: {e}")
-        traceback.print_exc()
-        return {"CANCELLED"}
+        # self.report({"ERROR"}, f"分割网格数据失败: {e}")
+        # traceback.print_exc()
+        # return {"CANCELLED"}
+        return mesh_obj
 
 
 # 定义操作类

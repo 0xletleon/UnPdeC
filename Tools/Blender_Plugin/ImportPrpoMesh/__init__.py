@@ -20,7 +20,7 @@ bl_info = {
 # 定义读取头部信息函数
 def read_head(self, data, start_index):
     """读取头部信息"""
-    print(">>> 开始读取头部信息:",hex(start_index))
+    print(">>> 开始读取头部信息:", hex(start_index))
 
     # 检查是否有足够的字节数进行解包
     if len(data) < start_index + 0x1D:
@@ -29,7 +29,7 @@ def read_head(self, data, start_index):
         traceback.print_exc()
         return {"CANCELLED"}
 
-    print("start_index:",hex(start_index))
+    print("start_index:", hex(start_index))
     # 文件中包含网格物体数量(仅头一个文件有用)
     mesh_obj_number = struct.unpack_from("<I", data, start_index)[0]
     # 本网格变换矩阵数量
@@ -209,7 +209,7 @@ def split_mesh(self, data):
                         "mesh_matrices_number": mesh_matrices_number,
                         "mesh_byte_size": mesh_byte_size,
                         "data": vertices_array,
-                        "uv_coords": uv_coords,# xx
+                        "uv_coords": uv_coords,  # xx
                         "tangents": tangents,
                     },
                     "faces": {"size": faces_data_size, "data": faces_array},
@@ -251,7 +251,7 @@ class ImporPropMeshClass(bpy.types.Operator):
         # 调用文件选择对话框
         context.window_manager.fileselect_add(self)
         return {"RUNNING_MODAL"}
-    
+
     def execute(self, context):
         # 清除当前场景中的所有物体
         # bpy.ops.object.select_all(action="SELECT")
