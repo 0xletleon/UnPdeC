@@ -10,270 +10,79 @@ bl_info = {
     "author": "letleon",
     "description": "导入.mesh地图模型",
     "blender": (4, 1, 0),
-    "version": (0, 2),
+    "version": (0, 3),
     "location": "File > Import",
     "warning": "仅为学习，严禁商用！",
     "category": "Import-Export",
 }
 
-def read_shader_03(data,data_start,type_tag):
-    """读取着色器数据"""
-    print(">>> 开始读取着色器数据")
 
-    # 读取着色器名称长度
-    s_name_len = struct.unpack_from("<I", data, data_start)[0]
-    print(f"1 着色器名字长度: {hex(s_name_len)}")
-    # 此次不修改 data_start
-
-    if s_name_len > 0:
-        for type_tag_i in range(type_tag):
-            # 读取着色器名称长度
-            s_name_len = struct.unpack_from("<I", data, data_start)[0]
-            print(f"2 着色器名字长度: {hex(s_name_len)}")
-            data_start += 4
-            print("DEBUG -> data_start:",hex(data_start))
-
-            # 是ColorMap
-            if s_name_len == 1:
-                print("是ColorMap")
-                # data_start += 4
-                # print("DEBUG -> data_start:",hex(data_start))
-
-                # 修正名称长度值
-                s_name_len = struct.unpack_from("<I", data, data_start)[0]
-                print(f"3 着色器名字长度: {hex(s_name_len)}")
-                data_start += 4
-                print("DEBUG -> data_start:",hex(data_start))
-                
-                # 读取着色器名称
-                s_name = struct.unpack_from(f"<{s_name_len}s", data, data_start)[0].decode("utf-8")
-                print(f"读取着色器名称: {s_name}")
-                data_start += s_name_len
-                print("DEBUG -> data_start:",hex(data_start))
-
-                # 读取贴图地址长度
-                c_dir_len = struct.unpack_from("<I", data, data_start)[0]
-                print(f"读取贴图地址长度: {c_dir_len}")
-                data_start += 4
-                print("DEBUG -> data_start:",hex(data_start))
-
-                # 读取贴图地址
-                c_dir = struct.unpack_from(f"<{c_dir_len}s", data, data_start)[0].decode("utf-8")
-                print(f"读取贴图地址: {c_dir}")
-                data_start += c_dir_len
-                print("DEBUG -> data_start:",hex(data_start))
-
-
-                # # 读取下一个值
-                # next_s_name_len = struct.unpack_from("<I", data, data_start)[0]
-                # print(f"读取下一个值: {hex(next_s_name_len)}")
-
-                # # 像是 动画控制？
-                # if next_s_name_len == 1:
-                #     print("next_s_name_len == 1")
-                #     data_start += 8
-                #     continue
-            else:
-                print("非ColorMap")
-                # 读取着色器名称
-                print("读取着色器：",hex(data_start))
-                s_name = struct.unpack_from(f"<{s_name_len}s", data, data_start)[0].decode("utf-8")
-                print(f"读取着色器名称: {s_name}")
-                data_start += s_name_len
-                print("DEBUG -> data_start:",hex(data_start))
-
-                # 读取下一个值
-                next_s_name_len = struct.unpack_from("<I", data, data_start)[0]
-                print(f"读取下一个值: {hex(next_s_name_len)}")
-
-                # 像是 动画控制？
-                if next_s_name_len == 1:
-                    print("next_s_name_len == 1")
-                    data_start += 8
-                    print("DEBUG -> data_start:",hex(data_start))
-
-                    continue
-    else:
-        print("> 空03 + 12")
-        data_start += 12
-        print("DEBUG -> data_start:",hex(data_start))
-
-
-    return data_start
-
-
-def read_other_data(data,data_start,temp_num):
-    """读取其他数据"""
-    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> 开始读取其他数据 ",temp_num)
-    # 是否存在另一个物体
-    nextobj = False
-
-    # 判断第一个字节是否为 0x01
-    tag_1 = data[data_start:data_start + 1]
-    data_start += 1
-    print("DEBUG -> data_start:",hex(data_start))
-    print(f"tag_1: {tag_1}")
+def find_next_head(data, data_start):
+    """查找下一个物体头部"""
+    # 记录传入的 data_start
+    temp_data_start = data_start
+    print(">>>>>>>>>>>>>>>>>>>>>>>> :", hex(data_start))
+    data_len = len(data)
+    print("DATA大小:", hex(data_len))
 
     while True:
-        new_01 = data[data_start:data_start + 1]
-        if new_01 == b"\x01":
-            newtype_tag = struct.unpack_from("<I", data, data_start + 1)[0]
-            if newtype_tag == 67108864:
-                print("找到新的物体头部开始地址:",data_start)
-                break
+        if data_start >= data_len:
+            print(
+                "<<<<<<<<<<<<<<<<<<<<<<<!!! 没有找到下一个物体头部,开始查找地址: ",
+                hex(temp_data_start),
+            )
+            return None
 
-        # 类型标签
-        type_tag = struct.unpack_from("<I", data, data_start)[0]
-        data_start += 4
-        print(f"DEBUG -> data_start: {hex(data_start)} type_tag: {hex(type_tag)}")
-        # print(f"data_start: {data_start} type_tag: {type_tag}")
-
-        # 可以放外面
-        if tag_1 == b'\x01':
-            print(">>> tag_1 == 01  type_tag -> ",hex(type_tag))
-
-            # == 3 是着色器数据
-            if type_tag == 3:
-                print(">>> type_tag == 3 : ",hex(data_start))
-
-                # 类型标签
-                next_type_tag = struct.unpack_from("<I", data, data_start)[0]
-                if next_type_tag == type_tag:
-                    print("结束,或开始新的类型数据了！")
-                    data_start += 4
-                    print("DEBUG -> data_start:",hex(data_start))
-                    data_start = read_shader_03(data,data_start,type_tag)
-                    
-                    nextobj = True
+        # 读取下一个值
+        # print("data_start:",hex(data_start))
+        tag_ff = data[data_start : data_start + 1][0]
+        # print(f"tag_ff: {hex(tag_ff)}")
+        # data_start += 1
+        if tag_ff == 0xFF:
+            if data_start + 4 < len(data):  # 确保有足够的数据来解包一个整数
+                tag_4ff = struct.unpack_from("<I", data, data_start)[0]
+                # print("tag_4ff:",hex(tag_4ff))
+                if tag_4ff != 0xFFFFFFFF:
+                    data_start += 1
+                    # print("!= 0xffffffff : ",hex(data_start))
                 else:
-                    print("正常类型内数据")
-                    data_start = read_shader_03(data,data_start,type_tag)
-
-                    nextobj = True
-
-
-                # for idx in range(1024):
-                #     # 读取下一个字节
-                #     tag_next = data[data_start:data_start + 1]
-                #     # 数据位置
-                #     data_start += 1
-                #     # print(f"tag_next: {tag_next}")
-                #     if tag_next == b'\x01':
-                #         test_0 = data[data_start:data_start + 1][0]
-                #         # print(f"test_0: {test_0}")
-                #         if test_0 != 0:
-                #             print(">>> 是 0x01:",hex(data_start))
-                #             print(">>> 找到标志地址")
-                #             # 修正数据读取位置
-                #             data_start -= 0x19
-                #             # 是否存在另一个物体
-                #             nextobj = True
-                #             break
-                    
-                #     if idx == 1023:
-                #         print(">>> 未找到下一个物体头部地址")
-                #         break
-                
-                # print("找到下一个物体头部地址data_start:",hex(data_start))
-            
-            # == 4
-            elif type_tag == 4:
-                print(">>> tag_2 == 4: ",hex(data_start))
-                data_start -= 5
-            
-            # == else
-            # else:
-                # print(f">>> tag_2!= else: {type_tag} data_start: {hex(data_start)}")
+                    # print(f"tag_4ff: {hex(tag_4ff)}")
+                    data_start -= 0x30 + 0x1D
+                    print(
+                        "<<<<<<<<<<<<<<<<<<<<<<< 找到下一个物体第一个变换矩阵结尾",
+                        hex(data_start),
+                    )
+                    return data_start
+            else:
+                print("数据不足，无法读取")
+                return None  # 或者根据实际情况返回合适的值
         else:
-            print(">>> 非0x01 错误")
+            data_start += 1
+            # print("!= 0xff : ",hex(data_start))
 
-
-    # 返回 -> 是否存在另一个物体, 另一个物体头部地址
-    print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< 结束读取其他数据: ",temp_num)
-    return nextobj, data_start
-
-
-
-def read_dynamic_head(self, data):
-    """读取头部信息"""
-    print(">>> 开始读取头部信息")
-
-    try:
-        # 网格信息
-        mesh_info = []
-        # 文件读取位置
-        data_index = 0
-        # 读取包含的对象数量1
-        include_obj_number1 = struct.unpack_from("<I", data, data_index)[0]
-        # 修正数据读取位置
-        data_index += 4
-
-        # 读取包含的对象名称
-        for i in range(include_obj_number1):
-            # 读取物体名称长度
-            name_length = struct.unpack_from("<I", data, data_index)[0]
-            # 修正数据读取位置
-            data_index += 4
-            # 读取物体名称
-            obj_name = struct.unpack_from(f"<{name_length}s", data, data_index)[
-                0
-            ].decode("utf-8")
-            print(f"对象名称: {obj_name}")
-            # 保存名称
-            mesh_info.append(obj_name)
-            # 修正数据读取位置
-            data_index += name_length
-
-        # 读取包含的对象数量2
-        include_obj_number2 = struct.unpack_from("<I", data, data_index)[0]
-        # 修正数据读取位置
-        data_index += 4
-
-        # 检查头部数量是否一致
-        if include_obj_number1 != include_obj_number2:
-            print("! 头部信息解析失败: 包含的对象数量不一致")
-            self.report({"ERROR"}, "头部信息解析失败")
-            traceback.print_exc()
-            return {"CANCELLED"}
-
-        # 跳过物体的 初始位置和相机初始位置？这个不确定！
-        skip_len = include_obj_number1 * 0x18
-        print(f"data_index: {hex(data_index)}")
-
-        # 修正数据读取位置
-        data_index += skip_len
-
-        print(f"data_index: {hex(data_index)} skip_len: {hex(skip_len)}")
-
-        # 返回 物体开始位置，物体信息
-        return data_index, mesh_info
-    except Exception as e:
-        print("! 读取头部信息失败:", e)
-        self.report({"ERROR"}, "读取头部信息失败")
-        traceback.print_exc()
-        return {"CANCELLED"}
 
 def read_map_first_head(self, data):
     """读取地图第一个头部信息"""
-    print(">>> 开始读取地图第一个头部信息")    
+    print(">>> 开始读取地图第一个头部信息")
     # 读取位置
     data_index = 0
 
-    # 确保有足够的数据
+    # 确保有足够的数据 216CC5 287390
+    # 29DEBC
+    # 衔接地址 1BA288
     if len(data) < 24:
         print("Error: Not enough data")
         return
 
     # 读取相机位置?
-    x1, y1, z1, x2, y2, z2 = struct.unpack_from('<ffffff', data)
-    print(f'Camera 1 Position: x1={x1}, y1={y1}, z1={z1}')
-    print(f'Camera 2 Position: x2={x2}, y2={y2}, z2={z2}')
+    x1, y1, z1, x2, y2, z2 = struct.unpack_from("<ffffff", data)
+    print(f"Camera 1 Position: x1={x1}, y1={y1}, z1={z1}")
+    print(f"Camera 2 Position: x2={x2}, y2={y2}, z2={z2}")
 
     # 更新读取位置
     data_index += 24
-    
-    return data_index
 
+    return data_index
 
 
 # 定义读取头部信息函数
@@ -285,12 +94,14 @@ def read_head(self, data, start_index):
     if len(data) < start_index + 29:
         print(f"! 头部信息解析失败: 不足的字节数在偏移量 {start_index}")
         # self.report({"ERROR"}, "头部信息解析失败")
-        # traceback.print_exc()
+        traceback.print_exc()
         # return {"CANCELLED"}
         return None
 
     # 文件中包含网格物体数量(仅头一个文件有用)
     mesh_obj_number = struct.unpack_from("<I", data, start_index)[0]
+    # 本物体面数据组数量
+    mesh_face_group_number = struct.unpack_from("<I", data, start_index + 4)[0]
     # 本网格变换矩阵数量
     mesh_matrices_number = struct.unpack_from("<I", data, start_index + 8)[0]
     # 4个字节00标志（注释掉）
@@ -302,7 +113,7 @@ def read_head(self, data, start_index):
 
     # 打印头部信息
     print(
-        f"<<< 网格物体数量: {mesh_obj_number} 本网格变换矩阵数量: {mesh_matrices_number} 本网格字节总数: {mesh_byte_size}"
+        f"<<< 网格物体数量: {hex(mesh_obj_number)} 本物体面数据组数量 {hex(mesh_face_group_number)} 本网格变换矩阵数量: {hex(mesh_matrices_number)} 本网格字节总数: {hex(mesh_byte_size)}"
     )
 
     # 返回文件中包含网格物体数量, 本网格变换矩阵数量, 本网格字节总数
@@ -362,7 +173,7 @@ def read_vertices(self, vertices_data, mesh_matrices_number, mesh_byte_size):
     except Exception as e:
         print(f"! 顶点数据解析失败: {e}")
         # self.report({"ERROR"}, f"顶点数据解析失败 : {e}")
-        # traceback.print_exc()
+        traceback.print_exc()
         # return {"CANCELLED"}
         return None
 
@@ -387,7 +198,7 @@ def read_faces(self, faces_data_block, index_length):
     except Exception as e:
         print(f"! 面数据解析失败: {e}")
         # self.report({"ERROR"}, f"面数据解析失败 : {e}")
-        # traceback.print_exc()
+        traceback.print_exc()
         # return {"CANCELLED"}
         return None
 
@@ -430,7 +241,7 @@ def split_mesh(self, data):
 
             # 获取顶点数据长度
             vertices_data = data[data_start + 0x1D : data_start + 0x1D + mesh_byte_size]
-            print("> 获取顶点数据长度:", len(vertices_data))
+            print("> 获取顶点数据长度:", hex(len(vertices_data)))
             if len(vertices_data) <= 0:
                 print("! 获取顶点数据长度失败")
                 self.report({"ERROR"}, "获取顶点数据长度失败")
@@ -446,7 +257,7 @@ def split_mesh(self, data):
                 # return mesh_obj
                 break
             # 顶点数据, UV坐标数据, 切线数据
-            vertices_array, uv_coords, tangents  = read_vertices_temp
+            vertices_array, uv_coords, tangents = read_vertices_temp
 
             # 获取面数据块大小
             faces_data_size = struct.unpack(
@@ -460,7 +271,10 @@ def split_mesh(self, data):
                     + 4
                 ],
             )[0]
-            print(f"> 获取面数据块大小: {faces_data_size}")
+            print(f"> 获取面数据块大小: {hex(faces_data_size)}")
+            if faces_data_size >= len(data):
+                print(f"! 获取面数据块失败,遇到还未识别的数据块！ 开始地址:{hex(data_start + 0x1D)} 偏移地址: hex(data_start + 0x1D + mesh_byte_size)")
+                break
             # 获取面数据块
             faces_data_block = data[
                 data_start
@@ -473,7 +287,7 @@ def split_mesh(self, data):
                 + faces_data_size
             ]
             print(f"> 索引地址: {hex(data_start + 0x1d + mesh_byte_size + 4)}")
-            print(f"> 获取面数据块: {len(faces_data_block)}")
+            print(f"> 获取面数据块: {hex(len(faces_data_block))}")
             # 解析面数据块
             faces_array = read_faces(self, faces_data_block, len(faces_data_block))
             # 判断是否读取失败
@@ -490,7 +304,7 @@ def split_mesh(self, data):
                         "mesh_matrices_number": mesh_matrices_number,
                         "mesh_byte_size": mesh_byte_size,
                         "data": vertices_array,
-                        "uv_coords": uv_coords,# xx
+                        "uv_coords": uv_coords,  # xx
                         "tangents": tangents,
                     },
                     "faces": {"size": faces_data_size, "data": faces_array},
@@ -502,21 +316,28 @@ def split_mesh(self, data):
             print("> data_start:", hex(data_start))
 
             # 读取剩余数据(着色器,贴图,动画等) -> 是否存在另一个物体, 另一个物体头部地址
-            nextobj, next_data_start = read_other_data(data,data_start,temp_num)
-            if not nextobj:
-                print("! 读取其他物体数据失败")
-                # self.report({"ERROR"}, "读取其他物体数据失败")
-                traceback.print_exc()
-                # return {"CANCELLED"}
+            find_start = find_next_head(data, data_start)
+            if find_start is None:
+                print("! 未找到下一个物体头部地址, mesh_obj len:", hex(len(mesh_obj)))
                 break
-            # 修正数据起始位置
-            data_start = next_data_start
+            data_start = find_start
+
+            print("完成获取下一个物体头部地址！！！！！！！！！")
+            # if not nextobj:
+            #     print("! 读取其他物体数据失败")
+            #     # self.report({"ERROR"}, "读取其他物体数据失败")
+            #     traceback.print_exc()
+            #     # return {"CANCELLED"}
+            #     break
+            # # 修正数据起始位置
+            # data_start = next_data_start
 
             # 检查是否到达文件末尾
             if len(mesh_obj) >= mesh_obj[0]["vertices"]["mesh_obj_number"] - 1:
                 print("<<< 数据到达尾部")
                 break
 
+        print("返回 mesh_obj！！！")
         return mesh_obj
     except Exception as e:
         print("! 分割网格数据失败:", e)
