@@ -135,13 +135,14 @@ def read_vertices(self, vertices_data, mesh_matrices_number, mesh_byte_size):
 
     # 数据块的大小 (0x34)
     block_size = int(mesh_byte_size / mesh_matrices_number)
-    if block_size <= 0:
+    if block_size != 52:
         print(f"! 数据块的大小计算失败: {block_size}")
-        self.report({"ERROR"}, "数据块的大小计算失败")
+        # self.report({"ERROR"}, "数据块的大小计算失败")
         traceback.print_exc()
-        return {"CANCELLED"}
+        # return {"CANCELLED"}
+        return None
 
-    print(f"> 数据块的大小: {block_size}")
+    print(f"> 数据块的大小: {hex(block_size)}")
 
     # 解析顶点数据
     try:
@@ -189,7 +190,7 @@ def read_faces(self, faces_data_block, index_length):
     faces = []
     try:
         # 确保有足够的字节进行解包
-        for i in range(0, index_length - 12, 12):
+        for i in range(0, index_length, 12):
             f0 = struct.unpack_from("H", faces_data_block, i)[0]
             f1 = struct.unpack_from("H", faces_data_block, i + 4)[0]
             f2 = struct.unpack_from("H", faces_data_block, i + 8)[0]
@@ -244,9 +245,10 @@ def split_mesh(self, data):
             print("> 获取顶点数据长度:", hex(len(vertices_data)))
             if len(vertices_data) <= 0:
                 print("! 获取顶点数据长度失败")
-                self.report({"ERROR"}, "获取顶点数据长度失败")
+                # self.report({"ERROR"}, "获取顶点数据长度失败")
                 traceback.print_exc()
-                return {"CANCELLED"}
+                # return {"CANCELLED"}
+                break
             # 解析顶点数据块
             read_vertices_temp = read_vertices(
                 self, vertices_data, mesh_matrices_number, mesh_byte_size
@@ -394,9 +396,9 @@ class ImportMapMeshClass(bpy.types.Operator):
                 faces = this_obj["faces"]["data"]
 
                 # 读取UV坐标
-                uv_coords = this_obj["vertices"]["uv_coords"]
+                # uv_coords = this_obj["vertices"]["uv_coords"]
                 # 读取切线
-                tangents = this_obj["vertices"]["tangents"]
+                # tangents = this_obj["vertices"]["tangents"]
 
                 # 创建新网格
                 new_mesh = bpy.data.meshes.new(f"{mesh_name}_{idx}")

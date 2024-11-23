@@ -24,7 +24,7 @@ def read_head(self, data, start_index):
 
     # 检查是否有足够的字节数进行解包
     if len(data) < start_index + 0x1D:
-        print(f"! 头部信息解析失败: 不足的字节数在偏移量 {start_index}")
+        print(f"! 头部信息解析失败: 不足的字节数在偏移量 {hex(start_index)}")
         self.report({"ERROR"}, "头部信息解析失败")
         traceback.print_exc()
         return {"CANCELLED"}
@@ -32,6 +32,8 @@ def read_head(self, data, start_index):
     print("start_index:", hex(start_index))
     # 文件中包含网格物体数量(仅头一个文件有用)
     mesh_obj_number = struct.unpack_from("<I", data, start_index)[0]
+    # 本物体面数据组数量
+    mesh_face_group_number = struct.unpack_from("<I", data, start_index + 4)[0]
     # 本网格变换矩阵数量
     mesh_matrices_number = struct.unpack_from("<I", data, start_index + 8)[0]
     # 4个字节00标志（注释掉）
@@ -43,11 +45,11 @@ def read_head(self, data, start_index):
 
     # 打印头部信息
     print(
-        f"<<< 网格物体数量: {mesh_obj_number} 本网格变换矩阵数量: {mesh_matrices_number} 本网格字节总数: {mesh_byte_size}"
+        f"<<< 网格物体数量: {hex(mesh_obj_number)} 本物体面数据组数量: {hex(mesh_face_group_number)} 本网格变换矩阵数量: {hex(mesh_matrices_number)} 本网格字节总数: {hex(mesh_byte_size)}"
     )
 
     # 返回文件中包含网格物体数量, 本网格变换矩阵数量, 本网格字节总数
-    return mesh_obj_number, mesh_matrices_number, mesh_byte_size
+    return mesh_obj_number, mesh_face_group_number, mesh_matrices_number, mesh_byte_size
 
 
 # 定义解析顶点数据函数
@@ -59,19 +61,19 @@ def read_vertices(self, vertices_data, mesh_matrices_number, mesh_byte_size):
     # UV 坐标数据
     uv_coords = []
     # 法线数据
-    normals = []
+    # normals = []
     # 切线数据
     tangents = []
 
     # 数据块的大小 (0x34)
     block_size = int(mesh_byte_size / mesh_matrices_number)
     if block_size <= 0:
-        print(f"! 数据块的大小计算失败: {block_size}")
+        print(f"! 数据块的大小计算失败: {hex(block_size)}")
         self.report({"ERROR"}, "数据块的大小计算失败")
         traceback.print_exc()
         return {"CANCELLED"}
 
-    print(f"> 数据块的大小: {block_size}")
+    print(f"> 数据块的大小: {hex(block_size)}")
 
     # 解析顶点数据
     try:
@@ -118,7 +120,7 @@ def read_faces(self, faces_data_block, index_length):
     faces = []
     try:
         # 确保有足够的字节进行解包
-        for i in range(0, index_length - 12, 12):
+        for i in range(0, index_length, 12):
             f0 = struct.unpack_from("H", faces_data_block, i)[0]
             f1 = struct.unpack_from("H", faces_data_block, i + 4)[0]
             f2 = struct.unpack_from("H", faces_data_block, i + 8)[0]
@@ -130,7 +132,7 @@ def read_faces(self, faces_data_block, index_length):
         traceback.print_exc()
         return {"CANCELLED"}
 
-    print(f"<<< 面数据读取完毕: {len(faces)} 组")
+    print(f"<<< 面数据读取完毕: {hex(len(faces))} 组")
 
     return faces
 
@@ -153,14 +155,14 @@ def split_mesh(self, data):
                 data_start += 24
                 first_read = False
 
-            # 读取头部信息 -> 文件中包含网格物体数量, 本网格变换矩阵数量, 本网格字节总数
-            mesh_obj_number, mesh_matrices_number, mesh_byte_size = read_head(
+            # 读取头部信息 -> 文件中包含网格物体数量, 本物体面数据组数量, 本网格变换矩阵数量, 本网格字节总数
+            mesh_obj_number, mesh_face_group_number, mesh_matrices_number, mesh_byte_size = read_head(
                 self, data, data_start
             )
 
             # 获取顶点数据长度
             vertices_data = data[data_start + 0x1D : data_start + 0x1D + mesh_byte_size]
-            print("> 获取顶点数据长度:", len(vertices_data))
+            print("> 获取顶点数据长度:", hex(len(vertices_data)))
             if len(vertices_data) <= 0:
                 print("! 获取顶点数据长度失败")
                 self.report({"ERROR"}, "获取顶点数据长度失败")
@@ -184,7 +186,7 @@ def split_mesh(self, data):
                     + 4
                 ],
             )[0]
-            print(f"> 获取面数据块大小: {faces_data_size}")
+            print(f"> 获取面数据块大小: {hex(faces_data_size)}")
             # 获取面数据块
             faces_data_block = data[
                 data_start
@@ -197,7 +199,7 @@ def split_mesh(self, data):
                 + faces_data_size
             ]
             print(f"> 索引地址: {hex(data_start + 0x1d + mesh_byte_size + 4)}")
-            print(f"> 获取面数据块: {len(faces_data_block)}")
+            print(f"> 获取面数据块: {hex(len(faces_data_block))}")
             # 解析面数据块
             faces_array = read_faces(self, faces_data_block, len(faces_data_block))
 
@@ -218,7 +220,7 @@ def split_mesh(self, data):
 
             # 结束位置,也是新的开始
             data_start += 0x1D + mesh_byte_size + 4 + faces_data_size
-            print("> data_start:", data_start)
+            print("> data_start:", hex(data_start))
 
             # 检查是否到达文件末尾
             if len(mesh_obj) >= mesh_obj[0]["vertices"]["mesh_obj_number"] - 1:
