@@ -63,6 +63,14 @@ class ImportAnimOperator(bpy.types.Operator):
         # 解析并获得帧数据
         vertex_groups = self.parse_anim_file(data, file_name)
 
+        # 获取总帧数
+        total_frames = max(len(group_data) for group_data in vertex_groups.values())
+        print(f"!!!!!!!!!!! 总帧数: {total_frames}")
+
+        # 设置Blender场景的帧数
+        bpy.context.scene.frame_start = 1
+        bpy.context.scene.frame_end = total_frames
+
         # 创建动画
         for group_name, group_data in vertex_groups.items():
             # 创建一个新的立方体网格
@@ -91,15 +99,15 @@ class ImportAnimOperator(bpy.types.Operator):
             # 更新网格数据
             mesh.update()
 
-            # 设置关键帧
+            # 设置关键帧 location rotation
             for frame, transform in enumerate(group_data):
                 # 设置位置关键帧
                 obj.location = transform["location"]
                 obj.keyframe_insert(data_path="location", frame=frame)
 
-                # 设置旋转关键帧(四元数 -> 欧拉角)
-                euler = self.quat_to_eul(transform["rotation"])
-                obj.rotation_euler = euler
+                # 设置旋转关键帧(欧拉角)
+                # 假设旋转数据是以度为单位的欧拉角，需要转换为弧度
+                obj.rotation_euler = transform["rotation"]
                 obj.keyframe_insert(data_path="rotation_euler", frame=frame)
 
         self.report({"INFO"}, f"{file_name} 动画文件加载成功")
@@ -239,7 +247,7 @@ class ImportAnimOperator(bpy.types.Operator):
             soffset = now_group["soffset"]
             # 当前顶点组数据 结束地址
             eoffset = now_group["eoffset"]
-            print(f"soffset: {soffset} eoffset: {eoffset}")
+            # print(f"soffset: {soffset} eoffset: {eoffset}")
             # 获取顶点组帧数据
             while soffset < eoffset:
                 # 检查剩余数据是否足够
@@ -252,7 +260,7 @@ class ImportAnimOperator(bpy.types.Operator):
                 # 方向
                 location = struct.unpack("3f", frame_data[0:12])
                 # 四元数 -> 后面会转换成 欧拉角
-                rotation = struct.unpack("4f", frame_data[12:28])
+                rotation = struct.unpack("3f", frame_data[12:24])
                 # 添加到 vertex_groups
                 vertex_groups[group_name].append(
                     {"location": location, "rotation": rotation}
