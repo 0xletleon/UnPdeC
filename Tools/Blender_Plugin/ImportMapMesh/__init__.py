@@ -4,18 +4,6 @@ import bpy
 import struct
 import os
 
-# 插件元数据
-bl_info = {
-    "name": "导入.mesh地图模型",
-    "author": "letleon",
-    "description": "导入.mesh地图模型",
-    "blender": (4, 1, 0),
-    "version": (0, 3),
-    "location": "File > Import",
-    "warning": "仅为学习，严禁商用！",
-    "category": "Import-Export",
-}
-
 
 def find_next_head(data, data_start):
     """查找下一个物体头部"""
@@ -275,7 +263,9 @@ def split_mesh(self, data):
             )[0]
             print(f"> 获取面数据块大小: {hex(faces_data_size)}")
             if faces_data_size >= len(data):
-                print(f"! 获取面数据块失败,遇到还未识别的数据块！ 开始地址:{hex(data_start + 0x1D)} 偏移地址: hex(data_start + 0x1D + mesh_byte_size)")
+                print(
+                    f"! 获取面数据块失败,遇到还未识别的数据块！ 开始地址:{hex(data_start + 0x1D)} 偏移地址: hex(data_start + 0x1D + mesh_byte_size)"
+                )
                 break
             # 获取面数据块
             faces_data_block = data[

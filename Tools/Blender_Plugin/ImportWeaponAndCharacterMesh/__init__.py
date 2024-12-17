@@ -4,18 +4,6 @@ import bpy
 import struct
 import os
 
-# 插件元数据
-bl_info = {
-    "name": "导入武器和人物模型(.mesh)",
-    "author": "letleon",
-    "description": "导入武器和人物模型(.mesh)",
-    "blender": (4, 1, 0),
-    "version": (0, 2),
-    "location": "File > Import",
-    "warning": "仅为学习，严禁商用！",
-    "category": "Import-Export",
-}
-
 
 def read_dynamic_head(self, data):
     """读取头部信息"""
@@ -234,7 +222,12 @@ def split_mesh(self, data):
                 break
 
             # 返回文件中包含网格物体数量, 本物体面数据组数量, 本网格变换矩阵数量, 本网格字节总数
-            mesh_obj_number, mesh_face_group_number, mesh_matrices_number, mesh_byte_size = read_head_temp
+            (
+                mesh_obj_number,
+                mesh_face_group_number,
+                mesh_matrices_number,
+                mesh_byte_size,
+            ) = read_head_temp
 
             # 获取顶点数据长度
             vertices_data = data[data_start + 0x1D : data_start + 0x1D + mesh_byte_size]
@@ -388,7 +381,9 @@ class ImporWeaponAndCharacterMeshClass(bpy.types.Operator):
 
                 # 创建新网格
                 new_mesh = bpy.data.meshes.new(f"{mesh_name}_{obj_name}_{idx}")
-                new_obj = bpy.data.objects.new(f"{mesh_name}_{obj_name}_{idx}", new_mesh)
+                new_obj = bpy.data.objects.new(
+                    f"{mesh_name}_{obj_name}_{idx}", new_mesh
+                )
 
                 # 将对象添加到场景中
                 context.collection.objects.link(new_obj)
@@ -418,7 +413,9 @@ class ImporWeaponAndCharacterMeshClass(bpy.types.Operator):
 
 
 def menu_func_import(self, context):
-    self.layout.operator(ImporWeaponAndCharacterMeshClass.bl_idname, text="导入武器和人物模型(.mesh)")
+    self.layout.operator(
+        ImporWeaponAndCharacterMeshClass.bl_idname, text="导入武器和人物模型(.mesh)"
+    )
 
 
 # 注册和注销函数

@@ -36,3 +36,4 @@
 /packages/
 /bin
 *.class
+**/*.vcxproj.user

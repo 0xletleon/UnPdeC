@@ -2,18 +2,6 @@ import bpy
 import struct
 import os
 
-# 插件元数据
-bl_info = {
-    "name": "导入.mesh模型",
-    "author": "letleon",
-    "version": (1, 0),
-    "blender": (4, 1, 0),
-    "location": "File > Import",
-    "description": "导入.mesh模型",
-    "warning": "仅为学习，严禁商用！",
-    "category": "Import-Export",
-}
-
 
 def read_mesh_head_info(data):
     """读取头部信息"""
@@ -133,9 +121,9 @@ class ImportMeshClass(bpy.types.Operator):
                 mesh_matrices[i].append((x, y, z))
                 # 增加索引
                 this_mesh_index += block_size
-            
-            # 
-            
+
+            #
+
         print(f"数据块大小: {len(mesh_matrices[0])}")
 
         # 解析数据块

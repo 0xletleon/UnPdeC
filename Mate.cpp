@@ -183,23 +183,28 @@ namespace UnPdeC {
 			} else {
 				// Secondary decryption
 				std::vector<uint8_t> decryption2;
-				try {
-					// 二次解码
-					decryption2 = Decrypt::PreDecrypt(tempFileByte.Byte, MataJson.name);
-
-					// 移除 .cache 部分
-					fixedName = MataJson.name.substr(0, MataJson.name.find(".cache"));
-
-					// 检查 fixedName 是否以 .lua 结尾
-					if (fixedName.size() >= 4 && fixedName.substr(fixedName.size() - 4) == ".lua") {
-						// 更改后缀为 .luac
-						fixedName.replace(fixedName.size() - 4, 4, ".luac");
-					}
-				} catch (const std::exception&) {
-					std::cout << " ！Secondary decryption failed: " << MataJson.name << "\n";
+				// 缓存模式下不进行二次解密
+				if (GV::CacheMode) {
 					decryption2 = tempFileByte.Byte;
-				}
+					fixedName = MataJson.name;
+				} else { // 非缓存模式下进行二次解密
+					try {
+						// 二次解码
+						decryption2 = Decrypt::PreDecrypt(tempFileByte.Byte, MataJson.name);
 
+						// 移除 .cache 部分
+						fixedName = MataJson.name.substr(0, MataJson.name.find(".cache"));
+
+						// 检查 fixedName 是否以 .lua 结尾
+						if (fixedName.size() >= 4 && fixedName.substr(fixedName.size() - 4) == ".lua") {
+							// 更改后缀为 .luac
+							fixedName.replace(fixedName.size() - 4, 4, ".luac");
+						}
+					} catch (const std::exception&) {
+						std::cout << " ！Secondary decryption failed: " << MataJson.name << "\n";
+						decryption2 = tempFileByte.Byte;
+					}
+				}
 				// Save file
 				std::filesystem::path filePath2 = dirPath / fixedName;
 				if (!std::filesystem::exists(filePath2)) {

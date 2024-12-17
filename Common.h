@@ -27,6 +27,7 @@ struct TNowXor {
 	std::string Name; // xor名称
 	long Size; // xor大小
 	std::string Path; // xor路径
+	std::string JsonPath; // XorJson路径
 };
 
 // GetByteOfXor() 返回的数据结构 

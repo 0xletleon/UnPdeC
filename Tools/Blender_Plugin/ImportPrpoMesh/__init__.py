@@ -4,18 +4,6 @@ import bpy
 import struct
 import os
 
-# 插件元数据
-bl_info = {
-    "name": "导入道具.mesh模型",
-    "author": "letleon",
-    "description": "导入道具.mesh模型",
-    "blender": (4, 1, 0),
-    "version": (0, 2),
-    "location": "File > Import",
-    "warning": "仅为学习，严禁商用！",
-    "category": "Import-Export",
-}
-
 
 # 定义读取头部信息函数
 def read_head(self, data, start_index):
@@ -156,9 +144,12 @@ def split_mesh(self, data):
                 first_read = False
 
             # 读取头部信息 -> 文件中包含网格物体数量, 本物体面数据组数量, 本网格变换矩阵数量, 本网格字节总数
-            mesh_obj_number, mesh_face_group_number, mesh_matrices_number, mesh_byte_size = read_head(
-                self, data, data_start
-            )
+            (
+                mesh_obj_number,
+                mesh_face_group_number,
+                mesh_matrices_number,
+                mesh_byte_size,
+            ) = read_head(self, data, data_start)
 
             # 获取顶点数据长度
             vertices_data = data[data_start + 0x1D : data_start + 0x1D + mesh_byte_size]

@@ -5,18 +5,6 @@ from mathutils import Quaternion, Euler
 import bmesh
 import re
 
-# 插件元数据
-bl_info = {
-    "name": "导入.anim动画",
-    "author": "letleon",
-    "version": (1, 1),
-    "blender": (4, 1, 0),
-    "location": "File > Import",
-    "description": "导入.anim动画",
-    "warning": "仅供学习，严禁商用！",
-    "category": "Import-Export",
-}
-
 
 # 顶义操作类
 class ImportAnimOperator(bpy.types.Operator):
@@ -30,7 +18,7 @@ class ImportAnimOperator(bpy.types.Operator):
     filepath: bpy.props.StringProperty(
         subtype="FILE_PATH",
         default="",
-    ) # type: ignore
+    )  # type: ignore
 
     # 顶义invoke方法来显示文件选择对话框
     def invoke(self, context, event):

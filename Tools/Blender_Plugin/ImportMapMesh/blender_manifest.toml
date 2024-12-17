@@ -1,0 +1,33 @@
+schema_version = "1.0.0"
+
+id = "import_pde_map_mesh"
+name = "导入.mesh地图模型"
+version = "0.4.0"
+tagline = "仅用于学习，严禁商用"
+maintainer = "letleon <letleon@163.com>"
+type = "add-on"
+copyright = ["2024 letleon"]
+
+website = "https://github.com/0xletleon/AddonReloader"
+tags = ["Animation", "Mesh", "Game Engine"]
+
+blender_version_min = "4.2.0"
+
+license = [
+  "SPDX:GPL-3.0-or-later",
+]
+
+[permissions]
+files = "读取资源文件"
+
+[build]
+paths_exclude_pattern = [
+  "__pycache__/",
+  "/.git/",
+  "/*.zip",
+  "/*.bat",
+  "/*.jpg",
+  "/*.png",
+  "/.gitignore",
+  "/*.md"
+]

@@ -49,6 +49,8 @@ namespace UnPdeC {
 
 				nowXor.Path = entry.path().string();// 获取当前xor文件的路径
 
+				nowXor.JsonPath = (exePath / fileName).string() + ".json";// 获取当前xor文件的json路径
+
 				std::cout << " ！Path: " << nowXor.Path << "\n ！Name: " << nowXor.Name << " Size: " << nowXor.Size << "\n";
 
 				XorArr.push_back(nowXor);
@@ -103,7 +105,7 @@ namespace UnPdeC {
 		return std::all_of(name.begin(), name.end(), [](char ch) {
 			return (ch > 0x20 && ch < 0x7F) && ch != '\"' && ch != '*' && ch != '/' &&
 				ch != ':' && ch != '<' && ch != '>' && ch != '?' && ch != '\\' && ch != '|';
-			});
+		});
 	}
 
 	/// <summary>

@@ -2,12 +2,12 @@
 
 # 🎮 UnPdeC
 
-    此项目是Unpde(c#)的替代项项目
-    尝试解压.pde游戏文件
+    此项目是Unpde(c#)的替代项目
+    尝试解压游戏.pde文件
     使用 腾讯元宝，Kimi, Claude 辅助开发
     使用新的方法来导出全部文件！
     为了学习编程和加解密算法而研究
-    请勿用于任何商业目的！
+    本项目严禁用于商业目的，仅为学习交流！！！
 
 ## 🦋 依赖
 
@@ -25,11 +25,25 @@
 [UnPdeC.exe](Release/UnPdeC.exe)
 [FastXOR.exe](Release/FastXOR.exe)
 
-## 🚀 使用
-    0: Visual C++ RunTime: https://aka.ms/vs/17/release/vc_redist.x64.exe
-    1: .pde文件需要和 FastOR.exe与UnPdeC.exe在同一目录下
-    2：FastXOR.exe 异或.pde文件
-    3：UnPdec.exe 即可解包.xor文件 
+## 🚀 使用指南
+
+- **步骤 0**: 确保系统安装了 Visual C++ 运行时库。你可以从[这里](https://aka.ms/vs/17/release/vc_redist.x64.exe)下载安装。
+
+- **步骤 1**: 将 `FastXOR.exe` 和 `UnPdeC.exe` 放置于包含 `.pde` 文件的目录中。
+
+- **步骤 2**: 运行 `FastXOR.exe`。它会自动对目录下所有 `.pde` 文件进行异或操作，生成对应的 `.xor` 文件。
+
+- **步骤 3**: 运行 `UnPdeC.exe`。它会自动对目录下所有 `.xor` 文件进行解包操作。
+
+
+## 🍊 可选项
+
+    使用命令行运行 Unpdec.exe 时有个可选项
+    -cache
+
+    命令如下:
+    Unpdec.exe -cache
+    效果是不进行二次解密直接输出.cache文件
 
 ------------
 
@@ -59,6 +73,7 @@
 
 #### [VerifyCRC](Tools/VerifyCRC/)
     可以计算出文件中的校验码
+
 ![pdeverify](README/pdeverify.jpg)
 
 ### HTML
@@ -88,19 +103,20 @@
 ### Blender插件
 
 #### [Blender Mesh Anim Skel 导入插件](Tools/Blender_Plugin/)
-    Blender 4.1 , 不完整未完成
-    严禁用于商业目的，仅为学习交流！！！
+    Blender 4.2 + , 不完整未完成
+    本项目严禁用于商业目的，仅为学习交流！！！
 
 #### [Import Map Mesh](Tools/Blender_Plugin/ImportMapMesh/)
-    可以导入自定义(没错是我自定义的)到Blender
+    Blender 4.2 + , 可以导入自定义(没错是我自定义的)到Blender
     目前可以解析 顶点 和 面 数据
 
-![testmap.jpg.jpg](Tools/Blender_Plugin/ImportMapMesh/testmap.jpg)
+![testmap.jpg](Tools/Blender_Plugin/ImportMapMesh/testmap.jpg)
 
 #### [Addon Reloader](https://github.com/0xletleon/AddonReloader)
     快速重新加载Blender插件
     无需进入设置手动禁用在启用
-    适合开发调试Blender插件时是用
+    适合开发调试Blender插件时使用
+    Blender 4.2+
 
 ### C# .NET8 (其他仓库)
 
@@ -246,7 +262,7 @@
 ![warn3.jpg](README/warn3.jpg)
 
     可以看到 team 文件夹描述中写的是0x4000
-    但是实际上却只有 0x100 大小
+    但是实际上却只有 0x1000 大小
     再往后的内容是某个DDS文件数据的空间
 
     也就是说依赖描述中的信息有些不可靠了！

@@ -34,32 +34,14 @@ static uint32_t CalculateFilePathHash(uint32_t crcValue, const std::string& file
 }
 
 // 计算文件内容哈希值
-// 计算文件内容哈希值
-static uint32_t CalculateFileContentHash(uint32_t pathHash, const std::string& unixStylePath) {
-	// 转换路径格式：将Unix风格转换为Windows风格
-	std::string windowsPath = unixStylePath;
-	std::replace(windowsPath.begin(), windowsPath.end(), '/', '\\');
-	// 移除开头的反斜杠
-	if (!windowsPath.empty() && windowsPath[0] == '\\') {
-		windowsPath = windowsPath.substr(1);
-	}
-
-	// 构建完整的文件路径
-	char pathbuffer[MAX_PATH];
-	GetModuleFileNameA(NULL, pathbuffer, MAX_PATH);
-	std::filesystem::path currentPath = std::filesystem::path(pathbuffer).remove_filename();
-
-	std::string fullPath = (currentPath / windowsPath).string() + ".cache";
-
-	// 打开文件
-	std::ifstream file(fullPath, std::ios::binary);
+static uint32_t CalculateFileContentHash(uint32_t pathHash, const std::string& filePath) {
+	std::ifstream file(filePath, std::ios::binary);
 	if (!file) {
-		std::cout << "文件未找到!" << std::endl;
+		std::cout << "文件未找到: " << filePath << "\n";
 		return 0;
 	}
 
-	// 读取文件内容
-	std::vector<char> buffer(std::filesystem::file_size(fullPath));
+	std::vector<char> buffer(std::filesystem::file_size(filePath));
 	file.read(buffer.data(), buffer.size());
 	file.close();
 
@@ -71,25 +53,97 @@ static uint32_t CalculateFileContentHash(uint32_t pathHash, const std::string& u
 	return hashValue;
 }
 
-int main() {
-	std::cout << "Hello, VerifyCRC!" << std::endl;
+// 将Windows路径转换为Unix风格的相对路径
+static std::string ConvertToUnixPath(const std::string& fullPath) {
+	try {
+		// 获取CRC程序所在目录
+		char exePath[MAX_PATH];
+		GetModuleFileNameA(NULL, exePath, MAX_PATH);
+		std::filesystem::path crcProgramPath = std::filesystem::path(exePath).parent_path();
 
-	// 文件路径（必须为Unix风格,且没有.cache后缀!!!）
-	std::string filePath = "/ui/ingame/blast.dds";
-	std::cout << "File Path: " << filePath << std::endl;
+		// 将要计算的文件路径转换为标准路径
+		std::filesystem::path targetPath = std::filesystem::absolute(fullPath);
+
+		// 计算相对路径
+		std::filesystem::path relativePath = std::filesystem::relative(targetPath, crcProgramPath);
+
+		// 检查是否在CRC程序目录下
+		if (relativePath.string().find("..") != std::string::npos) {
+			std::cout << "Error: File is not in CRC program directory!\n";
+			return "";
+		}
+
+		// 转换为字符串并规范化格式
+		std::string result = relativePath.string();
+
+		// 将反斜杠转换为正斜杠
+		std::replace(result.begin(), result.end(), '\\', '/');
+
+		// 如果路径以 ".cache" 结尾，则移除它
+		if (result.length() > 6 && result.substr(result.length() - 6) == ".cache") {
+			result = result.substr(0, result.length() - 6);
+		}
+
+		// 确保路径以 '/' 开头
+		if (!result.empty() && result[0] != '/') {
+			result = "/" + result;
+		}
+
+		return result;
+	} catch (const std::exception& e) {
+		std::cout << "Error converting path: " << e.what() << "\n";
+		return "";
+	}
+}
+
+// 将32位整数转换为大端序的16进制字符串
+static std::string ToUpperEndian(uint32_t value) {
+	uint32_t bigEndian = ((value & 0xFF) << 24) |
+		((value & 0xFF00) << 8) |
+		((value & 0xFF0000) >> 8) |
+		((value & 0xFF000000) >> 24);
+	std::stringstream ss;
+	ss << std::hex << std::uppercase << bigEndian;
+	return ss.str();
+}
+
+int main(int argc, char* argv[]) {
+	if (argc != 2) {
+		std::cout << "请将文件拖到程序上！\n";
+		std::cout << "Press Enter to exit...\n";
+		std::cin.get();
+		return 1;
+	}
+
+	// 获取拖放的文件路径
+	std::string originalPath = argv[1];
+
+	// 转换为Unix风格的相对路径
+	std::string unixPath = ConvertToUnixPath(originalPath);
+	if (unixPath.empty()) {
+		std::cout << "Path conversion failed!\n";
+		std::cout << "\nPress Enter to exit...\n";
+		std::cin.get();
+		return 1;
+	}
+
+	std::cout << "Original Path: " << originalPath << "\n";
+	std::cout << "Converted Path: " << unixPath << "\n";
 
 	// 计算crc value
 	uint32_t crcValue = CalculateCrcValue("crc_key");
+	std::cout << "CRC Value: " << std::hex << std::uppercase << crcValue << "\n";
 
 	// 计算文件路径哈希值
-	uint32_t filePathHash = CalculateFilePathHash(crcValue, filePath);
-	std::cout << "File Path Hash: " << std::hex << std::uppercase << filePathHash << std::endl;
+	uint32_t filePathHash = CalculateFilePathHash(crcValue, unixPath);
+	std::cout << "File Path Hash: " << std::hex << std::uppercase << filePathHash << "\n";
 
 	// 计算文件内容哈希值
-	uint32_t fileContentHash = CalculateFileContentHash(filePathHash, filePath);
-	std::cout << "File CRC: " << std::hex << std::uppercase << fileContentHash << std::endl;
+	uint32_t fileContentHash = CalculateFileContentHash(filePathHash, originalPath);
+	std::cout << "File CRC (Little Endian): " << std::hex << std::uppercase << fileContentHash << "\n";
+	std::cout << "File CRC (Big Endian): " << ToUpperEndian(fileContentHash) << "\n";
 
-	std::cout << "\nPress Enter to exit..." << std::endl;
+	std::cout << "\nPress Enter to exit...\n";
 	std::cin.get();
 	return 0;
 }
