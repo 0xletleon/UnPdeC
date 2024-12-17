@@ -1,18 +1,50 @@
 ![UnPdeC.png](README/UnPdeC.png)
 
 # 🎮 UnPdeC
-
     此项目是Unpde(c#)的替代项目
     尝试解压游戏.pde文件
     使用 腾讯元宝，Kimi, Claude 辅助开发
     使用新的方法来导出全部文件！
     为了学习编程和加解密算法而研究
     本项目严禁用于商业目的，仅为学习交流！！！
+    我不会对任何因使用本项目而造成的损失负责！！！
+    我的本意是了解游戏文件的结构，并尝试解包，
+    以便于学习编程和加解密算法！
+
+    或许！我是说或许，或许未来AI强大了，就不存什么解包了，
+    而是AI实时生成游戏画面！不会像仙子啊这样只有在梦里才能想想！
+    到那时，或许就不存在关服这个词了！
+
+------------
+
+##  📝 笔记本
+    .PDE文件
+        目前来看确实是一个虚拟文件系统(VFS),
+        我目前所做的解包只是将文件解密并提取出来,
+        并没有研究VFS是如何实现的！
+        这也就是为什么大部分文件会在Other目录下的原因！
+    
+    二次解密：
+        我感觉有些文件二次解密后出现花屏不正确的原因
+        可能是因为我在二次解密时预处理不正确的原因!
+
+    .mesh
+        文件分为很多类型
+        比如 物品mesh
+        游戏场景mesh
+        武器和角色人物mesh
+        结构和头部稍微不太一样！
+        有些地图文件中有有一段未知的数据，我暂时不知道是什么！
+        这也就是为什么我在贴吧发的视频中没有树的原因！
+
+    Blender插件
+        话说Blender插件的审核真的很严格，不过确实能提升你对Blender的理解！
+
+------------
 
 ## 🦋 依赖
 
     nlohmann.json" version="3.11.2"
-    FastXor.exe
 
 ## 🔨 Build
 
@@ -76,6 +108,12 @@
 
 ![pdeverify](README/pdeverify.jpg)
 
+### C# .NET8
+
+#### [PDEVerifyGUI](https://github.com/0xletleon/PDEVerifyGUI)
+    PDEVerify GUI 版本
+    用于快速计算和修复文件的校验值
+
 ### HTML
 
 #### [FastXOR](Tools/Html_Tools/FastXor.html)
@@ -106,10 +144,6 @@
     Blender 4.2 + , 不完整未完成
     本项目严禁用于商业目的，仅为学习交流！！！
 
-#### [Import Map Mesh](Tools/Blender_Plugin/ImportMapMesh/)
-    Blender 4.2 + , 可以导入自定义(没错是我自定义的)到Blender
-    目前可以解析 顶点 和 面 数据
-
 ![testmap.jpg](Tools/Blender_Plugin/ImportMapMesh/testmap.jpg)
 
 #### [Addon Reloader](https://github.com/0xletleon/AddonReloader)
@@ -118,10 +152,6 @@
     适合开发调试Blender插件时使用
     Blender 4.2+
 
-### C# .NET8 (其他仓库)
-
-#### [PDEVerifyGUI](https://letleon.coding.net/public/3d/PDEVerifyGUI/git/files)
-    GUI版本
 
 ------------
 
