@@ -8,7 +8,6 @@ maintainer = "letleon <letleon@163.com>"
 type = "add-on"
 copyright = ["2024 letleon"]
 
-website = "https://github.com/0xletleon/AddonReloader"
 tags = ["Animation", "Mesh", "Game Engine"]
 
 blender_version_min = "4.2.0"
