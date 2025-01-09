@@ -232,6 +232,7 @@ int main(int argc, char* argv[]) {
 
 	} catch (const std::exception& e) {
 		std::cout << "Error: " << e.what() << "\n";
+		std::cin;
 		return 1;
 	}
 
