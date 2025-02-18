@@ -15,6 +15,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EnCache", "Tools\EnCache\En
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VerifyCRC", "Tools\VerifyCRC\VerifyCRC.vcxproj", "{DBD28549-70DE-4170-81C8-C59046D4C528}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FlagFinder", "Tools\FlagFinder\FlagFinder.vcxproj", "{9E1B6A71-6802-42B0-8A6E-86F5D2B3ED5E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -69,6 +71,14 @@ Global
 		{DBD28549-70DE-4170-81C8-C59046D4C528}.Release|x64.Build.0 = Release|x64
 		{DBD28549-70DE-4170-81C8-C59046D4C528}.Release|x86.ActiveCfg = Release|Win32
 		{DBD28549-70DE-4170-81C8-C59046D4C528}.Release|x86.Build.0 = Release|Win32
+		{9E1B6A71-6802-42B0-8A6E-86F5D2B3ED5E}.Debug|x64.ActiveCfg = Debug|x64
+		{9E1B6A71-6802-42B0-8A6E-86F5D2B3ED5E}.Debug|x64.Build.0 = Debug|x64
+		{9E1B6A71-6802-42B0-8A6E-86F5D2B3ED5E}.Debug|x86.ActiveCfg = Debug|Win32
+		{9E1B6A71-6802-42B0-8A6E-86F5D2B3ED5E}.Debug|x86.Build.0 = Debug|Win32
+		{9E1B6A71-6802-42B0-8A6E-86F5D2B3ED5E}.Release|x64.ActiveCfg = Release|x64
+		{9E1B6A71-6802-42B0-8A6E-86F5D2B3ED5E}.Release|x64.Build.0 = Release|x64
+		{9E1B6A71-6802-42B0-8A6E-86F5D2B3ED5E}.Release|x86.ActiveCfg = Release|Win32
+		{9E1B6A71-6802-42B0-8A6E-86F5D2B3ED5E}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
