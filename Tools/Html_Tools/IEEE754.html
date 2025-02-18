@@ -44,18 +44,18 @@
             flex: 2;
             font-size: 20px;
             text-align: center;
-            margin-left: 5px;
+            margin: 0 5px;
         }
 
         .result {
             margin: 5px;
-            padding: 10px;
-            background-color: #f0f0f0;
         }
 
         .float-value {
-            margin: 5px 0;
             font-size: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 8px;
         }
 
         .error {
@@ -77,6 +77,12 @@
                 <option value="big">大端</option>
             </select>
             <button onclick="copyResults()">复制结果</button>
+            <select id="groupSize" onchange="convertMultiple()">
+                <option value="24">0x18字节/组</option>
+                <option value="28">0x1c字节/组</option>
+                <option value="52">0x34字节/组</option>
+                <option value="64">0x40字节/组</option>
+            </select>
         </div>
         <div id="error" class="error"></div>
         <div id="multipleResult" class="result"></div>
@@ -105,10 +111,11 @@
         }
 
         // 将十六进制转换为浮点数
-        // 由通义千问优化性能
         function convertMultiple() {
             var hexInput = document.getElementById('hexInput').value;
             var endian = document.getElementById('endian').value;
+            var groupSizeBytes = parseInt(document.getElementById('groupSize').value); // 获取每行的字节数
+            var groupSize = groupSizeBytes / 4; // 每行显示的数据个数（每个数据占 4 字节）
             hexInput = hexInput.replace(/\s+/g, '');
             var hexValues = [];
             var error = false;
@@ -127,10 +134,14 @@
             }
             document.getElementById('error').textContent = '';
             var results = [];
-            hexValues.forEach(hex => {
-                var result = hexToFloat(hex, endian);
-                results.push(`<div class="float-value">${hex} &emsp; >> &emsp; ${result}</div>`);
-            });
+            for (var i = 0; i < hexValues.length; i += groupSize) {
+                var group = hexValues.slice(i, i + groupSize);
+                var groupResult = group.map(hex => {
+                    var result = hexToFloat(hex, endian);
+                    return `${hex} &emsp; >> &emsp; ${result}`;
+                }).join('<br>');
+                results.push(`<div class="float-value">${groupResult}</div> <br> `);
+            }
 
             // 一次性设置结果，减少DOM操作
             document.getElementById('multipleResult').innerHTML = results.join('');

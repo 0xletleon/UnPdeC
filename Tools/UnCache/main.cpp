@@ -7,10 +7,7 @@
 #include <iostream>
 
 // 移位表
-static constexpr uint8_t SHIFT_TABLE[16] = {
-	4, 0, 1, 0, 2, 0, 1, 0,
-	3, 0, 1, 0, 2, 0, 1, 0
-};
+static constexpr uint8_t SHIFT_TABLE[16] = { 4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0 };
 
 // 寄存器
 struct RegisterState {
@@ -57,13 +54,14 @@ static std::vector<uint8_t> Decompress(const std::vector<uint8_t>& compressedDat
 			if ((regs.eax & 1) == 0) {
 				if (regs.ebp >= regs.edi - 10) break;
 
-				// 保持原始的字节序和复制方式
-				dstPtr[regs.ebp] = static_cast<uint8_t>(regs.ecx);
-				dstPtr[regs.ebp + 1] = static_cast<uint8_t>(regs.ecx >> 8);
-				dstPtr[regs.ebp + 2] = static_cast<uint8_t>(regs.ecx >> 16);
-				dstPtr[regs.ebp + 3] = static_cast<uint8_t>(regs.ecx >> 24);
-
 				uint32_t shiftAmount = SHIFT_TABLE[regs.eax & 0xF];
+
+				// 逐个字节复制
+				for (uint32_t i = 0; i < shiftAmount; ++i) {
+					if (regs.ebp + i >= decompressedSize) break;
+					dstPtr[regs.ebp + i] = srcPtr[regs.esi + i];
+				}
+
 				regs.ebp += shiftAmount;
 				regs.esi += shiftAmount;
 				regs.eax >>= shiftAmount;
@@ -103,8 +101,12 @@ static std::vector<uint8_t> Decompress(const std::vector<uint8_t>& compressedDat
 					regs.esi += 1;
 				}
 
-				// 安全性检查
-				if (regs.ebp < offset || regs.ebp + length > decompressedSize) break;
+				//// 安全性检查
+				//if (regs.ebp < offset || regs.ebp + length > decompressedSize) break;
+				// 检查offset是否有效
+				if (offset > regs.ebp || regs.ebp + length > decompressedSize) {
+					break;
+				}
 
 				// 严格按照原始方式复制数据
 				for (uint32_t i = 0; i < length; ++i) {
@@ -145,50 +147,85 @@ static std::vector<uint8_t> PreProcess(const std::vector<uint8_t>& fileData, con
 
 	// 获取Flag
 	uint8_t sizeFlag = fileData[0x18];
-	//是否需要解压
-	if ((sizeFlag & 1) != 0) {
-		// 待解压数据
-		std::vector<uint8_t> encryptedData;
+	// 待解压数据
+	std::vector<uint8_t> encryptedData;
+	// 解压后大小
+	uint32_t decryptedSize;
+	std::vector<uint8_t> decryptedData;
+
+	// 不同的Flag,不同的标识地址
+	if (sizeFlag == 0x6F) {
+		if (fileData.size() < 0x21) {
+			throw std::runtime_error("0x6F flag file data too short");
+		}
 		// 解压后大小
-		uint32_t decryptedSize;
-
-		// 不同的Flag,不同的标识地址
-		if (sizeFlag == 0x6F) {
-			if (fileData.size() < 0x21) {
-				throw std::runtime_error("0x6F flag file data too short");
-			}
-			decryptedSize = Get4Byte(fileData, 0x1D);
-			encryptedData.assign(fileData.begin() + 0x21, fileData.end());
-		} else if (sizeFlag == 0x6D) {
-			decryptedSize = fileData[0x1A];
-			encryptedData.assign(fileData.begin() + 0x1B, fileData.end());
-		} else {
-			throw std::runtime_error("Unknown size flag: " + std::to_string(sizeFlag));
-		}
-
-		// 解压缩函数
-		auto decryptedData = Decompress(encryptedData, decryptedSize, fileName);
-
-		// 删除前八字节
-		// 像DDS这样的文件想要预览就需要删除前八字节)
-		decryptedData.erase(decryptedData.begin(), decryptedData.begin() + 8);
-		// 返回解压后的文件
-		return decryptedData;
+		decryptedSize = Get4Byte(fileData, 0x1D);
+		encryptedData.assign(fileData.begin() + 0x21, fileData.end());
+	} else if (sizeFlag == 0x6D) {
+		// 解压后大小
+		decryptedSize = fileData[0x1A];
+		encryptedData.assign(fileData.begin() + 0x1B, fileData.end());
+	} else if (sizeFlag == 0x6E) {
+		// 删除 fileData 前0x29字节，并返回
+		return std::vector<uint8_t>(fileData.begin() + 0x29, fileData.end());
 	} else {
-		// 不需要解压
-		if (fileData.size() <= 0x29) {
-			return fileData;
-		} else {
-			// 像DDS这样的文件想要预览就需要删除前二十九字节)
-			return std::vector<uint8_t>(fileData.begin() + 0x29, fileData.end());
-		}
+		std::cout << "Unknown size flag: " << std::to_string(sizeFlag) << "\n";
+		throw std::runtime_error("Unknown size flag: " + std::to_string(sizeFlag));
 	}
+
+	// 按照汇编 004CFF42 处的逻辑实现
+	// 大于0xF4240
+	if (decryptedSize - 0x1 > 0xF4240) {
+		std::cout << "大于0xF4240\n";
+
+		// 检查最低位是否为 0
+		if ((sizeFlag & 0x01) == 0) {
+			// 最低位为 0，执行跳转逻辑，不执行解压
+			std::cout << "最低位为 0，执行跳转逻辑，不执行解压\n";
+			// 在这里添加跳转目标的代码
+		} else {
+			// 最低位为 1，继续执行,继续解压
+			std::cout << "最低位为 1，继续执行,继续解压\n";
+			// 解压缩函数
+			decryptedData = Decompress(encryptedData, decryptedSize, fileName);
+		}
+	} else {// 小于0xF4240
+		std::cout << "小于0xF4240\n";
+
+		// 检查最低位是否为 0
+		if ((sizeFlag & 0x01) == 0) {
+			// 最低位为 0，执行跳转逻辑，不执行解压
+			std::cout << "最低位为 0，执行跳转逻辑，不执行解压\n";
+			// 在这里添加跳转目标的代码
+		} else {
+			// 最低位为 1，继续执行,继续解压
+			std::cout << "最低位为 1，继续执行,继续解压\n";
+			// 解压缩函数
+			decryptedData = Decompress(encryptedData, decryptedSize, fileName);
+		}
+
+	}
+
+	//// 解压缩函数
+	//auto decryptedData = Decompress(encryptedData, decryptedSize, fileName);
+
+	// 删除前八字节
+	// 前8个字节包含了文件类型和全部数据的字节大小(不包含这个8个字节)
+	decryptedData.erase(decryptedData.begin(), decryptedData.begin() + 8);
+	// 返回解压后的文件
+	return decryptedData;
 }
 
+// 主函数
 int main(int argc, char* argv[]) {
+	// 调试时使用的文件路径
+	std::string debugFilePath = "D:\\letleon\\Source\\Cpp\\UnPdeC\\Tools\\UnCache\\bin\\Debug\\Win32\\battlefield_map_lv33.dds.cache";
+
+	// 如果命令行参数不足，使用调试文件路径
 	if (argc != 2) {
-		std::cout << "Usage: UnCache <input_file.cache>\nOr set the .cache file to open as UnCache.exe";
-		return 1;
+		std::cout << "Usage: UnCache <input_file.cache>\nOr set the .cache file to open as UnCache.exe\n";
+		std::cout << "Using debug file: " << debugFilePath << "\n";
+		argv[1] = const_cast<char*>(debugFilePath.c_str());
 	}
 
 	try {
