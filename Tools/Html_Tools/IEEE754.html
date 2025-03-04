@@ -10,9 +10,10 @@
         }
 
         .title {
-            font-size: 50px;
+            font-size: 70px;
             font-weight: 100;
             margin: 3px;
+            line-height: 100px;
         }
 
         .container {
@@ -38,10 +39,11 @@
             flex: 2;
             font-size: 20px;
             text-align: center;
+            margin: 0 5px;
         }
 
         button {
-            flex: 2;
+            flex: 3;
             font-size: 20px;
             text-align: center;
             margin: 0 5px;
@@ -51,16 +53,50 @@
             margin: 5px;
         }
 
+        #groupInfo {
+            font-size: 30px;
+            font-weight: bold;
+            color: #ef8738;
+            line-height: 60px;
+            padding-left: 10px;
+            background-color: #f8f6d9;
+            border-radius: 8px;
+        }
+
         .float-value {
             font-size: 20px;
             padding: 10px;
-            background-color: #f0f0f0;
+            background-color: #fafafa;
             border-radius: 8px;
+        }
+
+        .line-number {
+            font-size: 30px;
+            font-weight: bold;
+            color: #f56969;
+            user-select: none;
         }
 
         .error {
             color: red;
             margin: 5px 0;
+        }
+
+        #backToTopBtn {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 99;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 30px;
+        }
+
+        #backToTopBtn:hover {
+            background-color: #fa8a8a;
         }
     </style>
 </head>
@@ -68,31 +104,44 @@
 <body>
     <div class="container">
         <h2 class="title">IEEE754 浮点数计算器</h2>
-
         <div class="input-group">
-            <input type="text" id="hexInput" placeholder="输入十六进制值 (如: E49E863E BB08233E 8FC2F53C)"
+            <input type="text" id="hexInput" placeholder="输入16进制值(如: E49E863E BB08233E 8FC2F53C)"
                 oninput="convertMultiple()">
             <select id="endian" onchange="convertMultiple()">
                 <option value="little">小端</option>
                 <option value="big">大端</option>
             </select>
-            <button onclick="copyResults()">复制结果</button>
             <select id="groupSize" onchange="convertMultiple()">
                 <option value="24">0x18字节/组</option>
                 <option value="28">0x1c字节/组</option>
                 <option value="52">0x34字节/组</option>
                 <option value="64">0x40字节/组</option>
             </select>
+            <button onclick="copyResults()">复制结果</button>
+            <button onclick="clearCache()">清除缓存</button>
         </div>
         <div id="error" class="error"></div>
+        <div id="groupInfo" class="result"></div>
         <div id="multipleResult" class="result"></div>
     </div>
 
+    <button id="backToTopBtn">🚀</button>
+
     <script>
+        window.onload = function () {
+            // 读取本地缓存
+            var hexInput = localStorage.getItem('hexInput');
+            if (hexInput?.length) {
+                convertMultiple(hexInput);
+            }
+        }
+
+        // 判断是否为有效的十六进制值
         function isValidHex(hex) {
             return /^[0-9a-fA-F]+$/.test(hex);
         }
 
+        // 将浮点数转换为十六进制
         function hexToFloat(hex, endian) {
             hex = hex.replace(/^0x/, '');
             while (hex.length < 8) hex = '0' + hex;
@@ -111,8 +160,16 @@
         }
 
         // 将十六进制转换为浮点数
-        function convertMultiple() {
-            var hexInput = document.getElementById('hexInput').value;
+        function convertMultiple(localHex) {
+            var hexInput = ""
+            if (localHex?.length) {
+                hexInput = localHex;
+                document.getElementById('hexInput').value = hexInput;
+            } else {
+                hexInput = document.getElementById('hexInput').value;
+            }
+            // 保存缓存
+            saveCache(hexInput);
             var endian = document.getElementById('endian').value;
             var groupSizeBytes = parseInt(document.getElementById('groupSize').value); // 获取每行的字节数
             var groupSize = groupSizeBytes / 4; // 每行显示的数据个数（每个数据占 4 字节）
@@ -134,19 +191,36 @@
             }
             document.getElementById('error').textContent = '';
             var results = [];
+            var groupCount = 1;
             for (var i = 0; i < hexValues.length; i += groupSize) {
                 var group = hexValues.slice(i, i + groupSize);
                 var groupResult = group.map(hex => {
                     var result = hexToFloat(hex, endian);
-                    return `${hex} &emsp; >> &emsp; ${result}`;
+                    return `${hex} &emsp; -> &emsp; ${result}`;
                 }).join('<br>');
-                results.push(`<div class="float-value">${groupResult}</div> <br> `);
+                if (i >= groupSize * groupCount) {
+                    groupCount++;
+                }
+                results.push(`<div class="float-value"><div class="line-number">${groupCount}组</div>${groupResult}</div> <br> `);
             }
 
-            // 一次性设置结果，减少DOM操作
+            // 输出到页面
             document.getElementById('multipleResult').innerHTML = results.join('');
+            document.getElementById('groupInfo').innerHTML = `共 ${hexValues.length}行 ${groupCount}组`;
         }
 
+        // 保存缓存
+        function saveCache(hexInput) {
+            // 保存 hexInput 到 localStorage
+            localStorage.setItem('hexInput', hexInput);
+        }
+
+        // 清除缓存
+        function clearCache() {
+            localStorage.removeItem('hexInput');
+        }
+
+        // 复制结果
         function copyResults() {
             var resultDiv = document.getElementById('multipleResult');
             var textToCopy = resultDiv.innerText;
@@ -157,6 +231,31 @@
             document.execCommand('copy');
             document.body.removeChild(textArea);
         }
+
+        // Back To Top Button
+        let backToTopBtn = document.getElementById("backToTopBtn");
+
+        // 监听页面滚动事件
+        window.onscroll = function () {
+            scrollFunction();
+        };
+
+        // 根据滚动位置显示或隐藏按钮
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                backToTopBtn.style.display = "block";
+            } else {
+                backToTopBtn.style.display = "none";
+            }
+        }
+
+        // 点击按钮时，平滑滚动回到顶部
+        backToTopBtn.addEventListener("click", function () {
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth" // 平滑滚动效果
+            });
+        });
     </script>
 </body>
 
