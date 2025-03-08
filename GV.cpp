@@ -5,6 +5,6 @@ namespace UnPdeC {
 	TNowXor GV::NowXor = { "", 0L };
 	// 当前程序所在目录
 	std::filesystem::path GV::ExeDir = "";
-	// 只输出.cache文件
+	// 不二次解压,输出一次解压后的.cache文件
 	bool GV::CacheMode = false;
 }

@@ -14,16 +14,16 @@ int main(int argc, char* argv[]) {
 	std::cout << "UnPdeC\n"
 		<< "By: letleon\n"
 		<< "Version: 0.0.2.1\n"
-		<< "Description: Unpack .xor files\n\n"
-		<< "Usage:\n"
-		<< "1. Use FastXOR.exe to XOR the .pde file.\n"
-		<< "2. Execute UnPdeC.exe to unpack the resulting .xor file.\n\n"
-		<< "Options:\n"
-		<< " -cache   Skip secondary decoding and return .cache files.\n"
-		<< "          If this option is not provided, the program will perform secondary decoding.\n\n";
+		<< "解压.xor文件 Unpack .xor files\n\n"
+		<< "步骤 step:\n"
+		<< "	1.用 FastXOR.exe 对 .pde 文件执行异或操作。\n	  Use FastXOR.exe to perform an XOR operation on the.pde file.\n"
+		<< "	2.运行 UnPdeC.exe 解包生成的 .xor 文件。\n	  Run UnPdeC.exe to unpack the generated.xor file.\n\n"
+		<< "选项 Options:\n"
+		<< "	-c  不执行二次解压,同时保留文件的前8个字节\n	    Do not perform secondary decompression and retain the first 8 bytes of the file.\n\n";
+
 
 	// 检查命令行参数
-	if (argc == 2 && std::string(argv[1]) == "-cache") {
+	if (argc == 2 && std::string(argv[1]) == "-c") {
 		GV::CacheMode = true;
 		std::cout << " ！Cache mode enabled\n\n";
 	} else if (argc != 1) {
