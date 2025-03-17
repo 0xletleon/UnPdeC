@@ -43,7 +43,13 @@ namespace UnPdeC {
 				// 从path对象获取文件名，并去除后缀名
 				std::string fileName = entry.path().filename().string();
 				fileName = fileName.substr(0, fileName.find_first_of('.'));
-				nowXor.Name = fileName;
+
+				// 如果是cache模式
+				if (GV::CacheMode) {
+					nowXor.Name = fileName + "-cache";
+				} else {
+					nowXor.Name = fileName;
+				}
 
 				nowXor.Size = std::filesystem::file_size(entry.path());// 获取当前文件的大小
 
